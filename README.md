@@ -16,6 +16,7 @@ Smalien is an information flow analysis and information leakage detection tool f
 - keytool
 
 ## Usage
+Check our [Wiki](https://github.com/h1nayoshi/smalien/wiki) for full instructions.
 ### Run static analysis
 ```
 python main.py <apk_path>
