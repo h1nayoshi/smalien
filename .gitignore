@@ -1,0 +1,8 @@
+*.pyc
+*.json
+*.apk
+*.swp
+my-key.keystore
+keystore_conf.txt
+host/
+.DS_Store
