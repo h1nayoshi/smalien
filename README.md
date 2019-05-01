@@ -14,6 +14,7 @@ Smalien is an information flow analysis and information leakage detection tool f
 - [Apktool](https://ibotpeaches.github.io/Apktool/)
 - jarsigner
 - keytool
+- adb
 
 ## Usage
 Check our [Wiki](https://github.com/h1nayoshi/smalien/wiki) for full instructions.
@@ -28,6 +29,12 @@ It generates parsed_data.json and data_flows.json as the results.
 python generate_graphs.py parsed_data.json data_flows.json
 ```
 It generates output_class_calls.md and output_data_flows.md as the results. These files includes scripts for [mermaid](https://mermaidjs.github.io). You may use a markdown viewer such as Haroopad to check the graphs.
+
+### Run dynamic analysis
+New apk file *implanted.apk* is placed in *smalien/hive/workspace/*. Install it to your Android device by following command and run it.
+```
+adb install -g hive/workspace/implanted.apk
+```
 
 Currently, Smalien is a prototype of our academic research and doesn't have full-function. We are working on it!
 
