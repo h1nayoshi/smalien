@@ -41,12 +41,16 @@ class CGFMates():
           # For each implicits
           for mate in vval['mates']:
             print('mate: '+str(cntr)+'/'+str(total))
+            print(v+' '+mate['var'])
             cntr += 1
             # Get implicit's cmp method
             cmp_method = self.__define_mate(mate)
+            # Define logging method at a sink
+            self.__logging_sink(cp, vval['method'], line, vval['var'], vval['type'])
             # Define comparison at a sink
-            self.__comparing_mate(cp, vval['method'], line, vval['var'], vval['type'], cmp_method)
-    print('mates done in'+str(time.time() - start))
+            # Currently not be used
+            #self.__comparing_mate(cp, vval['method'], line, vval['var'], vval['type'], cmp_method)
+    print('mates done in '+str(time.time() - start))
 
   def __define_mate(self, mate):
     cp = mate['class_path']
@@ -71,6 +75,7 @@ class CGFMates():
     tpath = self.__get_tag_var(mate)
     # Define data-saving method
     self.__define_data_saving_method(code, vtype, dvar, mvar, cp, tpath)
+    print('saving'+dvar)
     self.generated[cp]['methods'][m][v][line]['saving'] = cp+'->Save'+dvar.split(':')[0]+'('+vtype+')V\n'
     #self.__define_data_saving_method(code, vtype, dvar, mvar, cp, tcp, tvar)
     # Define data-comparison method
@@ -88,6 +93,78 @@ class CGFMates():
       if ('tpath' in tval.keys()):
         return tval['tpath']
     return None
+
+  def __logging_sink(self, cp, m, line, sv, vtype):
+    log_method = self.__define_sink_log_method(cp, m, line, sv, vtype)
+    log_sink = 'invoke-static/range {'+sv+' .. '+sv+'}, '+log_method
+    if (line not in self.generated[cp]['methods'][m][sv].keys()):
+      self.generated[cp]['methods'][m][sv][line] = {'logging': log_sink}
+    elif ('logging' not in self.generated[cp]['methods'][m][sv][line].keys()):
+      self.generated[cp]['methods'][m][sv][line]['logging'] = log_sink
+
+  def __define_sink_log_method(self, cp, m, line, sv, vtype):
+    if (sv not in self.generated[cp]['methods'][m].keys()):
+      self.generated[cp]['methods'][m][sv] = {}
+    if (line not in self.generated[cp]['methods'][m][sv].keys()):
+      self.generated[cp]['methods'][m][sv][line] = {'code': []}
+    if ('slmethod' in self.generated[cp]['methods'][m][sv][line].keys()):
+      return self.generated[cp]['methods'][m][sv][line]['slmethod_call']
+    sid = sv+'_'+str(line)+'_'+str(self.sl_cntr)
+    slmethod = 'SinkLog_'+sid+'('+vtype+')V'
+    # Define a log method
+    code = []
+    code.extend([
+      '.method public static '+slmethod+'\n',
+      '  .locals 2\n',
+      '  const-string v1, "sink : '+sid+'"\n',
+    ])
+    if (vtype == 'Z'):
+      code.extend([
+        '  \n',
+      ])
+    elif (vtype == 'I'):
+      code.extend([
+        '  \n',
+      ])
+    elif (vtype == 'B'):
+      code.extend([
+        '  \n',
+      ])
+    elif (vtype == 'S'):
+      code.extend([
+        '  \n',
+      ])
+    elif (vtype == 'C'):
+      code.extend([
+        '  \n',
+      ])
+    elif (vtype == 'F'):
+      code.extend([
+        '  \n',
+      ])
+    elif (vtype == 'J'):
+      code.extend([
+        '  \n',
+      ])
+    elif (vtype == 'D'):
+      code.extend([
+        '  \n',
+      ])
+    elif (vtype == 'Ljava/lang/String;'):
+      code.extend([
+        '  move-object v0, p0\n',
+        self.log_call,
+      ])
+    code.append(
+      '  return-void\n'
+      '.end method\n\n'
+    )
+    self.generated[cp]['methods'][m][sv][line]['code'].extend(code)
+    # Invocation
+    slmethod_call = cp+'->'+slmethod+'\n'
+    self.sl_cntr += 1
+    self.generated[cp]['methods'][m][sv][line]['slmethod_call'] = slmethod_call
+    return slmethod_call
 
   def __comparing_mate(self, cp, m, line, sv, vtype, cmp_method):
     if (sv not in self.generated[cp]['methods'][m].keys()):
@@ -124,7 +201,7 @@ class CGFMates():
     if (tpath is not None):
       code.extend([
         '.method public static Save'+dvar.split(':')[0]+'('+vtype+')V\n',
-        '  .locals 1\n',
+        '  .locals 2\n',
         '  sget-char v0, '+tpath+'\n',
         '  if-eqz v0, :pass\n',
         '    const/4 v0, 0x7\n',
@@ -137,38 +214,43 @@ class CGFMates():
         '    const/4 v0, 0x7\n',
         '    sput-char v0, '+cp+'->'+mvar+'\n',
       ])
+    code.append(
+      '    const-string v1, "source : '+dvar+'"\n',
+    )
     if (vtype == 'Z'):
       code.append(
         '    sput-boolean p0, '+cp+'->'+dvar+'\n',
       )
-    if (vtype == 'I'):
+    elif (vtype == 'I'):
       code.append(
         '    sput p0, '+cp+'->'+dvar+'\n',
       )
-    if (vtype == 'B'):
+    elif (vtype == 'B'):
       code.append(
         '    sput-byte p0, '+cp+'->'+dvar+'\n',
       )
-    if (vtype == 'S'):
+    elif (vtype == 'S'):
       code.append(
         '    sput-short p0, '+cp+'->'+dvar+'\n',
       )
-    if (vtype == 'C'):
+    elif (vtype == 'C'):
       code.append(
         '    sput-char p0, '+cp+'->'+dvar+'\n',
       )
-    if (vtype == 'F'):
+    elif (vtype == 'F'):
       code.append(
         '    sput p0, '+cp+'->'+dvar+'\n',
       )
-    if (vtype in ['J', 'D']):
+    elif (vtype in ['J', 'D']):
       code.append(
         '    sput-wide p0, '+cp+'->'+dvar+'\n',
       )
     elif (vtype == 'Ljava/lang/String;'):
-      code.append(
+      code.extend([
         '    sput-object p0, '+cp+'->'+dvar+'\n',
-      )
+        '    move-object v0, p0\n',
+        self.log_call,
+      ])
     code.extend([
       '  :pass\n',
       '  return-void\n',
@@ -191,7 +273,7 @@ class CGFMates():
         '    sget-boolean v0, '+cp+'->'+dvar+'\n',
         '    if-ne v0, p0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
-        self.log_call,
+        #self.log_call,
         '      const p0, 0x0\n',
         '  :pass\n',
         '  return p0\n',
@@ -201,7 +283,7 @@ class CGFMates():
         '    sget v0, '+cp+'->'+dvar+'\n',
         '    if-ne v0, p0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
-        self.log_call,
+        #self.log_call,
         '      const p0, 0x0\n',
         '  :pass\n',
         '  return p0\n',
@@ -211,7 +293,7 @@ class CGFMates():
         '    sget-byte v0, '+cp+'->'+dvar+'\n',
         '    if-ne v0, p0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
-        self.log_call,
+        #self.log_call,
         '      const/4 p0, 0x0\n',
         '  :pass\n',
         '  return p0\n',
@@ -221,7 +303,7 @@ class CGFMates():
         '    sget-short v0, '+cp+'->'+dvar+'\n',
         '    if-ne v0, p0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
-        self.log_call,
+        #self.log_call,
         '      const/4 p0, 0x0\n',
         '  :pass\n',
         '  return p0\n',
@@ -231,7 +313,7 @@ class CGFMates():
         '    sget-char v0, '+cp+'->'+dvar+'\n',
         '    if-ne v0, p0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
-        self.log_call,
+        #self.log_call,
         '      const/4 p0, 0x0\n',
         '  :pass\n',
         '  return p0\n',
@@ -242,7 +324,7 @@ class CGFMates():
         '    cmpl-float v0, p0, v0\n',
         '    if-nez v0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
-        self.log_call,
+        #self.log_call,
         '      const/high16 p0, 0x0\n',
         '  :pass\n',
         '  return p0\n',
@@ -253,7 +335,7 @@ class CGFMates():
         '    cmp-long v0, p0, v0\n',
         '    if-nez v0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
-        self.log_call,
+        #self.log_call,
         '      const-wide p0, 0x0\n',
         '  :pass\n',
         '  return p0\n',
@@ -264,7 +346,7 @@ class CGFMates():
         '    cmpl-double v0, p0, v0\n',
         '    if-nez v0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
-        self.log_call,
+        #self.log_call,
         '      const-wide p0, 0x0\n',
         '  :pass\n',
         '  return p0\n',
@@ -276,7 +358,7 @@ class CGFMates():
         '    move-result v0\n',
         '    if-eqz v0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
-        self.log_call,
+        #self.log_call,
         '      const-string p0, "*"\n',
         '  :pass\n',
         '  return-object p0\n',

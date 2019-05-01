@@ -19,29 +19,28 @@ class CGCore(cgfuncs.CGFuncs):
 
   def generate_logging_method(self, flow):
     self.generated[flow['class_path']]['logging'] = [
-      #'.method public static SmalienLog(Ljava/lang/String;Ljava/lang/String;)V\n',
-      '.method public static SmalienLog(Ljava/lang/String;)V\n',
-      #'  .locals 3\n',
-      '  .locals 1\n',
+      '.method public static SmalienLog(Ljava/lang/String;Ljava/lang/String;)V\n',
+      #'.method public static SmalienLog(Ljava/lang/String;)V\n',
+      '  .locals 3\n',
+      #'  .locals 1\n',
       '  const-string v0, "SmalienLog"\n',
-      #'  const-string v1, "-"\n',
-      #'  new-instance v2, Ljava/lang/StringBuilder;\n',
-      #'  invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V\n',
-      #'  invoke-virtual {v2, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;\n',
-      #'  move-result-object v2\n',
-      #'  invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;\n',
-      #'  move-result-object v2\n',
-      #'  invoke-virtual {v2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;\n',
-      #'  move-result-object v2\n',
-      #'  invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;\n',
-      #'  move-result-object v2\n',
-      #'  invoke-static {v0, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I\n',
-      '  invoke-static {v0, p0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I\n',
+      '  const-string v1, " : "\n',
+      '  new-instance v2, Ljava/lang/StringBuilder;\n',
+      '  invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V\n',
+      '  invoke-virtual {v2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;\n',
+      '  move-result-object v2\n',
+      '  invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;\n',
+      '  move-result-object v2\n',
+      '  invoke-virtual {v2, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;\n',
+      '  move-result-object v2\n',
+      '  invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;\n',
+      '  move-result-object v2\n',
+      '  invoke-static {v0, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I\n',
       '  return-void\n',
       '.end method\n',
     ]
     #self.log_call = '      invoke-static {v0, p1}, '+flow['class_path']+'->SmalienLog(Ljava/lang/String;Ljava/lang/String;)V\n'
-    self.log_call = '      invoke-static {v0}, '+flow['class_path']+'->SmalienLog(Ljava/lang/String;)V\n'
+    self.log_call = '      invoke-static {v0, v1}, '+flow['class_path']+'->SmalienLog(Ljava/lang/String;Ljava/lang/String;)V\n'
 
   def generate_for_a_flow(self, flow, prev_tag):
     # If a var is static
@@ -119,6 +118,11 @@ class CGCore(cgfuncs.CGFuncs):
               if (vline not in self.codes[cp].keys()):
                 self.codes[cp][vline] = ''
               self.codes[cp][vline] += 'invoke-static/range {'+v+' .. '+v+'}, '+val['saving']
+            # Data Logging
+            if ('logging' in val.keys()):
+              if (vline not in self.codes[cp].keys()):
+                self.codes[cp][vline] = ''
+              self.codes[cp][vline] += val['logging']
             # Data Comparison
             if ('comparison' in val.keys()):
               if (vline not in self.codes[cp].keys()):

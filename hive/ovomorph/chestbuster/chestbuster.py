@@ -24,20 +24,19 @@ def run(smalis, activities):
   DFA = dfanalyzer.DataFlowAnalyzer(parsed_data)
   data_flows = DFA.analyze()
   print('  [*] DF analysis done in '+str(round(time.time() - start, 3)))
-  #pprint(data_flows)
+  pprint(data_flows)
 
   # Generate codes
-  # Under construction
-  #print('  [--C--] Generating bytecode')
-  #CG = cgenerator.CodeGenerator(parsed_data, data_flows)
-  #generated_codes, generated_replaces = CG.generate()
-  #pprint(generated_codes)
+  print('  [--C--] Generating bytecode')
+  CG = cgenerator.CodeGenerator(parsed_data, data_flows)
+  generated_codes, generated_replaces = CG.generate()
+  pprint(generated_codes)
 
   # Inject
   # Under construction
-  #print('  [--C--] Instrumenting bytecode')
-  #CI = cinjector.CodeInjector(parsed_data, generated_codes, generated_replaces, src_codes)
-  #CI.inject()
+  print('  [--C--] Instrumenting bytecode')
+  CI = cinjector.CodeInjector(parsed_data, generated_codes, generated_replaces, src_codes)
+  CI.inject()
 
   return True, parsed_data, data_flows
 
