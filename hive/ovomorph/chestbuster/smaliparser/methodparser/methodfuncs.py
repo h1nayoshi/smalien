@@ -206,6 +206,9 @@ class MethodFuncs(object):
       if (c.find(', :cond_') > -1): # Find new block's origin
         cond = '    ' + c.split(' ')[-1]
         new_from_line = i
+        print('new block found')
+        print(cond)
+        print(new_from_line)
         for j in range(mval['start'], mval['end']): # Find new block's start
           c = src_code[j]
           if (c.find(cond) > -1):
@@ -219,7 +222,20 @@ class MethodFuncs(object):
               }
               new_to = { 'line': new_to_line }
               self.crnt_block_id += 1
+              print('new block')
+              print(new_from)
+              print(new_start)
+              print(new_end)
+              print(new_to)
               self.__find_blocks(mval, new_from, new_start, new_end, new_to, src_code)
+            else:
+              self.crnt_block_id += 1
+              mval['blocks'][self.crnt_block_id] = {
+                'from': bfrom,
+                'start': crnt_start,
+                'end': new_from_line,
+                'to': { 'line': j },
+              }
             break
       # switch-kinds
       elif (c.find(' packed-switch ') > -1 or c.find(' sparse-switch ') > -1 ): # Find new block's origin

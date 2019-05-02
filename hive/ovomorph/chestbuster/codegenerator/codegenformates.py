@@ -225,7 +225,7 @@ class CGFMates():
     else:
       code.extend([
         '.method public static Save'+dvar.split(':')[0]+'('+vtype+')V\n',
-        '  .locals 1\n',
+        '  .locals 2\n',
         '    const/4 v0, 0x7\n',
         '    sput-char v0, '+cp+'->'+mvar+'\n',
       ])
@@ -233,61 +233,61 @@ class CGFMates():
       '    const-string v1, "source : '+dvar+'"\n',
     )
     if (vtype == 'Z'):
-      code.append(
+      code.extend([
         '    sput-boolean p0, '+cp+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(Z)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
-      )
+      ])
     elif (vtype == 'I'):
-      code.append(
+      code.extend([
         '    sput p0, '+cp+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
-      )
+      ])
     elif (vtype == 'B'):
-      code.append(
+      code.extend([
         '    sput-byte p0, '+cp+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(B)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
-      )
+      ])
     elif (vtype == 'S'):
-      code.append(
+      code.extend([
         '    sput-short p0, '+cp+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(S)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
-      )
+      ])
     elif (vtype == 'C'):
-      code.append(
+      code.extend([
         '    sput-char p0, '+cp+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(C)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
-      )
+      ])
     elif (vtype == 'F'):
-      code.append(
+      code.extend([
         '    sput p0, '+cp+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(F)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
-      )
+      ])
     elif (vtype == 'J'):
-      code.append(
+      code.extend([
         '    sput-wide p0, '+cp+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
-      )
+      ])
     elif (vtype == 'D'):
-      code.append(
+      code.extend([
         '    sput-wide p0, '+cp+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(D)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
-      )
+      ])
     elif (vtype == 'Ljava/lang/String;'):
       code.extend([
         '    sput-object p0, '+cp+'->'+dvar+'\n',
