@@ -74,7 +74,6 @@ class DFSFinder():
     DFSFinder.static_var_analyzed = []
 
   def __find_df_of_var_rev(self, cp, m, end, v, area, nexts):
-    print(cp+'->'+m+'->'+v)
     # Check if a var is a part of source flows
     chk = self.__is_source(cp, m, end, v)
     if (chk):

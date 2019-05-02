@@ -71,7 +71,7 @@ class MethodParser(mfuncs.MethodFuncs, dbcparser.DBCParser, sisparser.SisParser)
         if (mval['target'] == True):
           self.parse_dalvik(class_path, method, mval, src_code)
         #cntr += 1
-        #print '  ', cntr, '/', total_methods
+        #print('  ', cntr, '/', total_methods)
     print('     [*] Done in '+str(round(time.time() - start, 3)))
 
     print('    [*] Finding sources, implicits, and sinks')

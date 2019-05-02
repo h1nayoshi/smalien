@@ -24,7 +24,7 @@ def run(smalis, activities):
   DFA = dfanalyzer.DataFlowAnalyzer(parsed_data)
   data_flows = DFA.analyze()
   print('  [*] DF analysis done in '+str(round(time.time() - start, 3)))
-  pprint(data_flows)
+  #pprint(data_flows)
 
   # Generate codes
   print('  [--C--] Generating bytecode')
@@ -40,11 +40,12 @@ def run(smalis, activities):
 
   return True, parsed_data, data_flows
 
-"""
 if __name__ == '__main__':
   smalis = [
-    '../../hosts/test/smali/MainActivity.smali',
+    '../workspace/FragmentManagerImpl.smali',
   ]
-  run(smalis)
-"""
+  activities = [
+    'Landroid/support/v4/app/FragmentManagerImpl;',
+  ]
+  run(smalis, activities)
 

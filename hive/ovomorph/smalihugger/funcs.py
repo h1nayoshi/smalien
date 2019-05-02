@@ -13,8 +13,8 @@ def unpack(host_dest):
   return True
 
 def find_smalis(host_dest):
-  #smali_dir = host_dest+'host/smali/'
-  smali_dir = host_dest+'host/smali/com/'
+  smali_dir = host_dest+'host/smali/'
+  #smali_dir = host_dest+'host/smali/com/'
   # Find smalis
   smalis = []
   find_smalis_from_dir(smali_dir, smalis)

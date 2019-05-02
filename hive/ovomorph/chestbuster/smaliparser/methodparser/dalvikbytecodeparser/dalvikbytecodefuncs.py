@@ -141,11 +141,64 @@ class DBCFuncs():
 
   def get_stype_from_states(self, var, line):
     tarea = []
+    vtype = self.__get_vtype_in_tarea(var, line, tarea)
+    return vtype
+
+  def __get_vtype_in_tarea(self, var, line, tarea):
+    vtype = 'unknown'
+    for block, bval in DBCFuncs.mv['blocks'].items():
+      if (line >= bval['start'] and line <= bval['end']):
+        # Add area if hasn't done yet
+        done = self.__add_tarea(tarea, [line, bval['start']])
+        if (done):
+          # Check the area
+          vtype = self.__get_vtype_in_area(var, [line, bval['start']])
+          if (vtype != 'unknown'):
+            return vtype
+          else:
+            # Find sub blocks
+            for nblock, nbval in DBCFuncs.mv['blocks'].items():
+              if (nbval['to']['line'] <= line and nbval['to']['line'] >= bval['start']):
+                vtype = self.__get_vtype_in_tarea(var, nbval['end'], tarea)
+                if (vtype != 'unknown'):
+                  return vtype
+            # Find previous block
+            if ('line' in bval['from'].keys() and bval['from']['line'] != -1):
+              vtype = self.__get_vtype_in_tarea(var, bval['from']['line'], tarea)
+              if (vtype != 'unknown'):
+                return vtype
+            elif ('range' in bval['from'].keys()):
+              for r in bval['from']['range']:
+                vtype = self.__get_vtype_in_tarea(var, r['end'], tarea)
+                if (vtype != 'unknown'):
+                  return vtype
+    return vtype
+
+  def __add_tarea(self, tarea, new):
+    for ta in tarea:
+      if (ta[0] == new[0] and ta[1] == new[1]):
+        return False
+    tarea.append(new)
+    return True
+
+  def __get_vtype_in_area(self, var, area):
+    if (var in DBCFuncs.mv['vars'].keys()):
+      for i in range(area[0], area[1], -1):
+        if (i in DBCFuncs.mv['vars'][var]['state'].keys()):
+          return DBCFuncs.mv['vars'][var]['state'][i][-1]['type']
+    return 'unknown'
+
+  """
+  def get_stype_from_states_old(self, var, line):
+    print('getting stype')
+    tarea = []
     self.__get_target_area(line, tarea)
     vtype = self.__get_vtype_in_area(var, tarea)
+    print('done')
     return vtype
 
   def __get_target_area(self, line, tarea):
+    print(tarea)
     for block, bval in DBCFuncs.mv['blocks'].items():
       if (line >= bval['start'] and line <= bval['end']):
         # Add tarea if hasn't done yet
@@ -176,6 +229,7 @@ class DBCFuncs():
           if (i in DBCFuncs.mv['vars'][var]['state'].keys()):
             return DBCFuncs.mv['vars'][var]['state'][i][-1]['type']
     return 'unknown'
+  """
 
   def get_invoke(self, i):
     c = DBCFuncs.sc[i]
