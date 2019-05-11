@@ -9,19 +9,18 @@ from .ovomorph.smalihugger import smalihugger
 host_dest = os.path.abspath('.')+'/hive/workspace/'
 
 def activate_queen(host, keystore):
-  print('[+] Target host: '+host)
+  print(' [+] Target host: '+host)
 
   ret = xenomorph.init_hive(host, host_dest)
   if (not ret):
     print('[-!-] Failed to init the hive')
     sys.exit()
 
-  print('[*] Laying an egg')
   ret, parsed_data, data_flows = smalihugger.run(host_dest, keystore)
   if (not ret):
     print('[-!-] Failed to hatch the egg')
 
-  print('[*] Analysis done')
+  print(' [*] All analysis done')
 
   return parsed_data, data_flows
 

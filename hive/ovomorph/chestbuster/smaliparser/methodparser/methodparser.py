@@ -21,8 +21,8 @@ class MethodParser(mfuncs.MethodFuncs, dbcparser.DBCParser, sisparser.SisParser)
       self.find_methods(class_path, cval)
       total_methods += len(cval['methods'].keys())
 
-    print('     [+] Total: '+str(total_methods))
-    print('     [*] Done in '+str(round(time.time() - start, 3)))
+    print('     [+] Method found: '+str(total_methods))
+    print('      [*] Done in '+str(round(time.time() - start, 3)))
 
     # Find method calls in each method
     print('    [*] Finding method calls')
@@ -45,8 +45,8 @@ class MethodParser(mfuncs.MethodFuncs, dbcparser.DBCParser, sisparser.SisParser)
         if (class_path == act or class_path.find(act[:-1]+'$') > -1):
           for method, mval in cval['methods'].items():
             total_target += self.detect_target_methods(mval)
-    print('      [+]Target: '+str(total_target))
-    print('     [*] Done in '+str(round(time.time() - start, 3)))
+    print('     [+] Target methods found: '+str(total_target))
+    print('      [*] Done in '+str(round(time.time() - start, 3)))
 
     print('    [*] Finding control flow blocks')
     #cntr = 0
@@ -90,8 +90,8 @@ class MethodParser(mfuncs.MethodFuncs, dbcparser.DBCParser, sisparser.SisParser)
           sink_cntr += len(mval['sinks'].keys())
         #cntr += 1
         #print '  ', cntr, '/', total_methods
-    print('       [+] Sources: '+str(source_cntr))
-    print('       [+] Implicits: '+str(implicit_cntr))
-    print('       [+] Sinks: '+str(sink_cntr))
-    print('      [*] Done in '+str(round(time.time() - start, 3)))
+    print('      [+] Sources: '+str(source_cntr))
+    print('      [+] Implicits: '+str(implicit_cntr))
+    print('      [+] Sinks: '+str(sink_cntr))
+    print('       [*] Done in '+str(round(time.time() - start, 3)))
 

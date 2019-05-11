@@ -53,21 +53,21 @@ def find_activities(hd):
 
 def detach(host_dest, keystore):
   # Pack
-  print('  [--Z--] Packing')
+  #print('  [--Z--] Packing')
   ret = pack(host_dest)
   if (not ret):
     print('[--!--] Failed to pack')
     return False
 
   # Sign
-  print('  [--Z--] Signing')
+  #print('  [--Z--] Signing')
   ret = sign(host_dest, keystore)
   if (not ret):
     print('[--!--] Failed to sign')
     return False
 
   # Move
-  print('  [--Z--] Moving')
+  #print('  [--Z--] Moving')
   ret = move(host_dest)
   if (not ret):
     print('[--!--] Failed to move')

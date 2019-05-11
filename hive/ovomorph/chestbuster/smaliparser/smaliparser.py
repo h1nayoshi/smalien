@@ -19,14 +19,14 @@ class SmaliParser(mparser.MethodParser):
 
   def parse(self):
     # Load source codes
-    print('   [*] Loading src codes')
+    #print('   [*] Loading src codes')
     self.__load_src_codes()
     
-    print('   [*] Getting basic info')
+    #print('   [*] Getting basic info')
     # Get smali basic info
     self.__get_smali_info()
 
-    print('   [*] Parsing method')
+    #print('   [*] Parsing method')
     # Parse each method
     self.parse_methods()
 

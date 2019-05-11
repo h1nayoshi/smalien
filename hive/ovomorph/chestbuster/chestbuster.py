@@ -12,29 +12,29 @@ from .codeinjector import codeinjector as cinjector
 def run(smalis, activities):
   start = time.time()
   # Parse
-  print('  [--C--] Parsing smalis')
+  print('   [*] Parsing the smalis')
   SP = sparser.SmaliParser(smalis, activities)
   src_codes, parsed_data = SP.parse()
-  print('  [*] Parsing done in '+str(round(time.time() - start, 3)))
+  print('    [*] Parsing done in '+str(round(time.time() - start, 3)))
   #pprint(parsed_data)
 
-  print('  [--C--] Analyzing data flows')
+  print('   [*] Analyzing data flows')
   # Analyze
   start = time.time()
   DFA = dfanalyzer.DataFlowAnalyzer(parsed_data)
   data_flows = DFA.analyze()
-  print('  [*] DF analysis done in '+str(round(time.time() - start, 3)))
+  print('    [*] DF analysis done in '+str(round(time.time() - start, 3)))
   #pprint(data_flows)
 
   # Generate codes
-  print('  [--C--] Generating bytecode')
+  print('   [*] Generating bytecode')
   CG = cgenerator.CodeGenerator(parsed_data, data_flows)
   generated_codes, generated_replaces = CG.generate()
   #pprint(generated_codes)
 
   # Inject
   # Under construction
-  print('  [--C--] Instrumenting bytecode')
+  print('   [*] Instrumenting bytecode')
   CI = cinjector.CodeInjector(parsed_data, generated_codes, generated_replaces, src_codes)
   CI.inject()
 

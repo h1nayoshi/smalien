@@ -103,11 +103,16 @@ class DFFinder():
     # Find area that this area goes to
     narea = []
     for i in range(len(tarea)):
+      """ Changed tarea prev type from list to dict
       if (type(tarea[i]['prev']) == list):
         for prev in tarea[i]['prev']:
           if (prev['start'] <= e and prev['end'] >= ta['start']):
             narea.append(tarea[i])
             break
+      """
+      if (type(tarea[i]['prev']) == dict):
+        if (tarea[i]['prev']['start'] <= e and tarea[i]['prev']['end'] >= ta['start']):
+          narea.append(tarea[i])
       else:
         if (tarea[i]['prev'] >= ta['start'] and tarea[i]['prev'] <= e):
           narea.append(tarea[i])

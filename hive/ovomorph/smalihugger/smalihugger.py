@@ -8,7 +8,7 @@ from ..chestbuster import chestbuster
 from .funcs import unpack, find_smalis, detach, find_activities
 
 def run(host_dest, keystore):
-  print(' [--0--] Hatching')
+  print('  [*] Unpacking the apk')
 
   # Unpack the apk
   ret = unpack(host_dest)
@@ -17,7 +17,7 @@ def run(host_dest, keystore):
     sys.exit()
 
   # Find target smali files
-  print('  [*] Finding target smalis')
+  print('  [*] Finding targets')
   smalis = find_smalis(host_dest)
   if (not smalis):
     print('[--!--] Failed to find smalis')
@@ -28,16 +28,15 @@ def run(host_dest, keystore):
   if (activities == []):
     print('[--!--] Failed to find activities')
     sys.exit()
-  print('  [+] Activities found: ' + str(len(activities)))
+  print('   [+] Activities found: ' + str(len(activities)))
 
   # Analyze and Inject to smali files
-  print(' [--0--] Parasitizing')
   ret, parsed_data, data_flows = chestbuster.run(smalis, activities)
   if (not ret):
     sys.exit()
 
   # Repack and resign the apk
-  print(' [--Z--] Detaching from the host')
+  print('  [*] Repackaging the apk')
   ret = detach(host_dest, keystore)
   if (not ret):
     sys.exit()
