@@ -67,11 +67,15 @@ class MethodFuncs(object):
     self.mpaths = {}
     for class_path, cval in self.parsed_data.items():
       for method in cval['methods'].keys():
-        target = class_path[1:].split('/')
+        target = ['L']
+        subs = class_path[1:].split('/')
+        for sub in subs[:-1]:
+          target.append(sub+'/')
+        target.append(subs[-1])
         self.__mpath_append(self.mpaths, target, class_path+'->'+method)
 
   def __mpath_append(self, mps, target, m):
-    d = target.pop(0)+'/'
+    d = target.pop(0)
     if (len(target) == 1):
       if (d not in mps.keys()):
         mps[d] = {target[0]: [m]}
