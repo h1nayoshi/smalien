@@ -4,6 +4,7 @@
 sources = [
   {'code': 'Landroid/telephony/TelephonyManager;->getDeviceId()Ljava/lang/String;', 'type': 'Ljava/lang/String;', 'data': 'IMEI'},
   {'code': 'Landroid/telephony/TelephonyManager;->getSimSerialNumber()Ljava/lang/String;', 'type': 'Ljava/lang/String;', 'data': 'ICCID'},
+  {'code': 'Landroid/telephony/TelephonyManager;->getSubscriberId()Ljava/lang/String;', 'type': 'Ljava/lang/String;', 'data': 'IMSI'},
   {'code': 'Landroid/telephony/TelephonyManager;->getLine1Number()Ljava/lang/String;', 'type': 'Ljava/lang/String;', 'data': 'Phone Number'},
   {'code': 'Landroid/telephony/TelephonyManager;->getNetworkOperator()Ljava/lang/String;', 'type': 'Ljava/lang/String;', 'data': 'MCC+MNC'},
   {'code': 'Landroid/location/Location;->getLatitude()D', 'type': 'D', 'data': 'GPS'},
