@@ -65,10 +65,8 @@ class MethodFuncs(object):
 
   def generate_method_paths(self):
     self.mpaths = {}
-    cntr = 0
     for class_path, cval in self.parsed_data.items():
       for method in cval['methods'].keys():
-        cntr += 1
         target = ['L']
         subs = class_path[1:].split('/')
         for sub in subs[:-1]:
