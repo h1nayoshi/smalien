@@ -96,7 +96,7 @@ class MethodFuncs(object):
       if (c == ''):
         pass
       elif (c.find(' invoke-') > -1):
-        path = self.__get_invoked_method(c, 'L', self.mpaths)
+        path = self.__get_invoked_method(c, '', self.mpaths)
         if (path is not None):
           cp = path.split('->')[0]
           m = path.split('->')[1]
