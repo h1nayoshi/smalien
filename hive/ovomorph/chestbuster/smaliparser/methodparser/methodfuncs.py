@@ -65,8 +65,10 @@ class MethodFuncs(object):
 
   def generate_method_paths(self):
     self.mpaths = {}
+    cntr = 0
     for class_path, cval in self.parsed_data.items():
       for method in cval['methods'].keys():
+        cntr += 1
         target = ['L']
         subs = class_path[1:].split('/')
         for sub in subs[:-1]:
@@ -96,7 +98,7 @@ class MethodFuncs(object):
       if (c == ''):
         pass
       elif (c.find(' invoke-') > -1):
-        path = self.__get_invoked_method(c, '', self.mpaths)
+        path = self.__get_invoked_method(c.split('}, ')[1], '', self.mpaths)
         if (path is not None):
           cp = path.split('->')[0]
           m = path.split('->')[1]
@@ -129,9 +131,9 @@ class MethodFuncs(object):
     for mp, mpval in mps.items():
       if (type(mpval) == list):
         for pv in mpval:
-          if (c.find(pv) > -1):
+          if (c.startswith(pv)):
             return pv
-      elif (c.find(path+mp) > -1):
+      elif (c.startswith(path+mp)):
         m = self.__get_invoked_method(c, path+mp, mpval)
     return m
 

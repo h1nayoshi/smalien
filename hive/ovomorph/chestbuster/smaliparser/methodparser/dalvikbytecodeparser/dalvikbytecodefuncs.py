@@ -95,7 +95,19 @@ class DBCFuncs():
       })
 
   def update_get_of_static_var(self, vs, class_path, method, line, stype):
-    self.parsed_data[vs[1].split('->')[0]]['static_vars'][vs[1]]['get'].append({
+    vs_cp = vs[1].split('->')[0]
+    vs_var = vs[1].split('->')[1]
+    # If the static var hasn't been initialized, init it first
+    if (vs[1] not in self.parsed_data[vs_cp]['static_vars'].keys()):
+      self.parsed_data[vs_cp]['static_vars'][vs[1]] = {
+        'name': vs_var.split(':')[0],
+        'type': vs_var.split(':')[1],
+        'class_path': vs_cp,
+        'put': {},
+        'get': [],
+      }
+    # Update get
+    self.parsed_data[vs_cp]['static_vars'][vs[1]]['get'].append({
       'class_path': class_path,
       'method': method,
       'line': line,
@@ -104,11 +116,23 @@ class DBCFuncs():
     })
 
   def update_put_of_static_var(self, vs, class_path, method, line, stype):
-    if (class_path not in self.parsed_data[vs[1].split('->')[0]]['static_vars'][vs[1]]['put'].keys()):
-      self.parsed_data[vs[1].split('->')[0]]['static_vars'][vs[1]]['put'][class_path] = {}
-    if (method not in self.parsed_data[vs[1].split('->')[0]]['static_vars'][vs[1]]['put'][class_path].keys()):
-      self.parsed_data[vs[1].split('->')[0]]['static_vars'][vs[1]]['put'][class_path][method] = {}
-    self.parsed_data[vs[1].split('->')[0]]['static_vars'][vs[1]]['put'][class_path][method][line] = {
+    vs_cp = vs[1].split('->')[0]
+    vs_var = vs[1].split('->')[1]
+    # If the static var hasn't been initialized, init it first
+    if (vs[1] not in self.parsed_data[vs_cp]['static_vars'].keys()):
+      self.parsed_data[vs_cp]['static_vars'][vs[1]] = {
+        'name': vs_var.split(':')[0],
+        'type': vs_var.split(':')[1],
+        'class_path': vs_cp,
+        'put': {},
+        'get': [],
+      }
+    # Update put
+    if (class_path not in self.parsed_data[vs_cp]['static_vars'][vs[1]]['put'].keys()):
+      self.parsed_data[vs_cp]['static_vars'][vs[1]]['put'][class_path] = {}
+    if (method not in self.parsed_data[vs_cp]['static_vars'][vs[1]]['put'][class_path].keys()):
+      self.parsed_data[vs_cp]['static_vars'][vs[1]]['put'][class_path][method] = {}
+    self.parsed_data[vs_cp]['static_vars'][vs[1]]['put'][class_path][method][line] = {
       'type': stype,
       'src': vs[0],
       'sourced': 'no',
