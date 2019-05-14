@@ -150,17 +150,16 @@ class MethodFuncs(object):
 
   def __get_ret_var(self, src_code, i):
     c = src_code[i]
-    j = 0
     while (c.find('    :') > -1 or c.find('    .') > -1 or c == ''):
-      j += 1
-      c = src_code[i+j]
+      i += 1
+      c = src_code[i]
     ret = {
       'var': None,
       'line': None,
     }
     if (c.find(' move-result') > -1):
       ret['var'] = c.split(' ')[-1]
-      ret['line'] = i+j
+      ret['line'] = i
     return ret
 
   def detect_target_methods(self, mval):
@@ -326,7 +325,7 @@ class MethodFuncs(object):
       c = src_code[i]
       if (c.find(data) > -1):
         lstart = i + 2
-        for j in range(lstart+2, mend):
+        for j in range(lstart, mend):
           c = src_code[j]
           if (c.find(end_mark) > -1):
             lend = j

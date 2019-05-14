@@ -34,7 +34,7 @@ class DFFinder():
 
   def __find_df_of_var(self, cp, m, start, v, area, nexts):
     # If a var is static
-    if (v.find('->') > -1):
+    if (v.find('->') > -1 and v.split('->')[0] in self.parsed_data.keys()):
       if (self.parsed_data[v.split('->')[0]]['static_vars'][v]['put'][cp][m][start]['sourced'] == 'no'):
         self.parsed_data[v.split('->')[0]]['static_vars'][v]['put'][cp][m][start]['sourced'] = 'yes'
         for sn in self.parsed_data[v.split('->')[0]]['static_vars'][v]['get']:
@@ -140,7 +140,8 @@ class DFFinder():
             # If return
             elif (state['dest'] == 'return'):
               for cllr in self.parsed_data[cp]['methods'][m]['callers']:
-                self.__add_flow(nexts, cllr['class_path'], cllr['method'], cllr['ret']['line'], cllr['ret']['var'], i)
+                if (cllr['ret']['line'] is not None):
+                  self.__add_flow(nexts, cllr['class_path'], cllr['method'], cllr['ret']['line'], cllr['ret']['var'], i)
             # IF propagates to a local var
             else:
               self.__add_flow(nexts, cp, m, state['dline'], state['dest'], i)

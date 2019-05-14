@@ -26,8 +26,6 @@ class DBCParser(dbcfuncs.DBCFuncs):
     self.get_local_num()
     # Get params
     self.get_params()
-    # Initi local and static vars
-    #self.init_local_and_static()
 
   def __parse(self, class_path, method, mval, src_code):
     for i in range(mval['start'], mval['end']):
@@ -46,7 +44,9 @@ class DBCParser(dbcfuncs.DBCFuncs):
               self.add_state(oprnds[0], i, i, dtype, 'dest', 'define')
             elif (dalvik['class'] == 2): # Class 2: opcode dest, src
               # Find src type
-              if (oprnds[1] not in mval['vars'].keys()): # If the second oprnd is not a var
+              chk = self.is_var(oprnds[1])
+              #if (oprnds[1] not in mval['vars'].keys()): # If the second oprnd is not a var
+              if (not chk):
                 continue
               # Get src type
               stype = self.get_stype(oprnds, c, i)

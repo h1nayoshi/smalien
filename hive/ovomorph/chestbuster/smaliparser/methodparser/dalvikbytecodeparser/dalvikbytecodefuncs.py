@@ -54,18 +54,10 @@ class DBCFuncs():
     DBCFuncs.mv['var_num']['param'] = cnt
     #print ' params', cnt
 
-  def init_local_and_static(self):
-    for i in range(DBCFuncs.mv['var_num']['local']):
-      DBCFuncs.mv['vars']['v'+str(i)] = {
-        'attr': 'local',
-        'state': {},
-      }
-    for class_path, cval in self.parsed_data.items():
-      for s in cval['static_vars'].keys():
-        DBCFuncs.mv['vars'][s] = {
-          'attr': 'static',
-          'state': {},
-        }
+  def is_var(self, v):
+    if (v.find('->') > -1 or v[0] in ['v', 'p']):
+      return True
+    return False
 
   def add_state(self, v, key, line, vtype, role, peer):
     if (v not in DBCFuncs.mv['vars'].keys()):
@@ -97,6 +89,9 @@ class DBCFuncs():
   def update_get_of_static_var(self, vs, class_path, method, line, stype):
     vs_cp = vs[1].split('->')[0]
     vs_var = vs[1].split('->')[1]
+    # Check vs_cp is known
+    if (vs_cp not in self.parsed_data.keys()):
+      return
     # If the static var hasn't been initialized, init it first
     if (vs[1] not in self.parsed_data[vs_cp]['static_vars'].keys()):
       self.parsed_data[vs_cp]['static_vars'][vs[1]] = {
@@ -118,6 +113,9 @@ class DBCFuncs():
   def update_put_of_static_var(self, vs, class_path, method, line, stype):
     vs_cp = vs[1].split('->')[0]
     vs_var = vs[1].split('->')[1]
+    # Check vs_cp is known
+    if (vs_cp not in self.parsed_data.keys()):
+      return
     # If the static var hasn't been initialized, init it first
     if (vs[1] not in self.parsed_data[vs_cp]['static_vars'].keys()):
       self.parsed_data[vs_cp]['static_vars'][vs[1]] = {
@@ -212,56 +210,12 @@ class DBCFuncs():
           return DBCFuncs.mv['vars'][var]['state'][i][-1]['type']
     return 'unknown'
 
-  """
-  def get_stype_from_states_old(self, var, line):
-    print('getting stype')
-    tarea = []
-    self.__get_target_area(line, tarea)
-    vtype = self.__get_vtype_in_area(var, tarea)
-    print('done')
-    return vtype
-
-  def __get_target_area(self, line, tarea):
-    print(tarea)
-    for block, bval in DBCFuncs.mv['blocks'].items():
-      if (line >= bval['start'] and line <= bval['end']):
-        # Add tarea if hasn't done yet
-        done = self.__add_tarea(tarea, [line, bval['start']])
-        if (done):
-          # Find sub blocks
-          for nblock, nbval in DBCFuncs.mv['blocks'].items():
-            if (nbval['to']['line'] <= line and nbval['to']['line'] >= bval['start']):
-              self.__get_target_area(nbval['end'], tarea)
-          # Find previous block
-          if ('line' in bval['from'].keys() and bval['from']['line'] != -1):
-            self.__get_target_area(bval['from']['line'], tarea)
-          elif ('range' in bval['from'].keys()):
-            for r in bval['from']['range']:
-              self.__get_target_area(r['end'], tarea)
-
-  def __add_tarea(self, tarea, new):
-    for ta in tarea:
-      if (ta[0] == new[0] and ta[1] == new[1]):
-        return False
-    tarea.append(new)
-    return True
-
-  def __get_vtype_in_area(self, var, tarea):
-    for ta in tarea:
-      for i in range(ta[0], ta[1], -1):
-        if (var in DBCFuncs.mv['vars'].keys()):
-          if (i in DBCFuncs.mv['vars'][var]['state'].keys()):
-            return DBCFuncs.mv['vars'][var]['state'][i][-1]['type']
-    return 'unknown'
-  """
-
   def get_invoke(self, i):
     c = DBCFuncs.sc[i]
-    j = 0
-    while (c.find('    :') > -1 or c.find('    .') > -1):
-      j += 1
-      c = DBCFuncs.sc[i-j]
-    return c, i-j
+    while (c.find('    :') > -1 or c.find('    .') > -1 or c == ''):
+      i -= 1
+      c = DBCFuncs.sc[i]
+    return c, i
 
   def get_params_from_method_call(self, c):
     params = c[c.find('{')+1:c.find('}')]

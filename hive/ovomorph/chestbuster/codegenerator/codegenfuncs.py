@@ -29,7 +29,7 @@ class CGFuncs():
     cp = v.split('->')[0]
     if (v in self.generated[cp]['static'].keys()):
       if (line in self.generated[cp]['static'][v].keys()):
-        return cp+'->'+self.generated[cp]['static'][v]['line']['tag']
+        return cp+'->'+self.generated[cp]['static'][v][line]['tag']
     else:
       self.generated[cp]['static'][v] = {}
     tag = 'Tag_'+v.split('->')[-1].split(':')[0]+'_'+str(line)+'_'+str(self.tag_cntr)+':C'

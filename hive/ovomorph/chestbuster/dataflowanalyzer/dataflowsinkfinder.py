@@ -79,7 +79,7 @@ class DFSFinder():
     if (chk):
       return 'killall'
     # If a var is static
-    if (v.find('->') > -1):
+    if (v.find('->') > -1 and v.split('->')[0] in self.parsed_data.keys()):
       if (v not in DFSFinder.static_var_analyzed):
         DFSFinder.static_var_analyzed.append(v)
         for scp, scpval in self.parsed_data[v.split('->')[0]]['static_vars'][v]['put'].items():
