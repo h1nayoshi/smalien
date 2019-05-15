@@ -3,6 +3,7 @@
 
 import os
 import re
+import io
 import subprocess
 
 def unpack(host_dest):
@@ -37,7 +38,7 @@ def find_smalis_from_dir(smali_dir, smalis):
 
 def find_activities(hd):
   activities = []
-  with open(hd+'host/AndroidManifest.xml', 'r') as f:
+  with io.open(hd+'host/AndroidManifest.xml', 'r', encoding='utf-8') as f:
     AM = f.read().split('\n')
   for l in AM:
     if (l.find('<manifest ') > -1 and l.find(' package="') > -1):

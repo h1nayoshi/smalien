@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Called by chestbuster.py
 
+import io
 import re
 from pprint import pprint
 
@@ -34,7 +35,7 @@ class SmaliParser(mparser.MethodParser):
 
   def __load_src_codes(self):
     for smali in self.smalis:
-      with open(smali, 'r') as f:
+      with io.open(smali, 'r', encoding='utf-8') as f:
         self.src_codes[smali] = f.read().split('\n')
 
   def __get_smali_info(self):

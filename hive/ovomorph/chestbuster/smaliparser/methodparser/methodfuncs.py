@@ -95,7 +95,7 @@ class MethodFuncs(object):
       c = src_code[i]
       if (c == ''):
         pass
-      elif (c.find(' invoke-') > -1):
+      elif (c.find('    invoke-') > -1):
         path = self.__get_invoked_method(c.split('}, ')[1], '', self.mpaths)
         if (path is not None):
           cp = path.split('->')[0]
@@ -260,10 +260,10 @@ class MethodFuncs(object):
           c = src_code[j]
           if (c.find(end_label) > -1):
             new_from_range_end = j
-            catch_label = '    '+src_code[j+1].split(' ')[-1]
+            catch_labels = self.__get_catch_labels(j+1, src_code)
             for k in range(mval['start'], mval['end']): # Find new block's start
               c = src_code[k]
-              if (c == catch_label):
+              if (c in catch_labels):
                 chk, bval = self.__is_block_new_for_try_catch(mval, k, new_from_range_start)
                 if (chk == 'new block'):
                   new_start = k
@@ -283,8 +283,16 @@ class MethodFuncs(object):
                     'start': new_from_range_start,
                     'end': new_from_range_end,
                   })
-                break
             break
+
+  def __get_catch_labels(self, j, src_code):
+    ret = []
+    c = src_code[j]
+    while (c.find('    .catch') > -1):
+      ret.append('    '+c.split(' ')[-1])
+      j += 1
+      c = src_code[j]
+    return ret
 
   def __get_block_end_and_to(self, mval, new_start, src_code):
     for k in range(new_start, mval['end']): # Find new block's end
