@@ -14,11 +14,11 @@ def unpack(host_dest):
   return True
 
 def find_smalis(host_dest):
-  smali_dirs = [
-    host_dest+'host/smali/',
-    host_dest+'host/smali_classes2/',
-  ]
-  #smali_dir = host_dest+'host/smali/com/'
+  smali_dirs = []
+  dirs = os.listdir(host_dest+'host/')
+  for d in dirs:
+    if (d.find('smali') > -1):
+      smali_dirs.append(host_dest+'host/'+d+'/')
   # Find smalis
   smalis = []
   for sdir in smali_dirs:
