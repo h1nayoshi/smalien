@@ -33,15 +33,23 @@ class DFFinder():
     DFFinder.area_analyzed = {}
 
   def __find_df_of_var(self, cp, m, start, v, area, nexts):
-    # If a var is static
+    # If a var is global
     if (v.find('->') > -1 and v.split('->')[0] in self.parsed_data.keys()):
-      if (self.parsed_data[v.split('->')[0]]['static_vars'][v]['put'][cp][m][start]['sourced'] == 'no'):
-        self.parsed_data[v.split('->')[0]]['static_vars'][v]['put'][cp][m][start]['sourced'] = 'yes'
-        for sn in self.parsed_data[v.split('->')[0]]['static_vars'][v]['get']:
-          self.__add_flow(nexts, sn['class_path'], sn['method'], sn['line'], sn['dest'], sn['line'])
-        for n in nexts:
-          self.__find_df_of_var(n['class_path'], n['method'], n['line'], n['var'], n['area'], n['next'])
-    # If a var is not static
+      if (v in self.parsed_data[v.split('->')[0]]['static_vars'].keys()): # If static
+        if (self.parsed_data[v.split('->')[0]]['static_vars'][v]['put'][cp][m][start]['sourced'] == 'no'):
+          self.parsed_data[v.split('->')[0]]['static_vars'][v]['put'][cp][m][start]['sourced'] = 'yes'
+          for sn in self.parsed_data[v.split('->')[0]]['static_vars'][v]['get']:
+            self.__add_flow(nexts, sn['class_path'], sn['method'], sn['line'], sn['dest'], sn['line'])
+          for n in nexts:
+            self.__find_df_of_var(n['class_path'], n['method'], n['line'], n['var'], n['area'], n['next'])
+      if (v in self.parsed_data[v.split('->')[0]]['instances'].keys()): # If instance
+        if (self.parsed_data[v.split('->')[0]]['instances'][v]['put'][cp][m][start]['sourced'] == 'no'):
+          self.parsed_data[v.split('->')[0]]['instances'][v]['put'][cp][m][start]['sourced'] = 'yes'
+          for sn in self.parsed_data[v.split('->')[0]]['instances'][v]['get']:
+            self.__add_flow(nexts, sn['class_path'], sn['method'], sn['line'], sn['dest'], sn['line'])
+          for n in nexts:
+            self.__find_df_of_var(n['class_path'], n['method'], n['line'], n['var'], n['area'], n['next'])
+    # If a var is local
     else:
       # Get all area that a var relates
       tarea = []
@@ -130,7 +138,7 @@ class DFFinder():
       if (i in self.parsed_data[cp]['methods'][m]['vars'][v]['state'].keys()):
         for state in self.parsed_data[cp]['methods'][m]['vars'][v]['state'][i]:
           if (state['role'] == 'src'):
-            # If static
+            # If global
             if (state['dest'].find('->') > -1):
               self.__add_flow(nexts, cp, m, state['dline'], state['dest'], i)
             # If method param

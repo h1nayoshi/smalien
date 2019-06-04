@@ -11,7 +11,7 @@ class CGCore(cgfuncs.CGFuncs):
       self.codes[class_path] = {}
       self.replaces[class_path] = {}
       self.generated[class_path] = {
-        'static': {},
+        'global': {},
         'methods': {},
       }
       for method in cval['methods'].keys():
@@ -43,20 +43,20 @@ class CGCore(cgfuncs.CGFuncs):
     self.log_call = '      invoke-static {v0, v1}, '+flow['class_path']+'->SmalienLog(Ljava/lang/String;Ljava/lang/String;)V\n'
 
   def generate_for_a_flow(self, flow, prev_tag):
-    # If a var is static
+    # If a var is global
     if (flow['var'].find('->') > -1):
       # Generate a tag for a var
-      tag = self.generate_tag_for_static(flow, prev_tag)
-    # If a var is not static
+      tag = self.generate_tag_for_global(flow, prev_tag)
+    # If a var is local
     else:
       # Check its type
       chk_type = self.check_type(flow['type'])
       if (chk_type):
         # Generate a tag for a var with checking-method
-        tag = self.generate_tag_for_non_static(flow, prev_tag)
+        tag = self.generate_tag_for_local(flow, prev_tag)
       else:
         # Generate a tag for a var without checking-method
-        tag = self.generate_tag_for_non_static_bad_type(flow, prev_tag)
+        tag = self.generate_tag_for_local_bad_type(flow, prev_tag)
     #pprint(self.generated)
 
     if (flow['next'] != []):
@@ -72,8 +72,8 @@ class CGCore(cgfuncs.CGFuncs):
       if ('logging' in cpval.keys()):
         for c in self.generated[cp]['logging']:
           self.codes[cp][3] += c
-      # Static
-      for sv, svval in cpval['static'].items():
+      # global
+      for sv, svval in cpval['global'].items():
         for sline, sval in svval.items():
           # Definitions
           for c in sval['code']:

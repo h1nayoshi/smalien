@@ -43,19 +43,25 @@ class DBCParser(dbcfuncs.DBCFuncs):
               # Add state
               self.add_state(oprnds[0], i, i, dtype, 'dest', 'define')
             elif (dalvik['class'] == 2): # Class 2: opcode dest, src
+              # If static
+              if (oprnds[1].find('->') > -1):
+                self.update_get_of_static_var(oprnds, class_path, method, i)
+              # If an instance
+              if ((len(oprnds) == 3) and (oprnds[2].find('->') > -1)):
+                oprnds[1] = oprnds[2]
+                self.update_get_of_instance(oprnds, class_path, method, i)
               # Find src type
               chk = self.is_var(oprnds[1])
-              #if (oprnds[1] not in mval['vars'].keys()): # If the second oprnd is not a var
+              # If the second oprnd is not a var
               if (not chk):
                 continue
               # Get src type
               stype = self.get_stype(oprnds, c, i)
-              # If static
-              #if (mval['vars'][oprnds[1]]['attr'] == 'static'):
-              if (oprnds[1].find('->') > -1):
-                self.update_get_of_static_var(oprnds, class_path, method, i, stype)
               # Get dest type
-              dtype = self.get_dtype(dalvik, stype, oprnds)
+              if (stype == 'unknown'):
+                dtype = self.get_dtype(dalvik, stype, oprnds)
+              else:
+                dtype = stype
               # Add states
               self.add_state(oprnds[1], i, i, stype, 'src', oprnds[0])
               self.add_state(oprnds[0], i, i, dtype, 'dest', oprnds[1])
@@ -78,9 +84,14 @@ class DBCParser(dbcfuncs.DBCFuncs):
             elif (dalvik['class'] == 5): # Class 5: src, dest
               stype = self.get_stype_from_states(oprnds[0], i)
               # If static
-              #if (mval['vars'][oprnds[1]]['attr'] == 'static'):
               if (oprnds[1].find('->') > -1):
-                self.update_put_of_static_var(oprnds, class_path, method, i, stype)
+                stype = oprnds[1].split(':')[1]
+                self.update_put_of_static_var(oprnds, class_path, method, i)
+              # If an instance
+              if (len(oprnds) == 3):
+                oprnds[1] = oprnds[2]
+                stype = oprnds[1].split(':')[1]
+                self.update_put_of_instance(oprnds, class_path, method, i)
               # Add states
               self.add_state(oprnds[0], i, i, stype, 'src', oprnds[1])
               self.add_state(oprnds[1], i, i, stype, 'dest', oprnds[0])
@@ -172,11 +183,19 @@ class DBCParser(dbcfuncs.DBCFuncs):
                   self.add_state(params[0], i, i, ptypes[0], 'dest', 'init')
               else: # If not API
                 cntr = 0
-                for ptype in ptypes:
-                  self.add_state(params[cntr], i, -1, ptype, 'src', 'method param')
-                  if (ptype == 'J' or ptype == 'D'):
+                if (c.split(';->')[1].find('<init>(') > -1): # If the method is <init>(), propagates to base obj.
+                  for ptype in ptypes:
+                    self.add_state(params[cntr], i, i, ptype, 'src', params[0])
+                    self.add_state(params[0], i, i, ptypes[0], 'dest', params[cntr])
+                    if (ptype == 'J' or ptype == 'D'):
+                      cntr += 1
                     cntr += 1
-                  cntr += 1
+                else:
+                  for ptype in ptypes:
+                    self.add_state(params[cntr], i, -1, ptype, 'src', 'method param')
+                    if (ptype == 'J' or ptype == 'D'):
+                      cntr += 1
+                    cntr += 1
           elif (dalvik['group'] == 4): # Group 4: invoke {src_dest, src_dest, ..., src_dest}, method
             #chk1 = self.is_api(class_path, method, i)
             chk2 = self.is_there_ret(i+1)

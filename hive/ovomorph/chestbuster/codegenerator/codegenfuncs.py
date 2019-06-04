@@ -22,16 +22,16 @@ class CGFuncs():
       return True
     return False
 
-  def generate_tag_for_static(self, flow, prev_tag):
+  def generate_tag_for_global(self, flow, prev_tag):
     v = flow['var']
     vtype = flow['type']
     line = flow['line']
     cp = v.split('->')[0]
-    if (v in self.generated[cp]['static'].keys()):
-      if (line in self.generated[cp]['static'][v].keys()):
-        return cp+'->'+self.generated[cp]['static'][v][line]['tag']
+    if (v in self.generated[cp]['global'].keys()):
+      if (line in self.generated[cp]['global'][v].keys()):
+        return cp+'->'+self.generated[cp]['global'][v][line]['tag']
     else:
-      self.generated[cp]['static'][v] = {}
+      self.generated[cp]['global'][v] = {}
     tag = 'Tag_'+v.split('->')[-1].split(':')[0]+'_'+str(line)+'_'+str(self.tag_cntr)+':C'
     code = []
     # Define a tag
@@ -41,8 +41,8 @@ class CGFuncs():
     # Define a untagging method
     self.__define_untagging_method(code, cp, tag)
     utg_place = []
-    self.__untagging_static(cp, v, utg_place)
-    self.generated[cp]['static'][v][line] = {
+    self.__untagging_global(cp, v, utg_place)
+    self.generated[cp]['global'][v][line] = {
       'tag': tag,
       'tpath': cp+'->'+tag,
       'code': code,
@@ -59,7 +59,7 @@ class CGFuncs():
     self.tag_cntr += 1
     return cp+'->'+tag
 
-  def generate_tag_for_non_static(self, f, prev_tag):
+  def generate_tag_for_local(self, f, prev_tag):
     cp = f['class_path']
     m = f['method']
     v = f['var']
@@ -84,7 +84,7 @@ class CGFuncs():
     if (v[0] != 'p'):
       mstart = self.parsed_data[cp]['methods'][m]['start']
       utg_place.append(mstart+1)
-    self.__untagging_non_static(cp, m, areas, v, utg_place)
+    self.__untagging_local(cp, m, areas, v, utg_place)
     #Define a checking method
     self.__define_checking_method(code, cp, vtype, tag)
     if ('sink' in f.keys()):
@@ -112,7 +112,7 @@ class CGFuncs():
     self.tag_cntr += 1
     return cp+'->'+tag
 
-  def generate_tag_for_non_static_bad_type(self, f, prev_tag):
+  def generate_tag_for_local_bad_type(self, f, prev_tag):
     cp = f['class_path']
     m = f['method']
     v = f['var']
@@ -137,7 +137,7 @@ class CGFuncs():
     if (v[0] != 'p'):
       mstart = self.parsed_data[cp]['methods'][m]['start']
       utg_place.append(mstart+1)
-    self.__untagging_non_static(cp, m, areas, v, utg_place)
+    self.__untagging_local(cp, m, areas, v, utg_place)
     self.generated[cp]['methods'][m][v][line] = {
       'tag': tag,
       'code': code,
@@ -244,15 +244,25 @@ class CGFuncs():
       '.end method\n\n'
     )
 
-  def __untagging_static(self, cp, v, untag):
-    for ucp, ucpval in self.parsed_data[cp]['static_vars'][v]['put'].items():
+  def __untagging_global(self, cp, v, untag):
+    put_dests = self.__get_global_put_dests(v)
+    if (put_dests is None):
+      return
+    for ucp, ucpval in put_dests.items():
       for um, umval in ucpval.items():
         for uline, uval in umval.items():
           if (uval['sourced'] == 'no'):
             if ([ucp, uline+1] not in untag):
               untag.append([ucp, uline+1])
 
-  def __untagging_non_static(self, cp, m, areas, v, untag):
+  def __get_global_put_dests(self, v):
+    if (v in self.parsed_data[v.split('->')[0]]['static_vars'].keys()):
+      return self.parsed_data[v.split('->')[0]]['static_vars'][v]['put']
+    elif (v in self.parsed_data[v.split('->')[0]]['instances'].keys()):
+      return self.parsed_data[v.split('->')[0]]['instances'][v]['put']
+    return None
+
+  def __untagging_local(self, cp, m, areas, v, untag):
     for area in areas:
       if (area['subseq'] == -1):
         chk_ret = self.__check_ret(cp, m, area['end'], v)

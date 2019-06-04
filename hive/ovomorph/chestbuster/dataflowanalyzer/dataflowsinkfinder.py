@@ -7,7 +7,7 @@ class DFSFinder():
   subs = []
   sink_added = {}
   area_analyzed_rev = {}
-  static_var_analyzed = []
+  global_var_analyzed = []
 
   def find_sinks(self, cp, m, line):
     DFSFinder.sink_added = {}
@@ -71,18 +71,21 @@ class DFSFinder():
 
   def __init_df_rev(self):
     DFSFinder.area_analyzed_rev = {}
-    DFSFinder.static_var_analyzed = []
+    DFSFinder.global_var_analyzed = []
 
   def __find_df_of_var_rev(self, cp, m, end, v, area, nexts):
     # Check if a var is a part of source flows
     chk = self.__is_source(cp, m, end, v)
     if (chk):
       return 'killall'
-    # If a var is static
+    # If a var is global
     if (v.find('->') > -1 and v.split('->')[0] in self.parsed_data.keys()):
-      if (v not in DFSFinder.static_var_analyzed):
-        DFSFinder.static_var_analyzed.append(v)
-        for scp, scpval in self.parsed_data[v.split('->')[0]]['static_vars'][v]['put'].items():
+      if (v not in DFSFinder.global_var_analyzed):
+        DFSFinder.global_var_analyzed.append(v)
+        put_dests = self.__get_global_put_dests(v)
+        if (put_dests is None):
+          return
+        for scp, scpval in put_dests.items():
           for sm, smval in scpval.items():
             for sl, slval in smval.items():
               self.__add_flow(nexts, scp, sm, sl, slval['src'], sl)
@@ -95,7 +98,7 @@ class DFSFinder():
               nexts.remove(nr)
             if (next_rm != [] and nexts == []):
               return 'killall'
-    # If a var is not static
+    # If a var is local
     else:
       # Get all area that a var relates
       tarea = []
@@ -114,6 +117,13 @@ class DFSFinder():
         nexts.remove(nr)
       if (next_rm != [] and nexts == []):
         return 'killall'
+
+  def __get_global_put_dests(self, v):
+    if (v in self.parsed_data[v.split('->')[0]]['static_vars'].keys()):
+      return self.parsed_data[v.split('->')[0]]['static_vars'][v]['put']
+    elif (v in self.parsed_data[v.split('->')[0]]['instances'].keys()):
+      return self.parsed_data[v.split('->')[0]]['instances'][v]['put']
+    return None
 
   def __is_source(self, cp, m, end, v):
     # Check if the var is source
@@ -199,7 +209,7 @@ class DFSFinder():
         for state in self.parsed_data[cp]['methods'][m]['vars'][v]['state'][i]:
           if (state['role'] == 'dest'):
             dested = True
-            # If static
+            # If global
             if (state['src'].find('->') > -1):
               self.__add_flow(nexts, cp, m, state['sline'], state['src'], i)
             # If method ret

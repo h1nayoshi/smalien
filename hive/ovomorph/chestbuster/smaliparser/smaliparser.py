@@ -48,6 +48,7 @@ class SmaliParser(mparser.MethodParser):
           'file_path': smali,
         }
         self.__get_static_vars(class_path, smali)
+        self.__get_instances(class_path, smali)
 
   def __get_class_path(self, smali):
     c = self.src_codes[smali][0]
@@ -58,11 +59,31 @@ class SmaliParser(mparser.MethodParser):
 
   def __get_static_vars(self, class_path, smali):
     self.parsed_data[class_path]['static_vars'] = {}
-    for c in self.src_codes[smali]:
+    start, end = self.__get_range(smali, '# static fields')
+    if (start is None):
+      return
+    for c in self.src_codes[smali][start:end]:
       if (re.search(r'^.field ', c) is not None and c.find(' static ') > -1):
         var = self.__extract_var(c)
         if (var):
           self.parsed_data[class_path]['static_vars'][class_path + '->' + var] = {
+            'name': var.split(':')[0],
+            'type': var.split(':')[1],
+            'class_path': class_path,
+            'put': {},
+            'get': [],
+          }
+
+  def __get_instances(self, class_path, smali):
+    self.parsed_data[class_path]['instances'] = {}
+    start, end = self.__get_range(smali, '# instance fields')
+    if (start is None):
+      return
+    for c in self.src_codes[smali][start:end]:
+      if (re.search(r'^.field ', c) is not None):
+        var = self.__extract_var(c)
+        if (var):
+          self.parsed_data[class_path]['instances'][class_path + '->' + var] = {
             'name': var.split(':')[0],
             'type': var.split(':')[1],
             'class_path': class_path,
@@ -76,4 +97,16 @@ class SmaliParser(mparser.MethodParser):
       if (item.find(':') > -1):
         return item
     return False
+
+  def __get_range(self, smali, target):
+    for i in range(len(self.src_codes[smali])):
+      c = self.src_codes[smali][i]
+      if (c.find(target) > -1):
+        start = i+1
+        for j in range(start, len(self.src_codes[smali])):
+          c = self.src_codes[smali][j]
+          if (re.search(r'^\# *', c) is not None):
+            return start, j
+        return start, len(self.src_codes[smali])
+    return None, None
 

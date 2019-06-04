@@ -62,7 +62,7 @@ class DBCFuncs():
   def add_state(self, v, key, line, vtype, role, peer):
     if (v not in DBCFuncs.mv['vars'].keys()):
         if (v.find('->') > -1):
-          attr = 'static'
+          attr = 'global'
         else:
           attr = 'local'
         DBCFuncs.mv['vars'][v] = {
@@ -86,9 +86,10 @@ class DBCFuncs():
         'src': peer,
       })
 
-  def update_get_of_static_var(self, vs, class_path, method, line, stype):
+  def update_get_of_static_var(self, vs, class_path, method, line):
     vs_cp = vs[1].split('->')[0]
     vs_var = vs[1].split('->')[1]
+    stype = vs_var.split(':')[1]
     # Check vs_cp is known
     if (vs_cp not in self.parsed_data.keys()):
       return
@@ -110,9 +111,35 @@ class DBCFuncs():
       'dest': vs[0],
     })
 
-  def update_put_of_static_var(self, vs, class_path, method, line, stype):
+  def update_get_of_instance(self, vs, class_path, method, line):
+    i_cp = vs[1].split('->')[0]
+    i_var = vs[1].split('->')[1]
+    stype = i_var.split(':')[1]
+    # Check i_cp is known
+    if (i_cp not in self.parsed_data.keys()):
+      return
+    # If the instance hasn't been initialized, init it first
+    if (vs[1] not in self.parsed_data[i_cp]['instances'].keys()):
+      self.parsed_data[i_cp]['instances'][vs[1]] = {
+        'name': i_var.split(':')[0],
+        'type': i_var.split(':')[1],
+        'class_path': i_cp,
+        'put': {},
+        'get': [],
+      }
+    # Update get
+    self.parsed_data[i_cp]['instances'][vs[1]]['get'].append({
+      'class_path': class_path,
+      'method': method,
+      'line': line,
+      'type': stype,
+      'dest': vs[0],
+    })
+
+  def update_put_of_static_var(self, vs, class_path, method, line):
     vs_cp = vs[1].split('->')[0]
     vs_var = vs[1].split('->')[1]
+    stype = vs_var.split(':')[1]
     # Check vs_cp is known
     if (vs_cp not in self.parsed_data.keys()):
       return
@@ -136,8 +163,34 @@ class DBCFuncs():
       'sourced': 'no',
     }
 
+  def update_put_of_instance(self, vs, class_path, method, line):
+    i_cp = vs[1].split('->')[0]
+    i_var = vs[1].split('->')[1]
+    stype = i_var.split(':')[1]
+    # Check i_cp is known
+    if (i_cp not in self.parsed_data.keys()):
+      return
+    # If the instance hasn't been initialized, init it first
+    if (vs[1] not in self.parsed_data[i_cp]['instances'].keys()):
+      self.parsed_data[i_cp]['instances'][vs[1]] = {
+        'name': i_var.split(':')[0],
+        'type': i_var.split(':')[1],
+        'class_path': i_cp,
+        'put': {},
+        'get': [],
+      }
+    # Update put
+    if (class_path not in self.parsed_data[i_cp]['instances'][vs[1]]['put'].keys()):
+      self.parsed_data[i_cp]['instances'][vs[1]]['put'][class_path] = {}
+    if (method not in self.parsed_data[i_cp]['instances'][vs[1]]['put'][class_path].keys()):
+      self.parsed_data[i_cp]['instances'][vs[1]]['put'][class_path][method] = {}
+    self.parsed_data[i_cp]['instances'][vs[1]]['put'][class_path][method][line] = {
+      'type': stype,
+      'src': vs[0],
+      'sourced': 'no',
+    }
+
   def get_stype(self, oprnds, c, line):
-    #if (DBCFuncs.mv['vars'][oprnds[1]]['attr'] == 'static'): # If static
     if (oprnds[1].find('->') > -1): # If static
       stype = c.split(':')[-1]
     else: # If local
