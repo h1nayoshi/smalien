@@ -16,7 +16,7 @@ class MethodParser(mfuncs.MethodFuncs, dbcparser.DBCParser, sisparser.SisParser)
     print('    [*] Finding methods')
     total_methods = 0
     total_statics = 0
-    for class_path, cval in self.parsed_data.items():
+    for class_path, cval in self.parsed_data['classes'].items():
       total_statics += len(cval['static_vars'].keys())
       self.find_methods(class_path, cval)
       total_methods += len(cval['methods'].keys())
@@ -29,7 +29,7 @@ class MethodParser(mfuncs.MethodFuncs, dbcparser.DBCParser, sisparser.SisParser)
     #cntr = 0
     start = time.time()
     self.generate_method_paths()
-    for class_path, cval in self.parsed_data.items():    
+    for class_path, cval in self.parsed_data['classes'].items():    
       src_code = self.src_codes[cval['file_path']]
       for method, mval in cval['methods'].items():
         self.find_method_calls(class_path, method, mval, src_code)
@@ -41,7 +41,7 @@ class MethodParser(mfuncs.MethodFuncs, dbcparser.DBCParser, sisparser.SisParser)
     total_target = 0
     start = time.time()
     for act in self.activities:
-      for class_path, cval in self.parsed_data.items():
+      for class_path, cval in self.parsed_data['classes'].items():
         if (class_path == act or class_path.find(act[:-1]+'$') > -1):
           for method, mval in cval['methods'].items():
             total_target += self.detect_target_methods(mval)
@@ -52,7 +52,7 @@ class MethodParser(mfuncs.MethodFuncs, dbcparser.DBCParser, sisparser.SisParser)
     #cntr = 0
     start = time.time()
     # Find control flow blocks in each method
-    for class_path, cval in self.parsed_data.items():
+    for class_path, cval in self.parsed_data['classes'].items():
       src_code = self.src_codes[cval['file_path']]
       for method, mval in cval['methods'].items():
         if (mval['target'] == True):
@@ -65,7 +65,7 @@ class MethodParser(mfuncs.MethodFuncs, dbcparser.DBCParser, sisparser.SisParser)
     #cntr = 0
     start = time.time()
     # Find vars in each methods
-    for class_path, cval in self.parsed_data.items():
+    for class_path, cval in self.parsed_data['classes'].items():
       src_code = self.src_codes[cval['file_path']]
       for method, mval in cval['methods'].items():
         if (mval['target'] == True):
@@ -80,7 +80,7 @@ class MethodParser(mfuncs.MethodFuncs, dbcparser.DBCParser, sisparser.SisParser)
     sink_cntr = 0
     start = time.time()
     # Find sources, implicits, and sinks in each method
-    for class_path, cval in self.parsed_data.items():
+    for class_path, cval in self.parsed_data['classes'].items():
       src_code = self.src_codes[cval['file_path']]
       for method, mval in cval['methods'].items():
         if (mval['target'] == True):

@@ -9,7 +9,7 @@ class CodeInjector():
     self.src_codes = src_codes
 
   def inject(self):
-    for smali, svalue in self.parsed_data.items():
+    for smali, svalue in self.parsed_data['classes'].items():
       final_code = ''
       code = self.src_codes[svalue['file_path']]
       for i in range(svalue['linage']):

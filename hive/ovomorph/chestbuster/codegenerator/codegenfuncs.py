@@ -18,8 +18,9 @@ class CGFuncs():
   ]
 
   def check_type(self, vtype):
-    if (vtype in CGFuncs.target_types or (vtype[0] == '[' and vtype.find('unknown') < 0)):
-      return True
+    if (vtype is not None):
+      if (vtype in CGFuncs.target_types or (vtype[0] == '[' and vtype.find('unknown') < 0)):
+        return True
     return False
 
   def generate_tag_for_global(self, flow, prev_tag):
@@ -82,7 +83,7 @@ class CGFuncs():
     # Untag at a method start if not a param
     utg_place = []
     if (v[0] != 'p'):
-      mstart = self.parsed_data[cp]['methods'][m]['start']
+      mstart = self.parsed_data['classes'][cp]['methods'][m]['start']
       utg_place.append(mstart+1)
     self.__untagging_local(cp, m, areas, v, utg_place)
     #Define a checking method
@@ -135,7 +136,7 @@ class CGFuncs():
     # Untag at a method start if not a param
     utg_place = []
     if (v[0] != 'p'):
-      mstart = self.parsed_data[cp]['methods'][m]['start']
+      mstart = self.parsed_data['classes'][cp]['methods'][m]['start']
       utg_place.append(mstart+1)
     self.__untagging_local(cp, m, areas, v, utg_place)
     self.generated[cp]['methods'][m][v][line] = {
@@ -256,10 +257,10 @@ class CGFuncs():
               untag.append([ucp, uline+1])
 
   def __get_global_put_dests(self, v):
-    if (v in self.parsed_data[v.split('->')[0]]['static_vars'].keys()):
-      return self.parsed_data[v.split('->')[0]]['static_vars'][v]['put']
-    elif (v in self.parsed_data[v.split('->')[0]]['instances'].keys()):
-      return self.parsed_data[v.split('->')[0]]['instances'][v]['put']
+    if (v in self.parsed_data['classes'][v.split('->')[0]]['static_vars'].keys()):
+      return self.parsed_data['classes'][v.split('->')[0]]['static_vars'][v]['put']
+    elif (v in self.parsed_data['classes'][v.split('->')[0]]['instances'].keys()):
+      return self.parsed_data['classes'][v.split('->')[0]]['instances'][v]['put']
     return None
 
   def __untagging_local(self, cp, m, areas, v, untag):
@@ -276,7 +277,7 @@ class CGFuncs():
 
   def __check_ret(self, cp, m, end, v):
     ret = None
-    for r in self.parsed_data[cp]['methods'][m]['ret']:
+    for r in self.parsed_data['classes'][cp]['methods'][m]['ret']:
       if (r['line'] == end and r['var'] == v):
         return 'returned'
       elif (r['line'] == end):

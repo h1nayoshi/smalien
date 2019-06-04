@@ -16,14 +16,14 @@ class DataFlowAnalyzer(dffuncs.DFFuncs, dffinder.DFFinder, dfifinder.DFIFinder, 
     self.__init_data_flows()
 
   def __init_data_flows(self):
-    for class_path, cval in self.parsed_data.items():
+    for class_path, cval in self.parsed_data['classes'].items():
       self.data_flows[class_path] = {}
       for method, mval in cval['methods'].items():
         self.data_flows[class_path][method] = {}
 
   def analyze(self):
     # Find data flows
-    for class_path, cval in self.parsed_data.items():
+    for class_path, cval in self.parsed_data['classes'].items():
       for method, mval in cval['methods'].items():
         if ('sources' in mval.keys()):
           for line, sval in mval['sources'].items():

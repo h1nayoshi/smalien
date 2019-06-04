@@ -7,7 +7,7 @@ from . import codegenfuncs as cgfuncs
 
 class CGCore(cgfuncs.CGFuncs):
   def init_generator(self):
-    for class_path, cval in self.parsed_data.items():
+    for class_path, cval in self.parsed_data['classes'].items():
       self.codes[class_path] = {}
       self.replaces[class_path] = {}
       self.generated[class_path] = {

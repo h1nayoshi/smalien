@@ -5,6 +5,7 @@ import re
 import pprint
 
 from .dalvikbytecodes import invoke_kind as ik
+from .containermethods import container_methods as cms
 
 class DBCFuncs():
   # Target method's value and src code
@@ -91,73 +92,75 @@ class DBCFuncs():
     vs_var = vs[1].split('->')[1]
     stype = vs_var.split(':')[1]
     # Check vs_cp is known
-    if (vs_cp not in self.parsed_data.keys()):
+    if (vs_cp not in self.parsed_data['classes'].keys()):
       return
     # If the static var hasn't been initialized, init it first
-    if (vs[1] not in self.parsed_data[vs_cp]['static_vars'].keys()):
-      self.parsed_data[vs_cp]['static_vars'][vs[1]] = {
+    if (vs[1] not in self.parsed_data['classes'][vs_cp]['static_vars'].keys()):
+      self.parsed_data['classes'][vs_cp]['static_vars'][vs[1]] = {
         'name': vs_var.split(':')[0],
         'type': vs_var.split(':')[1],
         'class_path': vs_cp,
         'put': {},
-        'get': [],
+        'get': {},
       }
     # Update get
-    self.parsed_data[vs_cp]['static_vars'][vs[1]]['get'].append({
-      'class_path': class_path,
-      'method': method,
-      'line': line,
+    if (class_path not in self.parsed_data['classes'][vs_cp]['static_vars'][vs[1]]['get'].keys()):
+      self.parsed_data['classes'][vs_cp]['static_vars'][vs[1]]['get'][class_path] = {}
+    if (method not in self.parsed_data['classes'][vs_cp]['static_vars'][vs[1]]['get'][class_path].keys()):
+      self.parsed_data['classes'][vs_cp]['static_vars'][vs[1]]['get'][class_path][method] = {}
+    self.parsed_data['classes'][vs_cp]['static_vars'][vs[1]]['get'][class_path][method][line] = {
       'type': stype,
       'dest': vs[0],
-    })
+    }
 
   def update_get_of_instance(self, vs, class_path, method, line):
     i_cp = vs[1].split('->')[0]
     i_var = vs[1].split('->')[1]
     stype = i_var.split(':')[1]
     # Check i_cp is known
-    if (i_cp not in self.parsed_data.keys()):
+    if (i_cp not in self.parsed_data['classes'].keys()):
       return
     # If the instance hasn't been initialized, init it first
-    if (vs[1] not in self.parsed_data[i_cp]['instances'].keys()):
-      self.parsed_data[i_cp]['instances'][vs[1]] = {
+    if (vs[1] not in self.parsed_data['classes'][i_cp]['instances'].keys()):
+      self.parsed_data['classes'][i_cp]['instances'][vs[1]] = {
         'name': i_var.split(':')[0],
         'type': i_var.split(':')[1],
         'class_path': i_cp,
         'put': {},
-        'get': [],
+        'get': {},
       }
     # Update get
-    self.parsed_data[i_cp]['instances'][vs[1]]['get'].append({
-      'class_path': class_path,
-      'method': method,
-      'line': line,
+    if (class_path not in self.parsed_data['classes'][i_cp]['instances'][vs[1]]['get'].keys()):
+      self.parsed_data['classes'][i_cp]['instances'][vs[1]]['get'][class_path] = {}
+    if (method not in self.parsed_data['classes'][i_cp]['instances'][vs[1]]['get'][class_path].keys()):
+      self.parsed_data['classes'][i_cp]['instances'][vs[1]]['get'][class_path][method] = {}
+    self.parsed_data['classes'][i_cp]['instances'][vs[1]]['get'][class_path][method][line] = {
       'type': stype,
       'dest': vs[0],
-    })
+    }
 
   def update_put_of_static_var(self, vs, class_path, method, line):
     vs_cp = vs[1].split('->')[0]
     vs_var = vs[1].split('->')[1]
     stype = vs_var.split(':')[1]
     # Check vs_cp is known
-    if (vs_cp not in self.parsed_data.keys()):
+    if (vs_cp not in self.parsed_data['classes'].keys()):
       return
     # If the static var hasn't been initialized, init it first
-    if (vs[1] not in self.parsed_data[vs_cp]['static_vars'].keys()):
-      self.parsed_data[vs_cp]['static_vars'][vs[1]] = {
+    if (vs[1] not in self.parsed_data['classes'][vs_cp]['static_vars'].keys()):
+      self.parsed_data['classes'][vs_cp]['static_vars'][vs[1]] = {
         'name': vs_var.split(':')[0],
         'type': vs_var.split(':')[1],
         'class_path': vs_cp,
         'put': {},
-        'get': [],
+        'get': {},
       }
     # Update put
-    if (class_path not in self.parsed_data[vs_cp]['static_vars'][vs[1]]['put'].keys()):
-      self.parsed_data[vs_cp]['static_vars'][vs[1]]['put'][class_path] = {}
-    if (method not in self.parsed_data[vs_cp]['static_vars'][vs[1]]['put'][class_path].keys()):
-      self.parsed_data[vs_cp]['static_vars'][vs[1]]['put'][class_path][method] = {}
-    self.parsed_data[vs_cp]['static_vars'][vs[1]]['put'][class_path][method][line] = {
+    if (class_path not in self.parsed_data['classes'][vs_cp]['static_vars'][vs[1]]['put'].keys()):
+      self.parsed_data['classes'][vs_cp]['static_vars'][vs[1]]['put'][class_path] = {}
+    if (method not in self.parsed_data['classes'][vs_cp]['static_vars'][vs[1]]['put'][class_path].keys()):
+      self.parsed_data['classes'][vs_cp]['static_vars'][vs[1]]['put'][class_path][method] = {}
+    self.parsed_data['classes'][vs_cp]['static_vars'][vs[1]]['put'][class_path][method][line] = {
       'type': stype,
       'src': vs[0],
       'sourced': 'no',
@@ -168,23 +171,23 @@ class DBCFuncs():
     i_var = vs[1].split('->')[1]
     stype = i_var.split(':')[1]
     # Check i_cp is known
-    if (i_cp not in self.parsed_data.keys()):
+    if (i_cp not in self.parsed_data['classes'].keys()):
       return
     # If the instance hasn't been initialized, init it first
-    if (vs[1] not in self.parsed_data[i_cp]['instances'].keys()):
-      self.parsed_data[i_cp]['instances'][vs[1]] = {
+    if (vs[1] not in self.parsed_data['classes'][i_cp]['instances'].keys()):
+      self.parsed_data['classes'][i_cp]['instances'][vs[1]] = {
         'name': i_var.split(':')[0],
         'type': i_var.split(':')[1],
         'class_path': i_cp,
         'put': {},
-        'get': [],
+        'get': {},
       }
     # Update put
-    if (class_path not in self.parsed_data[i_cp]['instances'][vs[1]]['put'].keys()):
-      self.parsed_data[i_cp]['instances'][vs[1]]['put'][class_path] = {}
-    if (method not in self.parsed_data[i_cp]['instances'][vs[1]]['put'][class_path].keys()):
-      self.parsed_data[i_cp]['instances'][vs[1]]['put'][class_path][method] = {}
-    self.parsed_data[i_cp]['instances'][vs[1]]['put'][class_path][method][line] = {
+    if (class_path not in self.parsed_data['classes'][i_cp]['instances'][vs[1]]['put'].keys()):
+      self.parsed_data['classes'][i_cp]['instances'][vs[1]]['put'][class_path] = {}
+    if (method not in self.parsed_data['classes'][i_cp]['instances'][vs[1]]['put'][class_path].keys()):
+      self.parsed_data['classes'][i_cp]['instances'][vs[1]]['put'][class_path][method] = {}
+    self.parsed_data['classes'][i_cp]['instances'][vs[1]]['put'][class_path][method][line] = {
       'type': stype,
       'src': vs[0],
       'sourced': 'no',
@@ -314,7 +317,7 @@ class DBCFuncs():
     return ptypes
 
   def is_api(self, class_path, method, line):
-    calls = self.parsed_data[class_path]['methods'][method]['calls']
+    calls = self.parsed_data['classes'][class_path]['methods'][method]['calls']
     for call in calls:
       if (line == call['line']):
         return False
@@ -329,4 +332,66 @@ class DBCFuncs():
     if (c.find(' move-result') > -1):
       return True
     return False
+
+  def check_container_method(self, cp, m, l, c, params, ptypes, dest, dtype, dline):
+    for cm in cms:
+      if (c.find(cm['code']) > -1):
+        if (cm['group'] == 0): # SharedPreferences
+          ks = self.__get_key_string(cp, m, l, params[1])
+          if (cm['class'] == 0): # Put
+            self.__update_put_of_con(self.parsed_data['containers']['preference']['put'], cp, m, l, params, ptypes, ks)
+            self.add_state(params[1], l, l, ptypes[1], 'src', 'preference_key')
+            self.add_state(params[2], l, l, ptypes[2], 'src', 'preference_val_put')
+          if (cm['class'] == 1): # Get
+            self.__update_get_of_con(self.parsed_data['containers']['preference']['get'], cp, m, l, params, dest, dtype, dline, ks)
+            self.add_state(params[1], l, l, ptypes[1], 'src', 'preference_key')
+            self.add_state(dest, dline, l, dtype, 'dest', 'preference_val_get')
+        return True
+    return False
+
+  def __update_put_of_con(self, con, cp, m, l, params, ptypes, ks):
+    if (cp not in con.keys()):
+      con[cp] = {}
+    if (m not in con[cp].keys()):
+      con[cp][m] = {}
+    con[cp][m][l] = {
+      'key': {
+        'var': params[1],
+        'string': ks,
+      },
+      'src': params[2],
+      'type': ptypes[2],
+      'sourced': 'no',
+    }
+
+  def __update_get_of_con(self, con, cp, m, l, params, dest, dtype, dline, ks):
+    if (cp not in con.keys()):
+      con[cp] = {}
+    if (m not in con[cp].keys()):
+      con[cp][m] = {}
+    con[cp][m][l] = {
+      'key': {
+        'var': params[1],
+        'string': ks,
+      },
+      'dest': dest,
+      'dline': dline,
+      'type': dtype,
+    }
+
+  def __get_key_string(self, cp, m, l, v):
+    vstates = self.parsed_data['classes'][cp]['methods'][m]['vars'][v]['state']
+    mstart = self.parsed_data['classes'][cp]['methods'][m]['start']
+    state = self.__get_prev_state(vstates, l, mstart)
+    if (state is not None and state['src'] == 'literal'):
+      return DBCFuncs.sc[state['sline']].split(', ')[-1]
+    return None
+
+  def __get_prev_state(self, vstates, s, e):
+    for i in range(s, e, -1):
+      if (i in vstates.keys()):
+        for state in vstates[i]:
+          if (state['role'] == 'dest'):
+            return state
+    return None
 

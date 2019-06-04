@@ -33,27 +33,43 @@ class DFFinder():
     DFFinder.area_analyzed = {}
 
   def __find_df_of_var(self, cp, m, start, v, area, nexts):
-    # If a var is global
-    if (v.find('->') > -1 and v.split('->')[0] in self.parsed_data.keys()):
-      if (v in self.parsed_data[v.split('->')[0]]['static_vars'].keys()): # If static
-        if (self.parsed_data[v.split('->')[0]]['static_vars'][v]['put'][cp][m][start]['sourced'] == 'no'):
-          self.parsed_data[v.split('->')[0]]['static_vars'][v]['put'][cp][m][start]['sourced'] = 'yes'
-          for sn in self.parsed_data[v.split('->')[0]]['static_vars'][v]['get']:
-            self.__add_flow(nexts, sn['class_path'], sn['method'], sn['line'], sn['dest'], sn['line'])
+    # If SharedPreferences
+    if (v.find('preference_') > -1):
+      if (v == 'preference_val_put'):
+        target_key = self.__spref_get_target_key(cp, m, start)
+        if (target_key is not None):
+          for gcp, gcpval in self.parsed_data['containers']['preference']['get'].items():
+            for gm, gmval in gcpval.items():
+              for gl, glval in gmval.items():
+                if (glval['key']['string'] == target_key):
+                  self.__add_flow(nexts, gcp, gm, glval['dline'], glval['dest'], gl)
           for n in nexts:
             self.__find_df_of_var(n['class_path'], n['method'], n['line'], n['var'], n['area'], n['next'])
-      if (v in self.parsed_data[v.split('->')[0]]['instances'].keys()): # If instance
-        if (self.parsed_data[v.split('->')[0]]['instances'][v]['put'][cp][m][start]['sourced'] == 'no'):
-          self.parsed_data[v.split('->')[0]]['instances'][v]['put'][cp][m][start]['sourced'] = 'yes'
-          for sn in self.parsed_data[v.split('->')[0]]['instances'][v]['get']:
-            self.__add_flow(nexts, sn['class_path'], sn['method'], sn['line'], sn['dest'], sn['line'])
+    # If a var is global
+    elif (v.find('->') > -1 and v.split('->')[0] in self.parsed_data['classes'].keys()):
+      if (v in self.parsed_data['classes'][v.split('->')[0]]['static_vars'].keys()): # If static
+        if (self.parsed_data['classes'][v.split('->')[0]]['static_vars'][v]['put'][cp][m][start]['sourced'] == 'no'):
+          self.parsed_data['classes'][v.split('->')[0]]['static_vars'][v]['put'][cp][m][start]['sourced'] = 'yes'
+          for scp, scpval in self.parsed_data['classes'][v.split('->')[0]]['static_vars'][v]['get'].items():
+            for sm, smval in scpval.items():
+              for sl, slval in smval.items():
+                self.__add_flow(nexts, scp, sm, sl, slval['dest'], sl)
+          for n in nexts:
+            self.__find_df_of_var(n['class_path'], n['method'], n['line'], n['var'], n['area'], n['next'])
+      if (v in self.parsed_data['classes'][v.split('->')[0]]['instances'].keys()): # If instance
+        if (self.parsed_data['classes'][v.split('->')[0]]['instances'][v]['put'][cp][m][start]['sourced'] == 'no'):
+          self.parsed_data['classes'][v.split('->')[0]]['instances'][v]['put'][cp][m][start]['sourced'] = 'yes'
+          for scp, scpval in self.parsed_data['classes'][v.split('->')[0]]['instances'][v]['get'].items():
+            for sm, smval in scpval.items():
+              for sl, slval in smval.items():
+                self.__add_flow(nexts, scp, sm, sl, slval['dest'], sl)
           for n in nexts:
             self.__find_df_of_var(n['class_path'], n['method'], n['line'], n['var'], n['area'], n['next'])
     # If a var is local
     else:
       # Get all area that a var relates
       tarea = []
-      bvals = self.parsed_data[cp]['methods'][m]['blocks']
+      bvals = self.parsed_data['classes'][cp]['methods'][m]['blocks']
       self.__get_target_area(bvals, start, -1, tarea)
       # Analyze target area
       ta = tarea.pop(0)
@@ -61,6 +77,11 @@ class DFFinder():
       # Analyze next area
       for n in nexts:
         self.__find_df_of_var(n['class_path'], n['method'], n['line'], n['var'], n['area'], n['next'])
+
+  def __spref_get_target_key(self, cp, m, l):
+    if (self.parsed_data['containers']['preference']['put'][cp][m][l]['sourced'] == 'no'):
+      return self.parsed_data['containers']['preference']['put'][cp][m][l]['key']['string']
+    return None
 
   def __get_target_area(self, bvals, start, prev, tarea):
     for block, bval in bvals.items():
@@ -135,8 +156,8 @@ class DFFinder():
     start, end, actend = self.__is_area_analyzed(cp, m, v, ta)
     dested = False
     for i in range(start+1, end+1):
-      if (i in self.parsed_data[cp]['methods'][m]['vars'][v]['state'].keys()):
-        for state in self.parsed_data[cp]['methods'][m]['vars'][v]['state'][i]:
+      if (i in self.parsed_data['classes'][cp]['methods'][m]['vars'][v]['state'].keys()):
+        for state in self.parsed_data['classes'][cp]['methods'][m]['vars'][v]['state'][i]:
           if (state['role'] == 'src'):
             # If global
             if (state['dest'].find('->') > -1):
@@ -147,10 +168,10 @@ class DFFinder():
               self.__add_flow(nexts, dest['class_path'], dest['method'], dline, p, i)
             # If return
             elif (state['dest'] == 'return'):
-              for cllr in self.parsed_data[cp]['methods'][m]['callers']:
+              for cllr in self.parsed_data['classes'][cp]['methods'][m]['callers']:
                 if (cllr['ret']['line'] is not None):
                   self.__add_flow(nexts, cllr['class_path'], cllr['method'], cllr['ret']['line'], cllr['ret']['var'], i)
-            # IF propagates to a local var
+            # IF propagates to a local var or container
             else:
               self.__add_flow(nexts, cp, m, state['dline'], state['dest'], i)
           elif (state['role'] == 'dest'):
@@ -161,9 +182,12 @@ class DFFinder():
     return end, actend
 
   def __add_flow(self, nexts, cp, m, start, v, sline):
-    if (self.parsed_data[cp]['methods'][m]['target'] == False):
-      return
-    vtype = self.parsed_data[cp]['methods'][m]['vars'][v]['state'][start][-1]['type']
+    if (v == 'preference_val_put'):
+      vtype = None
+    else:    
+      if (self.parsed_data['classes'][cp]['methods'][m]['target'] == False):
+        return
+      vtype = self.parsed_data['classes'][cp]['methods'][m]['vars'][v]['state'][start][-1]['type']
     nexts.append({
       'var': v,
       'type': vtype,
@@ -195,9 +219,9 @@ class DFFinder():
     return start, end, actend
 
   def __get_dest_of_call(self, cp, m, line, v):
-    for cll in self.parsed_data[cp]['methods'][m]['calls']:
+    for cll in self.parsed_data['classes'][cp]['methods'][m]['calls']:
       if (cll['line'] == line):
         pnum = cll['params'].index(v)
-        s = self.parsed_data[cll['class_path']]['methods'][cll['method']]['start']
+        s = self.parsed_data['classes'][cll['class_path']]['methods'][cll['method']]['start']
         return cll, s, 'p'+str(pnum)
 

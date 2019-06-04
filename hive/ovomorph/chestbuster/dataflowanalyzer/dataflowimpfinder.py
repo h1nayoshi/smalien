@@ -13,7 +13,7 @@ class DFIFinder():
     self.__walk_df(df['flow'], df['implicits'], [])
 
   def __walk_df(self, dfval, imps, subs):
-    for iline, ival in self.parsed_data[dfval['class_path']]['methods'][dfval['method']]['implicits'].items():
+    for iline, ival in self.parsed_data['classes'][dfval['class_path']]['methods'][dfval['method']]['implicits'].items():
       # Check each area
       for area in dfval['area']:
         if (iline > area['start'] and iline < area['end'] and dfval['var'] in ival['vars']):
@@ -63,7 +63,7 @@ class DFIFinder():
     DFIFinder.const_added = []
     tbs = self.__get_target_blocks(cp, m, line)
     for tb in tbs:
-      for var, vval in self.parsed_data[cp]['methods'][m]['vars'].items():
+      for var, vval in self.parsed_data['classes'][cp]['methods'][m]['vars'].items():
         for i in range(tb['start'], tb['end']):
           if (i in vval['state'].keys()):
             for state in vval['state'][i]:
@@ -89,7 +89,7 @@ class DFIFinder():
       'start': line,
       'end': bend,
     })
-    for block in self.parsed_data[cp]['methods'][m]['blocks'].values():
+    for block in self.parsed_data['classes'][cp]['methods'][m]['blocks'].values():
       if ('line' in block['from'].keys() and block['from']['line'] == line):
         ret.append({
           'start': block['start'],
@@ -98,7 +98,7 @@ class DFIFinder():
     return ret
 
   def __get_block_end(self, cp, m, line):
-    for block in self.parsed_data[cp]['methods'][m]['blocks'].values():
+    for block in self.parsed_data['classes'][cp]['methods'][m]['blocks'].values():
       if (line >= block['start'] and line <= block['end']):
         return block['end']
 

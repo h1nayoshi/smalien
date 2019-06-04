@@ -13,7 +13,11 @@ class SmaliParser(mparser.MethodParser):
     self.smalis = smalis
     self.activities = activities
     self.src_codes = {}
-    self.parsed_data = {}
+    self.parsed_data = {
+      'classes': {},
+      'containers': {},
+    }
+    self.__init_containers()
 
     # Init MethodParser
     super(SmaliParser, self).__init__()
@@ -33,6 +37,16 @@ class SmaliParser(mparser.MethodParser):
 
     return self.src_codes, self.parsed_data
 
+  def __init_containers(self):
+    self.parsed_data['containers'] = {
+      'bundle': {},
+      'preference': {},
+      'jsonobj': {},
+    }
+    for con in self.parsed_data['containers'].values():
+      con['put'] = {}
+      con['get'] = {}
+
   def __load_src_codes(self):
     for smali in self.smalis:
       with io.open(smali, 'r', encoding='utf-8') as f:
@@ -43,7 +57,7 @@ class SmaliParser(mparser.MethodParser):
       class_path = self.__get_class_path(smali)
       # If a class exists
       if (class_path):
-        self.parsed_data[class_path] = {
+        self.parsed_data['classes'][class_path] = {
           'linage': len(self.src_codes[smali]),
           'file_path': smali,
         }
@@ -58,7 +72,7 @@ class SmaliParser(mparser.MethodParser):
       return False
 
   def __get_static_vars(self, class_path, smali):
-    self.parsed_data[class_path]['static_vars'] = {}
+    self.parsed_data['classes'][class_path]['static_vars'] = {}
     start, end = self.__get_range(smali, '# static fields')
     if (start is None):
       return
@@ -66,16 +80,16 @@ class SmaliParser(mparser.MethodParser):
       if (re.search(r'^.field ', c) is not None and c.find(' static ') > -1):
         var = self.__extract_var(c)
         if (var):
-          self.parsed_data[class_path]['static_vars'][class_path + '->' + var] = {
+          self.parsed_data['classes'][class_path]['static_vars'][class_path + '->' + var] = {
             'name': var.split(':')[0],
             'type': var.split(':')[1],
             'class_path': class_path,
             'put': {},
-            'get': [],
+            'get': {},
           }
 
   def __get_instances(self, class_path, smali):
-    self.parsed_data[class_path]['instances'] = {}
+    self.parsed_data['classes'][class_path]['instances'] = {}
     start, end = self.__get_range(smali, '# instance fields')
     if (start is None):
       return
@@ -83,12 +97,12 @@ class SmaliParser(mparser.MethodParser):
       if (re.search(r'^.field ', c) is not None):
         var = self.__extract_var(c)
         if (var):
-          self.parsed_data[class_path]['instances'][class_path + '->' + var] = {
+          self.parsed_data['classes'][class_path]['instances'][class_path + '->' + var] = {
             'name': var.split(':')[0],
             'type': var.split(':')[1],
             'class_path': class_path,
             'put': {},
-            'get': [],
+            'get': {},
           }
 
   def __extract_var(self, c):

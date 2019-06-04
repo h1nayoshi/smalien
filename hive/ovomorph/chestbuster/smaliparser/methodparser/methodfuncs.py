@@ -65,7 +65,7 @@ class MethodFuncs(object):
 
   def generate_method_paths(self):
     self.mpaths = {}
-    for class_path, cval in self.parsed_data.items():
+    for class_path, cval in self.parsed_data['classes'].items():
       for method in cval['methods'].keys():
         target = ['L']
         subs = class_path[1:].split('/')
@@ -112,7 +112,7 @@ class MethodFuncs(object):
             'ret': ret,
           })
           # Add caller
-          self.parsed_data[cp]['methods'][m]['callers'].append({
+          self.parsed_data['classes'][cp]['methods'][m]['callers'].append({
             'class_path': tcp,
             'method': tm,
             'line': i,
@@ -167,7 +167,7 @@ class MethodFuncs(object):
       cntr = 1
       mval['target'] = True
       for call in mval['calls']:
-        nmval = self.parsed_data[call['class_path']]['methods'][call['method']]
+        nmval = self.parsed_data['classes'][call['class_path']]['methods'][call['method']]
         cntr += self.detect_target_methods(nmval)
       return cntr
     return 0

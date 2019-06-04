@@ -71,7 +71,7 @@ class DFFuncs():
     return ret
 
   def __init_ret(self, ret):
-    for class_path in self.parsed_data.keys():
+    for class_path in self.parsed_data['classes'].keys():
       ret[class_path] = {}
 
   def __add_sink(self, vval, svar, ret, byref):

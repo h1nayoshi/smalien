@@ -131,8 +131,12 @@ class DBCParser(dbcfuncs.DBCFuncs):
             else:
               chk = self.is_api(class_path, method, iline)
               stypes = self.get_ptypes_from_method_call(invoke)
-              if (chk): # If a method is API
-                dtype = invoke[invoke.find(')')+1:]
+              dtype = invoke[invoke.find(')')+1:]
+              # Check if container method
+              chk_cm = self.check_container_method(class_path, method, iline, invoke, srcs, stypes, dest, dtype, i)
+              if (chk_cm):
+                continue
+              elif (chk): # If a method is API
                 cntr = 0
                 for stype in stypes:
                   self.add_state(srcs[cntr], iline, i, stype, 'src', dest)
@@ -144,7 +148,6 @@ class DBCParser(dbcfuncs.DBCFuncs):
                 if (c.split(' ')[4] in ik[3]): # If invoke-custom
                   self.add_state(dest, i, iline, 'unknown', 'dest', 'method ret')
                 else:
-                  dtype = invoke[invoke.find(')')+1:]
                   if (srcs == []): # If no src
                     self.add_state(dest, i, iline, dtype, 'dest', 'method ret')
                   else:
@@ -166,7 +169,11 @@ class DBCParser(dbcfuncs.DBCFuncs):
             if (not chk2): # If no ret
               params = self.get_params_from_method_call(c)
               ptypes = self.get_ptypes_from_method_call(c)
-              if (chk1): # If API
+              # Check if container method
+              chk_cm = self.check_container_method(class_path, method, i, c, params, ptypes, None, None, None)
+              if (chk_cm):
+                continue
+              elif (chk1): # If API
                 if (len(params) > 1):
                   # Check if init with params
                   dtype = ptypes[0]

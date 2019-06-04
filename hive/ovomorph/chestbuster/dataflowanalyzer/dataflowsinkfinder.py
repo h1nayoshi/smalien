@@ -17,7 +17,7 @@ class DFSFinder():
     self.__find_untagged_sinks(df['sinks'])
 
   def __walk_df(self, dfval, sinks):
-    for sline, sval in self.parsed_data[dfval['class_path']]['methods'][dfval['method']]['sinks'].items():
+    for sline, sval in self.parsed_data['classes'][dfval['class_path']]['methods'][dfval['method']]['sinks'].items():
       #print 'sink', sline, sval
       # Check each area
       for area in dfval['area']:
@@ -79,7 +79,7 @@ class DFSFinder():
     if (chk):
       return 'killall'
     # If a var is global
-    if (v.find('->') > -1 and v.split('->')[0] in self.parsed_data.keys()):
+    if (v.find('->') > -1 and v.split('->')[0] in self.parsed_data['classes'].keys()):
       if (v not in DFSFinder.global_var_analyzed):
         DFSFinder.global_var_analyzed.append(v)
         put_dests = self.__get_global_put_dests(v)
@@ -102,7 +102,7 @@ class DFSFinder():
     else:
       # Get all area that a var relates
       tarea = []
-      bvals = self.parsed_data[cp]['methods'][m]['blocks']
+      bvals = self.parsed_data['classes'][cp]['methods'][m]['blocks']
       self.__get_target_area(bvals, end, -1, tarea)
       # Analyze target area
       ta = tarea.pop(0)
@@ -119,10 +119,10 @@ class DFSFinder():
         return 'killall'
 
   def __get_global_put_dests(self, v):
-    if (v in self.parsed_data[v.split('->')[0]]['static_vars'].keys()):
-      return self.parsed_data[v.split('->')[0]]['static_vars'][v]['put']
-    elif (v in self.parsed_data[v.split('->')[0]]['instances'].keys()):
-      return self.parsed_data[v.split('->')[0]]['instances'][v]['put']
+    if (v in self.parsed_data['classes'][v.split('->')[0]]['static_vars'].keys()):
+      return self.parsed_data['classes'][v.split('->')[0]]['static_vars'][v]['put']
+    elif (v in self.parsed_data['classes'][v.split('->')[0]]['instances'].keys()):
+      return self.parsed_data['classes'][v.split('->')[0]]['instances'][v]['put']
     return None
 
   def __is_source(self, cp, m, end, v):
@@ -205,8 +205,8 @@ class DFSFinder():
     start, end, actstart = self.__is_area_analyzed(cp, m, v, ta)
     dested = False
     for i in range(end-1, start-1, -1):
-      if (i in self.parsed_data[cp]['methods'][m]['vars'][v]['state'].keys()):
-        for state in self.parsed_data[cp]['methods'][m]['vars'][v]['state'][i]:
+      if (i in self.parsed_data['classes'][cp]['methods'][m]['vars'][v]['state'].keys()):
+        for state in self.parsed_data['classes'][cp]['methods'][m]['vars'][v]['state'][i]:
           if (state['role'] == 'dest'):
             dested = True
             # If global
@@ -219,7 +219,7 @@ class DFSFinder():
             # If param
             elif (state['src'] == 'param'):
               vindex = int(v[1:])
-              for cllr in self.parsed_data[cp]['methods'][m]['callers']:
+              for cllr in self.parsed_data['classes'][cp]['methods'][m]['callers']:
                 self.__add_flow(nexts, cllr['class_path'], cllr['method'], cllr['line'], cllr['params'][vindex], i)
             # IF propagates to a local var
             elif (state['src'] not in ['define', 'literal', 'init']):
@@ -229,9 +229,9 @@ class DFSFinder():
     return start, actstart
 
   def __add_flow(self, nexts, cp, m, start, v, sline):
-    if (v == 'none' or self.parsed_data[cp]['methods'][m]['target'] == False):
+    if (v == 'none' or self.parsed_data['classes'][cp]['methods'][m]['target'] == False):
       return
-    vtype = self.parsed_data[cp]['methods'][m]['vars'][v]['state'][start][0]['type']
+    vtype = self.parsed_data['classes'][cp]['methods'][m]['vars'][v]['state'][start][0]['type']
     nexts.append({
       'var': v,
       'type': vtype,
@@ -271,14 +271,14 @@ class DFSFinder():
     return start, end, actstart
 
   def __get_ret_of_call(self, cp, m, line, v):
-    for cll in self.parsed_data[cp]['methods'][m]['calls']:
+    for cll in self.parsed_data['classes'][cp]['methods'][m]['calls']:
       if (cll['ret']['line'] == line):
-        v = self.parsed_data[cll['class_path']]['methods'][cll['method']]['ret'][0]['var']
-        e = self.parsed_data[cll['class_path']]['methods'][cll['method']]['ret'][0]['line']
+        v = self.parsed_data['classes'][cll['class_path']]['methods'][cll['method']]['ret'][0]['var']
+        e = self.parsed_data['classes'][cll['class_path']]['methods'][cll['method']]['ret'][0]['line']
         return cll, e, v
 
   def __find_untagged_sinks(self, sinks):
-    for class_path, cval in self.parsed_data.items():
+    for class_path, cval in self.parsed_data['classes'].items():
       for method, mval in cval['methods'].items():
         if ('sinks' in mval.keys()):
           for sline, sval in mval['sinks'].items():
