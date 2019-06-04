@@ -88,7 +88,7 @@ class CGCore(cgfuncs.CGFuncs):
             if (tl not in self.codes[cp].keys()):
               self.codes[cp][tl] = ''
             self.codes[cp][tl] += 'invoke-static {}, '+sval['tagging']['name']
-      # Non static
+      # local
       for m, mval in cpval['methods'].items():
         for v, vval in mval.items():
           for vline, val in vval.items():
