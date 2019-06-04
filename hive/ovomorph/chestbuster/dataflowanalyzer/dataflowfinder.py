@@ -5,6 +5,7 @@ from pprint import pprint
 
 class DFFinder():
   area_analyzed = {}
+  container_puts = ['preference_val_put', 'bundle_val_put', 'jsonobject_val_put']
 
   def find_df(self, cp, m, line, sval):
     # Source
@@ -33,18 +34,19 @@ class DFFinder():
     DFFinder.area_analyzed = {}
 
   def __find_df_of_var(self, cp, m, start, v, area, nexts):
-    # If SharedPreferences
-    if (v.find('preference_') > -1):
-      if (v == 'preference_val_put'):
-        target_key = self.__spref_get_target_key(cp, m, start)
-        if (target_key is not None):
-          for gcp, gcpval in self.parsed_data['containers']['preference']['get'].items():
-            for gm, gmval in gcpval.items():
-              for gl, glval in gmval.items():
-                if (glval['key']['string'] == target_key):
-                  self.__add_flow(nexts, gcp, gm, glval['dline'], glval['dest'], gl)
-          for n in nexts:
-            self.__find_df_of_var(n['class_path'], n['method'], n['line'], n['var'], n['area'], n['next'])
+    # If container
+    if (v in DFFinder.container_puts):
+      con_type = v.split('_')[0]
+      bval = self.parsed_data['containers'][con_type]['put'][cp][m][start]
+      target_key = self.__get_target_key(bval)
+      if (target_key is not None):
+        for gcp, gcpval in self.parsed_data['containers'][con_type]['get'].items():
+          for gm, gmval in gcpval.items():
+            for gl, glval in gmval.items():
+              if (glval['key']['string'] == target_key):
+                self.__add_flow(nexts, gcp, gm, glval['dline'], glval['dest'], gl)
+        for n in nexts:
+          self.__find_df_of_var(n['class_path'], n['method'], n['line'], n['var'], n['area'], n['next'])
     # If a var is global
     elif (v.find('->') > -1 and v.split('->')[0] in self.parsed_data['classes'].keys()):
       if (v in self.parsed_data['classes'][v.split('->')[0]]['static_vars'].keys()): # If static
@@ -78,10 +80,10 @@ class DFFinder():
       for n in nexts:
         self.__find_df_of_var(n['class_path'], n['method'], n['line'], n['var'], n['area'], n['next'])
 
-  def __spref_get_target_key(self, cp, m, l):
-    if (self.parsed_data['containers']['preference']['put'][cp][m][l]['sourced'] == 'no'):
-      self.parsed_data['containers']['preference']['put'][cp][m][l]['sourced'] = 'yes'
-      return self.parsed_data['containers']['preference']['put'][cp][m][l]['key']['string']
+  def __get_target_key(self, bval):
+    if (bval['sourced'] == 'no'):
+      bval['sourced'] = 'yes'
+      return bval['key']['string']
     return None
 
   def __get_target_area(self, bvals, start, prev, tarea):
@@ -183,7 +185,7 @@ class DFFinder():
     return end, actend
 
   def __add_flow(self, nexts, cp, m, start, v, sline):
-    if (v == 'preference_val_put'):
+    if (v in DFFinder.container_puts):
       vtype = None
     else:    
       if (self.parsed_data['classes'][cp]['methods'][m]['target'] == False):

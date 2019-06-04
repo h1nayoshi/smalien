@@ -41,7 +41,7 @@ class SmaliParser(mparser.MethodParser):
     self.parsed_data['containers'] = {
       'bundle': {},
       'preference': {},
-      'jsonobj': {},
+      'jsonobject': {},
     }
     for con in self.parsed_data['containers'].values():
       con['put'] = {}

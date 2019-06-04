@@ -336,16 +336,23 @@ class DBCFuncs():
   def check_container_method(self, cp, m, l, c, params, ptypes, dest, dtype, dline):
     for cm in cms:
       if (c.find(cm['code']) > -1):
+        ks = self.__get_key_string(cp, m, l, params[1])
+        # Set container type
         if (cm['group'] == 0): # SharedPreferences
-          ks = self.__get_key_string(cp, m, l, params[1])
-          if (cm['class'] == 0): # Put
-            self.__update_put_of_con(self.parsed_data['containers']['preference']['put'], cp, m, l, params, ptypes, ks)
-            self.add_state(params[1], l, l, ptypes[1], 'src', 'preference_key')
-            self.add_state(params[2], l, l, ptypes[2], 'src', 'preference_val_put')
-          if (cm['class'] == 1): # Get
-            self.__update_get_of_con(self.parsed_data['containers']['preference']['get'], cp, m, l, params, dest, dtype, dline, ks)
-            self.add_state(params[1], l, l, ptypes[1], 'src', 'preference_key')
-            self.add_state(dest, dline, l, dtype, 'dest', 'preference_val_get')
+          con_type = 'preference'
+        elif (cm['group'] == 1): # Bundle, Intent
+          con_type = 'bundle'
+        elif (cm['group'] == 2): # JsonObject
+          con_type = 'jsonobject'
+        # Update and add state
+        if (cm['class'] == 0): # Put
+          self.__update_put_of_con(self.parsed_data['containers'][con_type]['put'], cp, m, l, params, ptypes, ks)
+          self.add_state(params[1], l, l, ptypes[1], 'src', con_type+'_key')
+          self.add_state(params[2], l, l, ptypes[2], 'src', con_type+'_val_put')
+        elif (cm['class'] == 1): # Get
+          self.__update_get_of_con(self.parsed_data['containers'][con_type]['get'], cp, m, l, params, dest, dtype, dline, ks)
+          self.add_state(params[1], l, l, ptypes[1], 'src', con_type+'_key')
+          self.add_state(dest, dline, l, dtype, 'dest', con_type+'_val_get')
         return True
     return False
 
