@@ -80,6 +80,7 @@ class DFFinder():
 
   def __spref_get_target_key(self, cp, m, l):
     if (self.parsed_data['containers']['preference']['put'][cp][m][l]['sourced'] == 'no'):
+      self.parsed_data['containers']['preference']['put'][cp][m][l]['sourced'] = 'yes'
       return self.parsed_data['containers']['preference']['put'][cp][m][l]['key']['string']
     return None
 
