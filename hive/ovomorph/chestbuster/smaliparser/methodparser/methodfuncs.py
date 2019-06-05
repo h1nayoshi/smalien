@@ -130,7 +130,6 @@ class MethodFuncs(object):
           rcp, rm = self.__check_appendices(path)
           if (rcp is not None):
             self.__add_method_dependency(path, rcp, rm)
-            #self.parsed_data['classes'][rcp]['methods'][rm]['target'] = True
             rline = self.parsed_data['classes'][rcp]['methods'][rm]['start']
             # Add call
             self.parsed_data['classes'][rcp]['methods'][rm]['calls'].append({
