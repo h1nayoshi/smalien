@@ -40,7 +40,7 @@ class DBCFuncs():
         'attr': 'param',
         'state': {},
       }
-      self.add_state(p, DBCFuncs.mv['start'], DBCFuncs.mv['start'], 'type', 'dest', 'param')
+      self.add_state(p, DBCFuncs.mv['start'], DBCFuncs.mv['start'], ptype, 'dest', 'param')
       DBCFuncs.mv['params'][p] = {}
       cnt += 1
       if (ptype in ['J', 'D']): # If a type is long or double, ignore next var
@@ -49,7 +49,7 @@ class DBCFuncs():
           'attr': 'param',
           'state': {},
         }
-        self.add_state(p, DBCFuncs.mv['start'], DBCFuncs.mv['start'], 'type', 'dest', 'param')
+        self.add_state(p, DBCFuncs.mv['start'], DBCFuncs.mv['start'], ptype, 'dest', 'param')
         DBCFuncs.mv['params'][p] = {}
         cnt += 1
     DBCFuncs.mv['var_num']['param'] = cnt

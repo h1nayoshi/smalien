@@ -4,6 +4,8 @@
 import re
 import sys
 from pprint import pprint
+from .methodtranslates import method_translates as mts
+from .retappendices import ret_appendices as ras
 
 class MethodFuncs(object):
   def __init__(self):
@@ -11,6 +13,7 @@ class MethodFuncs(object):
     self.gotoes = ['goto', 'goto/16', 'goto/32']
     self.rets = ['return', 'return-void', 'return-wide', 'return-object']
     self.mpaths = []
+    self.mdep = {}
 
   def find_methods(self, class_path, cval):
     cval['methods'] = {}
@@ -96,7 +99,7 @@ class MethodFuncs(object):
       if (c == ''):
         pass
       elif (c.find('    invoke-') > -1):
-        path = self.__get_invoked_method(c.split('}, ')[1], '', self.mpaths)
+        path = self.__check_invoked_method(c.split('}, ')[1])
         if (path is not None):
           cp = path.split('->')[0]
           m = path.split('->')[1]
@@ -123,6 +126,55 @@ class MethodFuncs(object):
               'type': m.split(')')[-1],
             },
           })
+          # Check ret appendices
+          rcp, rm = self.__check_appendices(path)
+          if (rcp is not None):
+            self.__add_method_dependency(path, rcp, rm)
+            #self.parsed_data['classes'][rcp]['methods'][rm]['target'] = True
+            rline = self.parsed_data['classes'][rcp]['methods'][rm]['start']
+            # Add call
+            self.parsed_data['classes'][rcp]['methods'][rm]['calls'].append({
+              'line': rline,
+              'code': c,
+              'method': m,
+              'class_path': cp,
+              'params': [],
+              'ret': 'p1',
+            })
+            # Add caller
+            self.parsed_data['classes'][cp]['methods'][m]['callers'].append({
+              'class_path': rcp,
+              'method': rm,
+              'line': rline,
+              'params': [],
+              'ret': {
+                'line': rline,
+                'var': 'p1',
+                'type': m.split(')')[-1],
+              },
+            })
+
+  def __add_method_dependency(self, path, rcp, rm):
+    if (path not in self.mdep):
+      self.mdep[path] = []
+    self.mdep[path].append([rcp, rm])
+
+  def __check_invoked_method(self, im):
+    # Check method translation
+    path = self.__check_translation(im)
+    if (path is not None):
+      return path
+    # Check the invoked method exists in target classes
+    path = self.__get_invoked_method(im, '', self.mpaths)
+    return path
+
+  def __check_translation(self, path):
+    cp = path.split('->')[0]
+    m = path.split('->')[1]
+    for mt in mts:
+      if (mt['code'] == m):
+        return cp+'->'+mt['method']
+    return None
 
   def __get_invoked_method(self, c, path, mps):
     m = None
@@ -134,6 +186,14 @@ class MethodFuncs(object):
       elif (c.startswith(path+mp)):
         m = self.__get_invoked_method(c, path+mp, mpval)
     return m
+
+  def __check_appendices(self, path):
+    cp = path.split('->')[0]
+    m = path.split('->')[1]
+    for ra in ras:
+      if (ra['code'] == m):
+        return cp, ra['method']
+    return None, None
 
   def __get_params(self, c):
     params = c[c.find('{')+1:c.find('}')]
@@ -162,6 +222,7 @@ class MethodFuncs(object):
       ret['line'] = i
     return ret
 
+  # Also modified at find_method_calls - check ret appendices
   def detect_target_methods(self, mval):
     if (mval['target'] == False):
       cntr = 1
@@ -169,6 +230,9 @@ class MethodFuncs(object):
       for call in mval['calls']:
         nmval = self.parsed_data['classes'][call['class_path']]['methods'][call['method']]
         cntr += self.detect_target_methods(nmval)
+        if (call['class_path']+'->'+call['method'] in self.mdep.keys()):
+          for md in self.mdep[call['class_path']+'->'+call['method']]:
+            cntr += self.detect_target_methods(self.parsed_data['classes'][md[0]]['methods'][md[1]])
       return cntr
     return 0
 
