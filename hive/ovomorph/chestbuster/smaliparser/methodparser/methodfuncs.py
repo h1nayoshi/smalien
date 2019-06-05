@@ -28,6 +28,7 @@ class MethodFuncs(object):
         cval['methods'][mname] = {
           'start': i,
           'end': mend,
+          'calls': [],
           'callers': [],
           'target': False,
         }
@@ -92,7 +93,6 @@ class MethodFuncs(object):
       self.__mpath_append(mps[d], target, m)
 
   def find_method_calls(self, tcp, tm, mval, src_code):
-    mval['calls'] = []
     # Parse a method
     for i in range(mval['start']+1, mval['end']):
       c = src_code[i]
@@ -170,9 +170,10 @@ class MethodFuncs(object):
   def __check_translation(self, path):
     cp = path.split('->')[0]
     m = path.split('->')[1]
-    for mt in mts:
-      if (mt['code'] == m):
-        return cp+'->'+mt['method']
+    if (cp in self.parsed_data['classes'].keys()):
+      for mt in mts:
+        if (mt['code'] == m):
+          return cp+'->'+mt['method']
     return None
 
   def __get_invoked_method(self, c, path, mps):
