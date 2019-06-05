@@ -191,7 +191,8 @@ class MethodFuncs(object):
     m = path.split('->')[1]
     for ra in ras:
       if (ra['code'] == m):
-        return cp, ra['method']
+        if (ra['method'] in self.parsed_data['classes'][cp]['methods'].keys()):
+          return cp, ra['method']
     return None, None
 
   def __get_params(self, c):
