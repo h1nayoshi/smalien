@@ -379,13 +379,13 @@ class DBCFuncs():
       con[cp] = {}
     if (m not in con[cp].keys()):
       con[cp][m] = {}
-    con[cp][m][l] = {
+    con[cp][m][l] = { # Line of ret
       'key': {
         'var': params[1],
         'string': ks,
       },
       'dest': dest,
-      'dline': dline,
+      'sline': dline,
       'type': dtype,
     }
 

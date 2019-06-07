@@ -172,7 +172,7 @@ class MethodFuncs(object):
     m = path.split('->')[1]
     if (cp in self.parsed_data['classes'].keys()):
       for mt in mts:
-        if (mt['code'] == m):
+        if ((mt['code'] == m) and (mt['method'] in self.parsed_data['classes'][cp]['methods'].keys())):
           return cp+'->'+mt['method']
     return None
 

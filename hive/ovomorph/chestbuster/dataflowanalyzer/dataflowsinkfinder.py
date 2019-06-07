@@ -8,6 +8,8 @@ class DFSFinder():
   sink_added = {}
   area_analyzed_rev = {}
   global_var_analyzed = []
+  container_analyzed = []
+  container_gets = ['preference_val_get', 'bundle_val_get', 'jsonobject_val_get']
 
   def find_sinks(self, cp, m, line):
     DFSFinder.sink_added = {}
@@ -72,14 +74,36 @@ class DFSFinder():
   def __init_df_rev(self):
     DFSFinder.area_analyzed_rev = {}
     DFSFinder.global_var_analyzed = []
+    DFSFinder.container_analyzed = []
 
   def __find_df_of_var_rev(self, cp, m, end, v, area, nexts):
     # Check if a var is a part of source flows
     chk = self.__is_source(cp, m, end, v)
     if (chk):
       return 'killall'
+    # If container
+    if (v in DFSFinder.container_gets):
+      con_type = v.split('_')[0]
+      if (cp+str(end) not in DFSFinder.container_analyzed):
+        DFSFinder.container_analyzed.append(cp+str(end))
+        target_key = self.__get_container_key(con_type, cp, m, end)
+        if (target_key is not None):
+          for ccp, ccpval in self.parsed_data['containers'][con_type]['put'].items():
+            for cm, cmval in ccpval.items():
+              for cl, clval in cmval.items():
+                if (clval['key']['string'] == target_key):
+                  self.__add_flow(nexts, ccp, cm, cl, clval['src'], cl)
+              next_rm = []
+              for n in nexts:
+                ret = self.__find_df_of_var_rev(n['class_path'], n['method'], n['line'], n['var'], n['area'], n['next'])
+                if (ret == 'killall'):
+                  next_rm.append(n)
+              for nr in next_rm:
+                nexts.remove(nr)
+              if (next_rm != [] and nexts == []):
+                return 'killall'
     # If a var is global
-    if (v.find('->') > -1 and v.split('->')[0] in self.parsed_data['classes'].keys()):
+    elif (v.find('->') > -1 and v.split('->')[0] in self.parsed_data['classes'].keys()):
       if (v not in DFSFinder.global_var_analyzed):
         DFSFinder.global_var_analyzed.append(v)
         put_dests = self.__get_global_put_dests(v)
@@ -117,6 +141,9 @@ class DFSFinder():
         nexts.remove(nr)
       if (next_rm != [] and nexts == []):
         return 'killall'
+
+  def __get_container_key(self, con_type, cp, m, l):
+    key = self.parsed_data['containers'][con_type]['get'][cp][m][l]['key']['string']
 
   def __get_global_put_dests(self, v):
     if (v in self.parsed_data['classes'][v.split('->')[0]]['static_vars'].keys()):
@@ -231,7 +258,10 @@ class DFSFinder():
   def __add_flow(self, nexts, cp, m, start, v, sline):
     if (v == 'none' or self.parsed_data['classes'][cp]['methods'][m]['target'] == False):
       return
-    vtype = self.parsed_data['classes'][cp]['methods'][m]['vars'][v]['state'][start][0]['type']
+    if (v in DFSFinder.container_gets):
+      vtype = None
+    else:
+      vtype = self.parsed_data['classes'][cp]['methods'][m]['vars'][v]['state'][start][0]['type']
     nexts.append({
       'var': v,
       'type': vtype,
