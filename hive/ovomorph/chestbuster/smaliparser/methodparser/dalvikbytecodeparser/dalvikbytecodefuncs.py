@@ -336,6 +336,8 @@ class DBCFuncs():
   def check_container_method(self, cp, m, l, c, params, ptypes, dest, dtype, dline):
     for cm in cms:
       if (c.find(cm['code']) > -1):
+        if ((cm['class'] == 0 and len(params) < 3) or (cm['class'] == 1 and len(params) < 2)):
+          return False
         ks = self.__get_key_string(cp, m, l, params[1])
         # Set container type
         if (cm['group'] == 0): # SharedPreferences
@@ -352,7 +354,8 @@ class DBCFuncs():
         elif (cm['class'] == 1): # Get
           self.__update_get_of_con(self.parsed_data['containers'][con_type]['get'], cp, m, l, params, dest, dtype, dline, ks)
           self.add_state(params[1], l, l, ptypes[1], 'src', con_type+'_key')
-          self.add_state(dest, dline, l, dtype, 'dest', con_type+'_val_get')
+          if (dest is not None):
+            self.add_state(dest, dline, l, dtype, 'dest', con_type+'_val_get')
         return True
     return False
 
