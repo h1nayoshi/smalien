@@ -6,6 +6,8 @@ import re
 import io
 import subprocess
 
+from .exclusion import exclusion
+
 def unpack(host_dest):
   try:
     subprocess.check_call('apktool d '+host_dest+'host.apk -o '+host_dest+'host > /dev/null 2>&1', shell=True)
@@ -22,14 +24,21 @@ def find_smalis(host_dest):
   # Find smalis
   smalis = []
   for sdir in smali_dirs:
-    find_smalis_from_dir(sdir, smalis)
+    # Create exclusion list
+    sdir_ex = []
+    for ex in exclusion:
+      sdir_ex.append(sdir+ex)
+    # Find smalis
+    find_smalis_from_dir(sdir, smalis, sdir_ex)
   if (smalis == []):
     return False
   return smalis
 
-def find_smalis_from_dir(smali_dir, smalis):
+def find_smalis_from_dir(smali_dir, smalis, sdir_ex):
   paths = os.listdir(smali_dir)
   for path in paths:
+    if (smali_dir+path in sdir_ex):
+      return
     check1 = re.search(r'^R[\$\.].*', path)
     check2 = re.search(r'^\..*', path)
     check3 = re.search(r'BuildConfig.smali', path)
@@ -38,7 +47,7 @@ def find_smalis_from_dir(smali_dir, smalis):
       smalis.append(smali_dir+path)
     elif (check4 is None):
       new_dir = path.split('/')[-1]
-      find_smalis_from_dir(smali_dir+new_dir+'/', smalis)
+      find_smalis_from_dir(smali_dir+new_dir+'/', smalis, sdir_ex)
 
 def find_activities(hd):
   activities = []
