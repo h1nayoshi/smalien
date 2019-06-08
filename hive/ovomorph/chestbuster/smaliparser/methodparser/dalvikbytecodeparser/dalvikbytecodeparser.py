@@ -190,19 +190,11 @@ class DBCParser(dbcfuncs.DBCFuncs):
                   self.add_state(params[0], i, i, ptypes[0], 'dest', 'init')
               else: # If not API
                 cntr = 0
-                if (c.split(';->')[1].find('<init>(') > -1): # If the method is <init>(), propagates to base obj.
-                  for ptype in ptypes:
-                    self.add_state(params[cntr], i, i, ptype, 'src', params[0])
-                    self.add_state(params[0], i, i, ptypes[0], 'dest', params[cntr])
-                    if (ptype == 'J' or ptype == 'D'):
-                      cntr += 1
+                for ptype in ptypes:
+                  self.add_state(params[cntr], i, -1, ptype, 'src', 'method param')
+                  if (ptype == 'J' or ptype == 'D'):
                     cntr += 1
-                else:
-                  for ptype in ptypes:
-                    self.add_state(params[cntr], i, -1, ptype, 'src', 'method param')
-                    if (ptype == 'J' or ptype == 'D'):
-                      cntr += 1
-                    cntr += 1
+                  cntr += 1
           elif (dalvik['group'] == 4): # Group 4: invoke {src_dest, src_dest, ..., src_dest}, method
             #chk1 = self.is_api(class_path, method, i)
             chk2 = self.is_there_ret(i+1)
