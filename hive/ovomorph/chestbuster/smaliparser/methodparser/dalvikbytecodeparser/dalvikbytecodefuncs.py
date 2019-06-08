@@ -385,7 +385,7 @@ class DBCFuncs():
         'string': ks,
       },
       'dest': dest,
-      'sline': dline,
+      'dline': dline,
       'type': dtype,
     }
 

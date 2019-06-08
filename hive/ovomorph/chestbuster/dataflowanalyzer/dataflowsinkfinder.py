@@ -247,7 +247,8 @@ class DFSFinder():
             elif (state['src'] == 'param'):
               vindex = int(v[1:])
               for cllr in self.parsed_data['classes'][cp]['methods'][m]['callers']:
-                self.__add_flow(nexts, cllr['class_path'], cllr['method'], cllr['line'], cllr['params'][vindex], i)
+                if (len(cllr['params']) > vindex): # To avoid doInBackground -> onPostExecute
+                  self.__add_flow(nexts, cllr['class_path'], cllr['method'], cllr['line'], cllr['params'][vindex], i)
             # IF propagates to a local var
             elif (state['src'] not in ['define', 'literal', 'init']):
               self.__add_flow(nexts, cp, m, state['sline'], state['src'], i)
