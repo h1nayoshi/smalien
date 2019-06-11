@@ -43,6 +43,10 @@ class CGCore(cgfuncs.CGFuncs):
     self.log_call = '      invoke-static {v0, v1}, '+flow['class_path']+'->SmalienLog(Ljava/lang/String;Ljava/lang/String;)V\n'
 
   def generate_for_a_flow(self, flow, prev_tag):
+    # Check if the method is native
+    unhandle = self.parsed_data['classes'][flow['class_path']]['methods'][flow['method']]['unhandle']
+    if (unhandle):
+      return
     # If a var is global
     if (flow['var'].find('->') > -1):
       # Generate a tag for a var

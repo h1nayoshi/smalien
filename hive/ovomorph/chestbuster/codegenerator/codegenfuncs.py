@@ -264,12 +264,16 @@ class CGFuncs():
     return None
 
   def __untagging_local(self, cp, m, areas, v, untag):
+    mend = self.parsed_data['classes'][cp]['methods'][m]['end']
     for area in areas:
       if (area['subseq'] == -1):
         chk_ret = self.__check_ret(cp, m, area['end'], v)
         if (chk_ret is None):
-          if (area['end']+1 not in untag):
-            untag.append(area['end']+1)
+          end = area['end']+1
+          if (end > mend):
+            end = mend
+          if (end not in untag):
+            untag.append(end)
         elif (chk_ret == 'ret line'):
           if (area['end'] not in untag):
             untag.append(area['end'])

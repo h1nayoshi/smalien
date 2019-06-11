@@ -25,12 +25,14 @@ class MethodFuncs(object):
         # i is a start line of a method
         mname = c.split(' ')[-1]
         mend = self.__get_mend(i, src_code, cval['linage'])
+        unhandle = self.__check_unhandle(c)
         cval['methods'][mname] = {
           'start': i,
           'end': mend,
           'calls': [],
           'callers': [],
           'target': False,
+          'unhandle': unhandle,
         }
         self.__get_ret_vars(cval['methods'][mname], src_code, mname.split(')')[-1])
         i = mend+1
@@ -43,6 +45,11 @@ class MethodFuncs(object):
       if (re.search('^\.end method', c) is not None):
         break
     return i
+
+  def __check_unhandle(self, c):
+    if (c.find(' native ') > -1 or c.find(' abstract ') > -1):
+      return True
+    return False
 
   def __get_ret_vars(self, mval, src_code, ret_type):
     mval['ret'] = []

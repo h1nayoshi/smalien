@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # Called by chestbuster.py
 
+import io
+
 class CodeInjector():
   def __init__(self, parsed_data, generated_codes, generated_replaces, src_codes):
     self.parsed_data = parsed_data
@@ -18,6 +20,6 @@ class CodeInjector():
         if (i not in self.generated_replaces[smali]):
           final_code += code[i] + '\n'
       # Write to a file
-      with open(svalue['file_path'], 'w') as f:
+      with io.open(svalue['file_path'], 'w', encoding='utf-8') as f:
         f.write(final_code)
 
