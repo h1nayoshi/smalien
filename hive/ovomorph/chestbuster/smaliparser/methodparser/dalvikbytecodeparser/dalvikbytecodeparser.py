@@ -58,10 +58,7 @@ class DBCParser(dbcfuncs.DBCFuncs):
               # Get src type
               stype = self.get_stype(oprnds, c, i)
               # Get dest type
-              if (stype == 'unknown'):
-                dtype = self.get_dtype(dalvik, stype, oprnds)
-              else:
-                dtype = stype
+              dtype = self.get_dtype(dalvik, stype, oprnds)
               # Add states
               self.add_state(oprnds[1], i, i, stype, 'src', oprnds[0])
               self.add_state(oprnds[0], i, i, dtype, 'dest', oprnds[1])

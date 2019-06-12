@@ -194,7 +194,9 @@ class DBCFuncs():
     }
 
   def get_stype(self, oprnds, c, line):
-    if (oprnds[1].find('->') > -1): # If static
+    if (len(oprnds) > 2 and oprnds[2].find('->') > -1): # If instance
+      stype = oprnds[2].split(':')[-1]
+    elif (oprnds[1].find('->') > -1): # If static
       stype = c.split(':')[-1]
     else: # If local
       stype = self.get_stype_from_states(oprnds[1], line)
@@ -348,9 +350,11 @@ class DBCFuncs():
           con_type = 'jsonobject'
         # Update and add state
         if (cm['class'] == 0): # Put
-          self.__update_put_of_con(self.parsed_data['containers'][con_type]['put'], cp, m, l, params, ptypes, ks)
-          self.add_state(params[1], l, l, ptypes[1], 'src', con_type+'_key')
-          self.add_state(params[2], l, l, ptypes[2], 'src', con_type+'_val_put')
+          if (dline is None):
+            dline = l
+            self.__update_put_of_con(self.parsed_data['containers'][con_type]['put'], cp, m, dline, params, ptypes, ks)
+            self.add_state(params[1], l, dline, ptypes[1], 'src', con_type+'_key')
+            self.add_state(params[2], l, dline, ptypes[2], 'src', con_type+'_val_put')
         elif (cm['class'] == 1): # Get
           self.__update_get_of_con(self.parsed_data['containers'][con_type]['get'], cp, m, l, params, dest, dtype, dline, ks)
           self.add_state(params[1], l, l, ptypes[1], 'src', con_type+'_key')

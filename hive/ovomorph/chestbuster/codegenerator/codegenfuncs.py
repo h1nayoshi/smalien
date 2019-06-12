@@ -277,7 +277,6 @@ class CGFuncs():
         elif (chk_ret == 'ret line'):
           if (area['end'] not in untag):
             untag.append(area['end'])
-          
 
   def __check_ret(self, cp, m, end, v):
     ret = None

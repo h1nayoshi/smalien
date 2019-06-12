@@ -97,7 +97,7 @@ dalvik_byte_codes = [
   {'code': '    iget-char ', 'group': 0, 'class': 2, 'dtype': 'C'},
   {'code': '    iget-boolean ', 'group': 0, 'class': 2, 'dtype': 'Z'},
   {'code': '    iget-wide ', 'group': 0, 'class': 2, 'dtype': 'stype'},
-  {'code': '    iget-object ', 'group': 0, 'class': 2, 'dtype': 'unknown'},
+  {'code': '    iget-object ', 'group': 0, 'class': 2, 'dtype': 'stype'},
 
   {'code': '    aget ', 'group': 0, 'class': 2, 'dtype': 'I'},
   {'code': '    aget-byte ', 'group': 0, 'class': 2, 'dtype': 'B'},
