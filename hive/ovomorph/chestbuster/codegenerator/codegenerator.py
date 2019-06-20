@@ -19,6 +19,7 @@ class CodeGenerator(cgcore.CGCore, cgfm.CGFMates):
     self.sl_cntr = 0
     self.log_def = False
     self.log_call = ''
+    self.log_ids = {}
 
     self.init_generator()
 
@@ -36,5 +37,5 @@ class CodeGenerator(cgcore.CGCore, cgfm.CGFMates):
           self.generate_for_mates(flow['comp_mates'])
     #pprint(self.generated)
     self.generate_final_code()
-    return self.codes, self.replaces
+    return self.codes, self.replaces, self.log_ids
 

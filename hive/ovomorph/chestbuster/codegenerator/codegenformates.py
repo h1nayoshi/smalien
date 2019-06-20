@@ -69,6 +69,8 @@ class CGFMates():
     code = []
     # Define a static var for data saving
     dvar = self.__define_data_var(code, v, line, vtype, self.cmp_cntr)
+    # Save dvar to log_ids for dynamic analysis
+    self.__save_log_id(cp, m, v, line, dvar)
     # Define a static var for memorize saving action
     mvar = self.__define_mem_var(code, v, line, self.cmp_cntr)
     # Get tag var of a mate
@@ -109,13 +111,15 @@ class CGFMates():
     if ('slmethod' in self.generated[cp]['methods'][m][sv][line].keys()):
       return self.generated[cp]['methods'][m][sv][line]['slmethod_call']
     sid = sv+'_'+str(line)+'_'+str(self.sl_cntr)
+    # Save sid to log_ids for dynamic analysis
+    self.__save_log_id(cp, m, sv, line, sid)
     slmethod = 'SinkLog_'+sid+'('+vtype+')V'
     # Define a log method
     code = []
     code.extend([
       '.method public static '+slmethod+'\n',
       '  .locals 2\n',
-      '  const-string v1, "sink : '+sid+'"\n',
+      '  const-string v1, "sink: {'+sid+'"\n',
     ])
     if (vtype == 'Z'):
       code.extend([
@@ -230,7 +234,7 @@ class CGFMates():
         '    sput-char v0, '+cp+'->'+mvar+'\n',
       ])
     code.append(
-      '    const-string v1, "source : '+dvar+'"\n',
+      '    const-string v1, "source: {'+dvar+'"\n',
     )
     if (vtype == 'Z'):
       code.extend([
@@ -410,4 +414,13 @@ class CGFMates():
       '.end method\n\n'
     )
     return cp+'->'+cmethod
+
+  def __save_log_id(self, cp, m, v, line, log_id):
+    if (cp not in self.log_ids.keys()):
+      self.log_ids[cp] = {}
+    if (m not in self.log_ids[cp].keys()):
+      self.log_ids[cp][m] = {}
+    if (v not in self.log_ids[cp][m].keys()):
+      self.log_ids[cp][m][v] = {}
+    self.log_ids[cp][m][v][line] = log_id
 

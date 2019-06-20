@@ -1,20 +1,30 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import subprocess
 
-output = 'smalienlog.txt'
+class GetLog():
+  def __init__(self, pkg):
+    self.log_output = pkg+'_log.txt'
 
-def run_logcat(output):
-  try:
+  def get_log(self):
+    self.__clear()
+
+    input('\nRun your application, and hit Enter to finish the analysis.')
+
+    self.__get()
+    print('Log has saved successfully in', self.log_output)
+
+  def __clear(self):
+    subprocess.check_output('adb logcat -c', shell=True)
+
+  def __get(self):
     result = subprocess.check_output('adb logcat -v raw -d SmalienLog:I *:S', shell=True)
-    #print(result)
-    #print result
-    with open(output, 'bw') as f:
+    with open(self.log_output, 'bw') as f:
       f.write(result)
-  except:
-    return False
-  return True
 
 if __name__ == '__main__':
-  run_logcat(output)
+  pkg = sys.argv[1]
+  GL = GetLog(pkg)
+  GL.get_log()
 

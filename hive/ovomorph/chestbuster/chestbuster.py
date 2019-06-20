@@ -31,7 +31,7 @@ def run(smalis, activities):
   # Generate codes
   print('   [*] Generating bytecode')
   CG = cgenerator.CodeGenerator(parsed_data, data_flows)
-  generated_codes, generated_replaces = CG.generate()
+  generated_codes, generated_replaces, log_ids = CG.generate()
   #pprint(generated_codes)
 
   # Inject
@@ -40,7 +40,7 @@ def run(smalis, activities):
   CI = cinjector.CodeInjector(parsed_data, generated_codes, generated_replaces, src_codes)
   CI.inject()
 
-  return True, parsed_data, data_flows
+  return True, parsed_data, data_flows, log_ids
 
 if __name__ == '__main__':
   smalis = [

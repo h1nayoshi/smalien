@@ -24,14 +24,15 @@ def run(host_dest, keystore):
     sys.exit()
 
   # Find activities
-  activities = find_activities(host_dest)
+  pkg, activities = find_activities(host_dest)
   if (activities == []):
     print('[--!--] Failed to find activities')
     sys.exit()
+  print('   [+] Target pkg name: ' + pkg)
   print('   [+] Activities found: ' + str(len(activities)))
 
   # Analyze and Inject to smali files
-  ret, parsed_data, data_flows = chestbuster.run(smalis, activities)
+  ret, parsed_data, data_flows, log_ids = chestbuster.run(smalis, activities)
   if (not ret):
     sys.exit()
 
@@ -41,5 +42,5 @@ def run(host_dest, keystore):
   if (not ret):
     sys.exit()
 
-  return True, parsed_data, data_flows
+  return True, pkg, parsed_data, data_flows, log_ids
 

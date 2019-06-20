@@ -16,13 +16,13 @@ def activate_queen(host, keystore):
     print('[-!-] Failed to init the hive')
     sys.exit()
 
-  ret, parsed_data, data_flows = smalihugger.run(host_dest, keystore)
+  ret, pkg, parsed_data, data_flows, log_ids = smalihugger.run(host_dest, keystore)
   if (not ret):
     print('[-!-] Failed to hatch the egg')
 
   print(' [*] All analysis done')
 
-  return parsed_data, data_flows
+  return pkg, parsed_data, data_flows, log_ids
 
 #if __name__ == '__main__':
 #  host_source = os.path.abspath('.')+'/../spaceship/'

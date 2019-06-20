@@ -55,15 +55,15 @@ def find_activities(hd):
     AM = f.read().split('\n')
   for l in AM:
     if (l.find('<manifest ') > -1 and l.find(' package="') > -1):
-      pkg_name = l.split(' package="')[-1].split('"')[0]
+      pkg = l.split(' package="')[-1].split('"')[0]
     elif (l.find('<activity ') > -1 and l.find(' android:name="') > -1):
       activity = l.split(' android:name="')[-1].split('"')[0]
       if (activity[0] == '.'):
-        activity = pkg_name + activity
+        activity = pkg + activity
       elif (activity.find('.') < 0):
-        activity = pkg_name + '.' + activity
+        activity = pkg + '.' + activity
       activities.append('L'+activity.replace('.', '/')+';')
-  return activities
+  return pkg, activities
 
 def detach(host_dest, keystore):
   # Pack
