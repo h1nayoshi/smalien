@@ -170,7 +170,7 @@ class MethodFuncs(object):
     path = self.__check_translation(im)
     if (path is not None):
       return path
-    # Check the invoked method exists in target classes
+    # Check the invoked method exists in target class
     path = self.__get_invoked_method(im, '', self.mpaths)
     return path
 
@@ -179,8 +179,23 @@ class MethodFuncs(object):
     m = path.split('->')[1]
     if (cp in self.parsed_data['classes'].keys()):
       for mt in mts:
-        if ((mt['code'] == m) and (mt['method'] in self.parsed_data['classes'][cp]['methods'].keys())):
-          return cp+'->'+mt['method']
+        if (mt['code'] == m):
+          if (mt['method'] not in self.parsed_data['classes'][cp]['methods'].keys()):
+            sclass = self.__get_super_class(self.parsed_data['classes'][cp], mt['method'])
+            if (sclass is not None):
+              return sclass+'->'+mt['method']
+          else:
+            return cp+'->'+mt['method']
+    return None
+
+  def __get_super_class(self, tcp, tm):
+    if ('super' in tcp.keys()):
+      sclass = tcp['super']
+      if (sclass in self.parsed_data['classes'].keys()):
+        if (tm in self.parsed_data['classes'][sclass]['methods'].keys()):
+          return sclass
+        else:
+          return self.__get_super_class(self.parsed_data['classes'][sclass], tm)
     return None
 
   def __get_invoked_method(self, c, path, mps):

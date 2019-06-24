@@ -63,6 +63,7 @@ class SmaliParser(mparser.MethodParser):
         }
         self.__get_static_vars(class_path, smali)
         self.__get_instances(class_path, smali)
+        self.__get_superclass(class_path, smali)
 
   def __get_class_path(self, smali):
     c = self.src_codes[smali][0]
@@ -70,6 +71,11 @@ class SmaliParser(mparser.MethodParser):
       return c.split(' ')[-1]
     else:
       return False
+
+  def __get_superclass(self, class_path, smali):
+    sclass = self.src_codes[smali][1]
+    if (sclass.find('.super ') > -1):
+      self.parsed_data['classes'][class_path]['super'] = sclass.split(' ')[-1]
 
   def __get_static_vars(self, class_path, smali):
     self.parsed_data['classes'][class_path]['static_vars'] = {}
