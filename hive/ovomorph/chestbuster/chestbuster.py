@@ -17,7 +17,7 @@ def run(smalis, activities):
   src_codes, parsed_data = SP.parse()
   print('    [*] Parsing done in '+str(round(time.time() - start, 3)))
   #pprint(parsed_data)
-  return False, False, False, False
+  #return False, False, False, False
 
   print('   [*] Analyzing data flows')
   # Analyze
@@ -26,7 +26,7 @@ def run(smalis, activities):
   data_flows = DFA.analyze()
   print('    [*] DF analysis done in '+str(round(time.time() - start, 3)))
   #pprint(data_flows)
-  #return False, False, False
+  #return False, False, False, False
 
   # Generate codes
   print('   [*] Generating bytecode')

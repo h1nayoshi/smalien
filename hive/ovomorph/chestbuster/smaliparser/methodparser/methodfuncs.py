@@ -166,34 +166,31 @@ class MethodFuncs(object):
     self.mdep[path].append([rcp, rm])
 
   def __check_invoked_method(self, im):
+    cp = im.split('->')[0]
+    m = im.split('->')[1]
+    # Check cp is in targets
+    if (cp not in self.parsed_data['classes'].keys()):
+      return None
     # Check method translation
-    path = self.__check_translation(im)
-    if (path is not None):
-      return path
+    m = self.__check_translation(m)
     # Check the invoked method exists in target class
     path = self.__get_invoked_method(im, '', self.mpaths)
+    if (path is None):
+      path = self.__get_super_class(self.parsed_data['classes'][cp], m)
     return path
 
-  def __check_translation(self, path):
-    cp = path.split('->')[0]
-    m = path.split('->')[1]
-    if (cp in self.parsed_data['classes'].keys()):
-      for mt in mts:
-        if (mt['code'] == m):
-          if (mt['method'] not in self.parsed_data['classes'][cp]['methods'].keys()):
-            sclass = self.__get_super_class(self.parsed_data['classes'][cp], mt['method'])
-            if (sclass is not None):
-              return sclass+'->'+mt['method']
-          else:
-            return cp+'->'+mt['method']
-    return None
+  def __check_translation(self, m):
+    for mt in mts:
+      if (mt['code'] == m):
+        return mt['method']
+    return m
 
   def __get_super_class(self, tcp, tm):
     if ('super' in tcp.keys()):
       sclass = tcp['super']
       if (sclass in self.parsed_data['classes'].keys()):
         if (tm in self.parsed_data['classes'][sclass]['methods'].keys()):
-          return sclass
+          return sclass+'->'+tm
         else:
           return self.__get_super_class(self.parsed_data['classes'][sclass], tm)
     return None
