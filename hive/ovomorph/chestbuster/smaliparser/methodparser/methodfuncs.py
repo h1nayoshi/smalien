@@ -174,7 +174,7 @@ class MethodFuncs(object):
     # Check method translation
     m = self.__check_translation(m)
     # Check the invoked method exists in target class
-    path = self.__get_invoked_method(im, '', self.mpaths)
+    path = self.__get_invoked_method(cp+'->'+m, '', self.mpaths)
     if (path is None):
       path = self.__get_super_class(self.parsed_data['classes'][cp], m)
     return path
