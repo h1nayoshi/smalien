@@ -69,7 +69,6 @@ class DFSFinder():
     self.__find_df_of_var_rev(cp, m, line, v, area, nexts)
     # Get subs from sink's data flow
     self.__generate_subs_from_df(nexts)
-    return DFSFinder.subs
 
   def __init_df_rev(self):
     DFSFinder.area_analyzed_rev = {}

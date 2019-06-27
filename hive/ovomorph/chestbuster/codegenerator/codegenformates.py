@@ -44,13 +44,38 @@ class CGFMates():
             #print(v+' '+mate['var'])
             cntr += 1
             # Get implicit's cmp method
-            cmp_method = self.__define_mate(mate)
+            self.__define_mate_for_logging(mate)
+            #cmp_method = self.__define_mate(mate)
             # Define logging method at a sink
             self.__logging_sink(cp, vval['method'], line, vval['var'], vval['type'])
             # Define comparison at a sink
             # Currently not be used
             #self.__comparing_mate(cp, vval['method'], line, vval['var'], vval['type'], cmp_method)
     #print('mates done in '+str(time.time() - start))
+
+  def __define_mate_for_logging(self, mate):
+    cp = mate['class_path']
+    m = mate['method']
+    v = mate['var']
+    line = mate['line']+1
+    vtype = mate['type']
+    if (v in self.generated[cp]['methods'][m].keys()):
+      if (line in self.generated[cp]['methods'][m][v].keys()):
+        return
+      else:
+        self.generated[cp]['methods'][m][v][line] = {'code': []}
+    else:
+      self.generated[cp]['methods'][m][v] = {line: {'code': []}}
+    code = []
+    # Define a static var for data saving
+    dvar = self.__define_data_var(code, v, line, vtype, self.cmp_cntr)
+    # Save dvar to log_ids for dynamic analysis
+    self.__save_log_id(cp, m, v, line, dvar)
+    # Define data-saving method
+    self.__define_src_log_method(code, vtype, dvar)
+    self.generated[cp]['methods'][m][v][line]['saving'] = cp+'->SLog'+dvar.split(':')[0]+'('+vtype+')V\n'
+    self.generated[cp]['methods'][m][v][line]['code'].extend(code)
+    self.cmp_cntr += 1
 
   def __define_mate(self, mate):
     cp = mate['class_path']
@@ -214,6 +239,70 @@ class CGFMates():
       '.field public static '+mvar+'\n'
     )
     return mvar
+
+  def __define_src_log_method(self, code, vtype, dvar):
+    code.extend([
+      '.method public static SLog'+dvar.split(':')[0]+'('+vtype+')V\n',
+      '  .locals 2\n',
+      '  const-string v1, "source: {'+dvar+'"\n',
+    ])
+    if (vtype == 'Z'):
+      code.extend([
+        '  invoke-static {p0}, Ljava/lang/String;->valueOf(Z)Ljava/lang/String;\n',
+        '  move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'I'):
+      code.extend([
+        '  invoke-static {p0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;\n',
+        '  move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'B'):
+      code.extend([
+        '  invoke-static {p0}, Ljava/lang/String;->valueOf(B)Ljava/lang/String;\n',
+        '  move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'S'):
+      code.extend([
+        '  invoke-static {p0}, Ljava/lang/String;->valueOf(S)Ljava/lang/String;\n',
+        '  move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'C'):
+      code.extend([
+        '  invoke-static {p0}, Ljava/lang/String;->valueOf(C)Ljava/lang/String;\n',
+        '  move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'F'):
+      code.extend([
+        '  invoke-static {p0}, Ljava/lang/String;->valueOf(F)Ljava/lang/String;\n',
+        '  move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'J'):
+      code.extend([
+        '  invoke-static {p0}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;\n',
+        '  move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'D'):
+      code.extend([
+        '  invoke-static {p0}, Ljava/lang/String;->valueOf(D)Ljava/lang/String;\n',
+        '  move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'Ljava/lang/String;'):
+      code.extend([
+        '  move-object v0, p0\n',
+        self.log_call,
+      ])
+    code.extend([
+      '  return-void\n',
+      '.end method\n',
+    ])
 
   def __define_data_saving_method(self, code, vtype, dvar, mvar, cp, tpath):
   #def __define_data_saving_method(self, code, vtype, dvar, mvar, cp, tcp, tvar):
