@@ -14,13 +14,12 @@ class CGFuncs():
     'F',
     'D',
     'Ljava/lang/String;',
-    'Ljava/lang/StringBuilder;',
+    #'Ljava/lang/StringBuilder;',
   ]
 
   def check_type(self, vtype):
-    if (vtype is not None):
-      if (vtype in CGFuncs.target_types or (vtype[0] == '[' and vtype.find('unknown') < 0)):
-        return True
+    if (vtype in CGFuncs.target_types):
+      return True
     return False
 
   def generate_tag_for_global(self, flow, prev_tag):
@@ -77,7 +76,8 @@ class CGFuncs():
     # Define a tag
     self.__define_tag(code, tag)
     # Define a tagging method
-    self.__define_tagging_method(code, cp, tag, prev_tag)
+    self.__define_tagging_method_with_log(code, cp, vtype, tag, prev_tag)
+    self.__save_log_id(cp, m, v, line, tag)
     # Define a untagging method
     self.__define_untagging_method(code, cp, tag)
     # Untag at a method start if not a param
@@ -97,8 +97,8 @@ class CGFuncs():
       'tpath': cp+'->'+tag,
       'code': code,
       'type': vtype,
-      'tagging': {
-        'name': cp+'->tagging'+tag.split(':')[0]+'()V\n',
+      'tagging_log': {
+        'name': cp+'->tagging'+tag.split(':')[0]+'('+vtype+')V\n',
         'place': [line+1],
       },
       'untagging': {
@@ -159,6 +159,83 @@ class CGFuncs():
     code.append(
       '.field public static '+tag+'\n'
     )
+
+  def __define_tagging_method_with_log(self, code, cp, vtype, tag, prev_tag):
+    code.extend([
+      '.method public static tagging'+tag.split(':')[0]+'('+vtype+')V\n',
+      '  .locals 2\n',
+      '  const-string v1, "source: {'+tag+'"\n',
+    ])
+    if (prev_tag is None):
+      code.append(
+        '  const/4 v0, 0x1\n'
+      )
+    else:
+      code.append(
+        '  sget-char v0, '+prev_tag+'\n'
+      )
+    code.extend([
+      '  sput-char v0, '+cp+'->'+tag+'\n',
+      '  if-eqz v0, :pass\n',
+    ])
+    if (vtype == 'Z'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(Z)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'I'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'B'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(B)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'S'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(S)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'C'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(C)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'F'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(F)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'J'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'D'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(D)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'Ljava/lang/String;'):
+      code.extend([
+        '  move-object v0, p0\n',
+        self.log_call,
+      ])
+    code.extend([
+      '  :pass\n',
+      '  return-void\n',
+      '.end method\n',
+    ])
 
   def __define_tagging_method(self, code, cp, tag, prev_tag):
     code.extend([
@@ -286,4 +363,111 @@ class CGFuncs():
       elif (r['line'] == end):
         ret = 'ret line'
     return ret
+
+  # This func is same as one for mates. Need to refactor.
+  def __save_log_id(self, cp, m, v, line, log_id):
+    if (cp not in self.log_ids.keys()):
+      self.log_ids[cp] = {}
+    if (m not in self.log_ids[cp].keys()):
+      self.log_ids[cp][m] = {}
+    if (v not in self.log_ids[cp][m].keys()):
+      self.log_ids[cp][m][v] = {}
+    self.log_ids[cp][m][v][line] = log_id
+
+  # This func is same as one for mates. Need to refactor.
+  def logging_sink(self, sink):
+    cp = sink['class_path']
+    m = sink['method']
+    line = sink['line']
+    sv = sink['var']
+    vtype = sink['type']
+    log_method = self.__define_sink_log_method(cp, m, line, sv, vtype)
+    log_sink = 'invoke-static/range {'+sv+' .. '+sv+'}, '+log_method
+    if (line not in self.generated[cp]['methods'][m][sv].keys()):
+      self.generated[cp]['methods'][m][sv][line] = {'logging': log_sink}
+    elif ('logging' not in self.generated[cp]['methods'][m][sv][line].keys()):
+      self.generated[cp]['methods'][m][sv][line]['logging'] = log_sink
+
+  # This func is same as one for mates. Need to refactor
+  def __define_sink_log_method(self, cp, m, line, sv, vtype):
+    if (sv not in self.generated[cp]['methods'][m].keys()):
+      self.generated[cp]['methods'][m][sv] = {}
+    if (line not in self.generated[cp]['methods'][m][sv].keys()):
+      self.generated[cp]['methods'][m][sv][line] = {'code': []}
+    if ('slmethod' in self.generated[cp]['methods'][m][sv][line].keys()):
+      return self.generated[cp]['methods'][m][sv][line]['slmethod_call']
+    sid = sv+'_'+str(line)+'_'+str(self.sl_cntr)
+    # Save sid to log_ids for dynamic analysis
+    self.__save_log_id(cp, m, sv, line, sid)
+    slmethod = 'SinkLog_'+sid+'('+vtype+')V'
+    # Define a log method
+    code = []
+    code.extend([
+      '.method public static '+slmethod+'\n',
+      '  .locals 2\n',
+      '  const-string v1, "sink: {'+sid+'"\n',
+    ])
+    if (vtype == 'Z'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(Z)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'I'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'B'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(B)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'S'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(S)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'C'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(C)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'F'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(F)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'J'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'D'):
+      code.extend([
+        '    invoke-static {p0}, Ljava/lang/String;->valueOf(D)Ljava/lang/String;\n',
+        '    move-result-object v0\n',
+        self.log_call,
+      ])
+    elif (vtype == 'Ljava/lang/String;'):
+      code.extend([
+        '  move-object v0, p0\n',
+        self.log_call,
+      ])
+    code.append(
+      '  return-void\n'
+      '.end method\n\n'
+    )
+    self.generated[cp]['methods'][m][sv][line]['code'].extend(code)
+    # Invocation
+    slmethod_call = cp+'->'+slmethod+'\n'
+    self.sl_cntr += 1
+    self.generated[cp]['methods'][m][sv][line]['slmethod_call'] = slmethod_call
+    return slmethod_call
 

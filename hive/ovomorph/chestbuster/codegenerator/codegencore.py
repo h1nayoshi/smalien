@@ -59,16 +59,26 @@ class CGCore(cgfuncs.CGFuncs):
       # Check its type
       chk_type = self.check_type(flow['type'])
       if (chk_type):
-        # Generate a tag for a var with checking-method
+        # Generate a tag for a var with checking/logging method
         tag = self.generate_tag_for_local(flow, prev_tag)
       else:
-        # Generate a tag for a var without checking-method
+        # Generate a tag for a var without checking/logging method
         tag = self.generate_tag_for_local_bad_type(flow, prev_tag)
     #pprint(self.generated)
 
     if (flow['next'] != []):
       for n in flow['next']:
         self.generate_for_a_flow(n, tag)
+
+  def generate_for_a_sink(self, sink):
+    chk_type = self.check_type(sink['type'])
+    if (chk_type):
+      self.logging_sink(sink)
+    # Log for subs
+    for sub in sink['subs']:
+      chk_type = self.check_type(sub['type'])
+      if (chk_type):
+        self.logging_sink(sub)
 
   def generate_final_code(self):
     #pprint(self.generated)
@@ -108,6 +118,11 @@ class CGCore(cgfuncs.CGFuncs):
                 if (tl not in self.codes[cp].keys()):
                   self.codes[cp][tl] = ''
                 self.codes[cp][tl] += 'invoke-static {}, '+val['tagging']['name']
+            if ('tagging_log' in val.keys()):
+              for tl in val['tagging_log']['place']:
+                if (tl not in self.codes[cp].keys()):
+                  self.codes[cp][tl] = ''
+                self.codes[cp][tl] += 'invoke-static/range {'+v+' .. '+v+'}, '+val['tagging_log']['name']
             # Checking
             if ('checking' in val.keys()):
               for chk in val['checking']['place']:
