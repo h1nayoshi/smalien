@@ -71,14 +71,17 @@ class CGCore(cgfuncs.CGFuncs):
         self.generate_for_a_flow(n, tag)
 
   def generate_for_a_sink(self, sink):
-    chk_type = self.check_type(sink['type'])
-    if (chk_type):
-      self.logging_sink(sink)
+    # Check if var is global
+    if (sink['var'].find('->') < 0):
+      chk_type = self.check_type(sink['type'])
+      if (chk_type):
+        self.logging_sink(sink)
     # Log for subs
     for sub in sink['subs']:
-      chk_type = self.check_type(sub['type'])
-      if (chk_type):
-        self.logging_sink(sub)
+      if (sub['var'].find('->') < 0):
+        chk_type = self.check_type(sub['type'])
+        if (chk_type):
+          self.logging_sink(sub)
 
   def generate_final_code(self):
     #pprint(self.generated)
