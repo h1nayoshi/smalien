@@ -125,7 +125,11 @@ class CGCore(cgfuncs.CGFuncs):
               for tl in val['tagging_log']['place']:
                 if (tl not in self.codes[cp].keys()):
                   self.codes[cp][tl] = ''
-                self.codes[cp][tl] += 'invoke-static/range {'+v+' .. '+v+'}, '+val['tagging_log']['name']
+                if (val['type'] in ['J', 'D']):
+                  v_2 = v[0]+str(int(v[1:])+1)
+                  self.codes[cp][tl] += 'invoke-static/range {'+v+' .. '+v_2+'}, '+val['tagging_log']['name']
+                else:
+                  self.codes[cp][tl] += 'invoke-static/range {'+v+' .. '+v+'}, '+val['tagging_log']['name']
             # Checking
             if ('checking' in val.keys()):
               for chk in val['checking']['place']:

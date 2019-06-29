@@ -216,13 +216,13 @@ class CGFuncs():
       ])
     elif (vtype == 'J'):
       code.extend([
-        '    invoke-static {p0}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;\n',
+        '    invoke-static {p0, p1}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
     elif (vtype == 'D'):
       code.extend([
-        '    invoke-static {p0}, Ljava/lang/String;->valueOf(D)Ljava/lang/String;\n',
+        '    invoke-static {p0, p1}, Ljava/lang/String;->valueOf(D)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
@@ -382,7 +382,11 @@ class CGFuncs():
     sv = sink['var']
     vtype = sink['type']
     log_method = self.__define_sink_log_method(cp, m, line, sv, vtype)
-    log_sink = 'invoke-static/range {'+sv+' .. '+sv+'}, '+log_method
+    if (vtype in ['J', 'D']):
+      sv_2 = sv[0]+str(int(sv[1:])+1)
+      log_sink = 'invoke-static/range {'+sv+' .. '+sv_2+'}, '+log_method
+    else:
+      log_sink = 'invoke-static/range {'+sv+' .. '+sv+'}, '+log_method
     if (line not in self.generated[cp]['methods'][m][sv].keys()):
       self.generated[cp]['methods'][m][sv][line] = {'logging': log_sink}
     elif ('logging' not in self.generated[cp]['methods'][m][sv][line].keys()):
@@ -445,13 +449,13 @@ class CGFuncs():
       ])
     elif (vtype == 'J'):
       code.extend([
-        '    invoke-static {p0}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;\n',
+        '    invoke-static {p0, p1}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
     elif (vtype == 'D'):
       code.extend([
-        '    invoke-static {p0}, Ljava/lang/String;->valueOf(D)Ljava/lang/String;\n',
+        '    invoke-static {p0, p1}, Ljava/lang/String;->valueOf(D)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
