@@ -192,7 +192,7 @@ class CGFuncs():
       ])
     elif (vtype == 'B'):
       code.extend([
-        '    invoke-static {p0}, Ljava/lang/String;->valueOf(B)Ljava/lang/String;\n',
+        '    invoke-static {p0}, Ljava/lang/Byte;->toString(B)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
@@ -425,7 +425,7 @@ class CGFuncs():
       ])
     elif (vtype == 'B'):
       code.extend([
-        '    invoke-static {p0}, Ljava/lang/String;->valueOf(B)Ljava/lang/String;\n',
+        '    invoke-static {p0}, Ljava/lang/Byte;->toString(B)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
