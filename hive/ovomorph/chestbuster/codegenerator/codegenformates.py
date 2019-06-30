@@ -73,7 +73,7 @@ class CGFMates():
     self.__save_log_id(cp, m, v, line, dvar)
     # Define data-saving method
     self.__define_src_log_method(code, vtype, dvar)
-    self.generated[cp]['methods'][m][v][line]['saving'] = cp+'->SLog'+dvar.split(':')[0]+'('+vtype+')V\n'
+    self.generated[cp]['methods'][m][v][line]['saving'] = self.def_class+'->SLog'+dvar.split(':')[0]+'('+vtype+')V\n'
     self.generated[cp]['methods'][m][v][line]['code'].extend(code)
     self.cmp_cntr += 1
 
@@ -102,7 +102,7 @@ class CGFMates():
     tpath = self.__get_tag_var(mate)
     # Define data-saving method
     self.__define_data_saving_method(code, vtype, dvar, mvar, cp, tpath)
-    self.generated[cp]['methods'][m][v][line]['saving'] = cp+'->Save'+dvar.split(':')[0]+'('+vtype+')V\n'
+    self.generated[cp]['methods'][m][v][line]['saving'] = self.def_class+'->Save'+dvar.split(':')[0]+'('+vtype+')V\n'
     #self.__define_data_saving_method(code, vtype, dvar, mvar, cp, tcp, tvar)
     # Define data-comparison method
     cmethod = self.__define_cmp_method(code, vtype, dvar, mvar, cp)
@@ -205,7 +205,7 @@ class CGFMates():
     )
     self.generated[cp]['methods'][m][sv][line]['code'].extend(code)
     # Invocation
-    slmethod_call = cp+'->'+slmethod+'\n'
+    slmethod_call = self.def_class+'->'+slmethod+'\n'
     self.sl_cntr += 1
     self.generated[cp]['methods'][m][sv][line]['slmethod_call'] = slmethod_call
     return slmethod_call
@@ -313,77 +313,77 @@ class CGFMates():
         '  sget-char v0, '+tpath+'\n',
         '  if-eqz v0, :pass\n',
         '    const/4 v0, 0x7\n',
-        '    sput-char v0, '+cp+'->'+mvar+'\n',
+        '    sput-char v0, '+self.def_class+'->'+mvar+'\n',
       ])
     else:
       code.extend([
         '.method public static Save'+dvar.split(':')[0]+'('+vtype+')V\n',
         '  .locals 2\n',
         '    const/4 v0, 0x7\n',
-        '    sput-char v0, '+cp+'->'+mvar+'\n',
+        '    sput-char v0, '+self.def_class+'->'+mvar+'\n',
       ])
     code.append(
       '    const-string v1, "source: {'+dvar+'"\n',
     )
     if (vtype == 'Z'):
       code.extend([
-        '    sput-boolean p0, '+cp+'->'+dvar+'\n',
+        '    sput-boolean p0, '+self.def_class+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(Z)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
     elif (vtype == 'I'):
       code.extend([
-        '    sput p0, '+cp+'->'+dvar+'\n',
+        '    sput p0, '+self.def_class+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
     elif (vtype == 'B'):
       code.extend([
-        '    sput-byte p0, '+cp+'->'+dvar+'\n',
+        '    sput-byte p0, '+self.def_class+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(B)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
     elif (vtype == 'S'):
       code.extend([
-        '    sput-short p0, '+cp+'->'+dvar+'\n',
+        '    sput-short p0, '+self.def_class+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(S)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
     elif (vtype == 'C'):
       code.extend([
-        '    sput-char p0, '+cp+'->'+dvar+'\n',
+        '    sput-char p0, '+self.def_class+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(C)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
     elif (vtype == 'F'):
       code.extend([
-        '    sput p0, '+cp+'->'+dvar+'\n',
+        '    sput p0, '+self.def_class+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(F)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
     elif (vtype == 'J'):
       code.extend([
-        '    sput-wide p0, '+cp+'->'+dvar+'\n',
+        '    sput-wide p0, '+self.def_class+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
     elif (vtype == 'D'):
       code.extend([
-        '    sput-wide p0, '+cp+'->'+dvar+'\n',
+        '    sput-wide p0, '+self.def_class+'->'+dvar+'\n',
         '    invoke-static {p0}, Ljava/lang/String;->valueOf(D)Ljava/lang/String;\n',
         '    move-result-object v0\n',
         self.log_call,
       ])
     elif (vtype == 'Ljava/lang/String;'):
       code.extend([
-        '    sput-object p0, '+cp+'->'+dvar+'\n',
+        '    sput-object p0, '+self.def_class+'->'+dvar+'\n',
         '    move-object v0, p0\n',
         self.log_call,
       ])
@@ -401,12 +401,12 @@ class CGFMates():
       '.method public static '+cmethod,
       '  .locals 2\n',
       '  const/4 v0, 0x7\n',
-      '  sget-char v1, '+cp+'->'+mvar+'\n',
+      '  sget-char v1, '+self.def_class+'->'+mvar+'\n',
       '  if-ne v0, v1, :pass\n',
     ])
     if (vtype == 'Z'):
       code.extend([
-        '    sget-boolean v0, '+cp+'->'+dvar+'\n',
+        '    sget-boolean v0, '+self.def_class+'->'+dvar+'\n',
         '    if-ne v0, p0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
         #self.log_call,
@@ -416,7 +416,7 @@ class CGFMates():
       ])
     elif (vtype == 'I'):
       code.extend([
-        '    sget v0, '+cp+'->'+dvar+'\n',
+        '    sget v0, '+self.def_class+'->'+dvar+'\n',
         '    if-ne v0, p0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
         #self.log_call,
@@ -426,7 +426,7 @@ class CGFMates():
       ])
     elif (vtype == 'B'):
       code.extend([
-        '    sget-byte v0, '+cp+'->'+dvar+'\n',
+        '    sget-byte v0, '+self.def_class+'->'+dvar+'\n',
         '    if-ne v0, p0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
         #self.log_call,
@@ -436,7 +436,7 @@ class CGFMates():
       ])
     elif (vtype == 'S'):
       code.extend([
-        '    sget-short v0, '+cp+'->'+dvar+'\n',
+        '    sget-short v0, '+self.def_class+'->'+dvar+'\n',
         '    if-ne v0, p0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
         #self.log_call,
@@ -446,7 +446,7 @@ class CGFMates():
       ])
     elif (vtype == 'C'):
       code.extend([
-        '    sget-char v0, '+cp+'->'+dvar+'\n',
+        '    sget-char v0, '+self.def_class+'->'+dvar+'\n',
         '    if-ne v0, p0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
         #self.log_call,
@@ -456,7 +456,7 @@ class CGFMates():
       ])
     elif (vtype == 'F'):
       code.extend([
-        '    sget v0, '+cp+'->'+dvar+'\n',
+        '    sget v0, '+self.def_class+'->'+dvar+'\n',
         '    cmpl-float v0, p0, v0\n',
         '    if-nez v0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
@@ -467,7 +467,7 @@ class CGFMates():
       ])
     elif (vtype == 'J'):
       code.extend([
-        '    sget-wide v0, '+cp+'->'+dvar+'\n',
+        '    sget-wide v0, '+self.def_class+'->'+dvar+'\n',
         '    cmp-long v0, p0, v0\n',
         '    if-nez v0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
@@ -478,7 +478,7 @@ class CGFMates():
       ])
     elif (vtype == 'D'):
       code.extend([
-        '    sget-wide v0, '+cp+'->'+dvar+'\n',
+        '    sget-wide v0, '+self.def_class+'->'+dvar+'\n',
         '    cmpl-double v0, p0, v0\n',
         '    if-nez v0, :pass\n',
         '      const-string v0, "'+dvar+'"\n',
@@ -489,7 +489,7 @@ class CGFMates():
       ])
     elif (vtype == 'Ljava/lang/String;'):
       code.extend([
-        '    sget-object v0, '+cp+'->'+dvar+'\n',
+        '    sget-object v0, '+self.def_class+'->'+dvar+'\n',
         '    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z\n',
         '    move-result v0\n',
         '    if-eqz v0, :pass\n',
@@ -502,7 +502,7 @@ class CGFMates():
     code.append(
       '.end method\n\n'
     )
-    return cp+'->'+cmethod
+    return self.def_class+'->'+cmethod
 
   def __save_log_id(self, cp, m, v, line, log_id):
     if (cp not in self.log_ids.keys()):

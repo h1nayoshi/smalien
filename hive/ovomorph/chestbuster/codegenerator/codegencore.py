@@ -8,7 +8,7 @@ from . import codegenfuncs as cgfuncs
 class CGCore(cgfuncs.CGFuncs):
   def init_generator(self):
     for class_path, cval in self.parsed_data['classes'].items():
-      self.codes[class_path] = {}
+      self.codes_ins[class_path] = {}
       self.replaces[class_path] = {}
       self.generated[class_path] = {
         'global': {},
@@ -16,9 +16,17 @@ class CGCore(cgfuncs.CGFuncs):
       }
       for method in cval['methods'].keys():
         self.generated[class_path]['methods'][method] = {}
+    self.__init_def_class()
+
+  def __init_def_class(self):
+    self.codes_def.extend([
+      '.class public Lsmalienlog;\n',
+      '.super Ljava/lang/Object;\n',
+      '\n',
+    ])
 
   def generate_logging_method(self, flow):
-    self.generated[flow['class_path']]['logging'] = [
+    self.codes_def.extend([
       '.method public static SmalienLog(Ljava/lang/String;Ljava/lang/String;)V\n',
       #'.method public static SmalienLog(Ljava/lang/String;)V\n',
       '  .locals 4\n',
@@ -41,9 +49,9 @@ class CGCore(cgfuncs.CGFuncs):
       '  invoke-static {v0, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I\n',
       '  return-void\n',
       '.end method\n',
-    ]
+    ])
     #self.log_call = '      invoke-static {v0, p1}, '+flow['class_path']+'->SmalienLog(Ljava/lang/String;Ljava/lang/String;)V\n'
-    self.log_call = '      invoke-static {v0, v1}, '+flow['class_path']+'->SmalienLog(Ljava/lang/String;Ljava/lang/String;)V\n'
+    self.log_call = '      invoke-static {v0, v1}, '+self.def_class+'->SmalienLog(Ljava/lang/String;Ljava/lang/String;)V\n'
 
   def generate_for_a_flow(self, flow, prev_tag):
     # Check if the method is native
@@ -86,78 +94,70 @@ class CGCore(cgfuncs.CGFuncs):
   def generate_final_code(self):
     #pprint(self.generated)
     for cp, cpval in self.generated.items():
-      if (3 not in self.codes[cp].keys()):
-        self.codes[cp][3] = ''
-      # Logging method
-      if ('logging' in cpval.keys()):
-        for c in self.generated[cp]['logging']:
-          self.codes[cp][3] += c
       # global
       for sv, svval in cpval['global'].items():
         for sline, sval in svval.items():
           # Definitions
-          for c in sval['code']:
-            self.codes[cp][3] += c
+          self.codes_def.extend(sval['code'])
           # Untaggings
           for ut in sval['untagging']['place']:
-            if (ut[1] not in self.codes[ut[0]].keys()):
-              self.codes[ut[0]][ut[1]] = ''
-            self.codes[ut[0]][ut[1]] += 'invoke-static {}, '+sval['untagging']['name']
+            if (ut[1] not in self.codes_ins[ut[0]].keys()):
+              self.codes_ins[ut[0]][ut[1]] = ''
+            self.codes_ins[ut[0]][ut[1]] += 'invoke-static {}, '+sval['untagging']['name']
           # Taggings
           for tl in sval['tagging']['place']:
-            if (tl not in self.codes[cp].keys()):
-              self.codes[cp][tl] = ''
-            self.codes[cp][tl] += 'invoke-static {}, '+sval['tagging']['name']
+            if (tl not in self.codes_ins[cp].keys()):
+              self.codes_ins[cp][tl] = ''
+            self.codes_ins[cp][tl] += 'invoke-static {}, '+sval['tagging']['name']
       # local
       for m, mval in cpval['methods'].items():
         for v, vval in mval.items():
           for vline, val in vval.items():
             # Definitions
             if ('code' in val.keys()):
-              for c in val['code']:
-                self.codes[cp][3] += c
+              self.codes_def.extend(val['code'])
             if ('tagging' in val.keys()):
               for tl in val['tagging']['place']:
-                if (tl not in self.codes[cp].keys()):
-                  self.codes[cp][tl] = ''
-                self.codes[cp][tl] += 'invoke-static {}, '+val['tagging']['name']
+                if (tl not in self.codes_ins[cp].keys()):
+                  self.codes_ins[cp][tl] = ''
+                self.codes_ins[cp][tl] += 'invoke-static {}, '+val['tagging']['name']
             if ('tagging_log' in val.keys()):
               for tl in val['tagging_log']['place']:
-                if (tl not in self.codes[cp].keys()):
-                  self.codes[cp][tl] = ''
+                if (tl not in self.codes_ins[cp].keys()):
+                  self.codes_ins[cp][tl] = ''
                 if (val['type'] in ['J', 'D']):
                   v_2 = v[0]+str(int(v[1:])+1)
-                  self.codes[cp][tl] += 'invoke-static/range {'+v+' .. '+v_2+'}, '+val['tagging_log']['name']
+                  self.codes_ins[cp][tl] += 'invoke-static/range {'+v+' .. '+v_2+'}, '+val['tagging_log']['name']
                 else:
-                  self.codes[cp][tl] += 'invoke-static/range {'+v+' .. '+v+'}, '+val['tagging_log']['name']
+                  self.codes_ins[cp][tl] += 'invoke-static/range {'+v+' .. '+v+'}, '+val['tagging_log']['name']
             # Checking
             if ('checking' in val.keys()):
               for chk in val['checking']['place']:
-                if (chk not in self.codes[cp].keys()):
-                  self.codes[cp][chk] = ''
-                self.codes[cp][chk] += 'invoke-static/range {'+v+' .. '+v+'}, '+val['checking']['name']
+                if (chk not in self.codes_ins[cp].keys()):
+                  self.codes_ins[cp][chk] = ''
+                self.codes_ins[cp][chk] += 'invoke-static/range {'+v+' .. '+v+'}, '+val['checking']['name']
                 if (val['type'] in ['Z', 'B', 'S', 'C', 'I', 'F']):
-                  self.codes[cp][chk] += 'move-result '+v+'\n'
+                  self.codes_ins[cp][chk] += 'move-result '+v+'\n'
                 elif (val['type'] in ['J', 'D']):
-                  self.codes[cp][chk] += 'move-result-wide '+v+'\n'
+                  self.codes_ins[cp][chk] += 'move-result-wide '+v+'\n'
                 elif (val['type'] in ['Ljava/lang/String;', 'Ljava/lang/StringBuilder;'] or  val['type'][0] == '['):
-                  self.codes[cp][chk] += 'move-result-object '+v+'\n'
+                  self.codes_ins[cp][chk] += 'move-result-object '+v+'\n'
             # Data Saving
             if ('saving' in val.keys()):
-              if (vline not in self.codes[cp].keys()):
-                self.codes[cp][vline] = ''
-              self.codes[cp][vline] += 'invoke-static/range {'+v+' .. '+v+'}, '+val['saving']
+              if (vline not in self.codes_ins[cp].keys()):
+                self.codes_ins[cp][vline] = ''
+              self.codes_ins[cp][vline] += 'invoke-static/range {'+v+' .. '+v+'}, '+val['saving']
             # Data Logging
             if ('logging' in val.keys()):
-              if (vline not in self.codes[cp].keys()):
-                self.codes[cp][vline] = ''
-              self.codes[cp][vline] += val['logging']
+              if (vline not in self.codes_ins[cp].keys()):
+                self.codes_ins[cp][vline] = ''
+              self.codes_ins[cp][vline] += val['logging']
             # Data Comparison
             if ('comparison' in val.keys()):
-              if (vline not in self.codes[cp].keys()):
-                self.codes[cp][vline] = ''
+              if (vline not in self.codes_ins[cp].keys()):
+                self.codes_ins[cp][vline] = ''
               for cmpc in val['comparison']:
-                self.codes[cp][vline] += cmpc
+                self.codes_ins[cp][vline] += cmpc
 
       # Untaggings
       for m, mval in cpval['methods'].items():
@@ -165,8 +165,8 @@ class CGCore(cgfuncs.CGFuncs):
           for vline, val in vval.items():
             if ('untagging' in val.keys()):
               for ul in val['untagging']['place']:
-                if (ul not in self.codes[cp].keys()):
-                  self.codes[cp][ul] = ''
-                self.codes[cp][ul] += 'invoke-static {}, '+val['untagging']['name']
+                if (ul not in self.codes_ins[cp].keys()):
+                  self.codes_ins[cp][ul] = ''
+                self.codes_ins[cp][ul] += 'invoke-static {}, '+val['untagging']['name']
 
 

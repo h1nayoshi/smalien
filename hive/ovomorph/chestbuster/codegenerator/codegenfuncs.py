@@ -29,7 +29,7 @@ class CGFuncs():
     cp = v.split('->')[0]
     if (v in self.generated[cp]['global'].keys()):
       if (line in self.generated[cp]['global'][v].keys()):
-        return cp+'->'+self.generated[cp]['global'][v][line]['tag']
+        return self.def_class+'->'+self.generated[cp]['global'][v][line]['tag']
     else:
       self.generated[cp]['global'][v] = {}
     tag = 'Tag_'+v.split('->')[-1].split(':')[0]+'_'+str(line)+'_'+str(self.tag_cntr)+':C'
@@ -44,20 +44,20 @@ class CGFuncs():
     self.__untagging_global(cp, v, utg_place)
     self.generated[cp]['global'][v][line] = {
       'tag': tag,
-      'tpath': cp+'->'+tag,
+      'tpath': self.def_class+'->'+tag,
       'code': code,
       'type': vtype,
       'tagging': {
-        'name': cp+'->tagging'+tag.split(':')[0]+'()V\n',
+        'name': self.def_class+'->tagging'+tag.split(':')[0]+'()V\n',
         'place': [line+1],
       },
       'untagging': {
-        'name': cp+'->untagging'+tag.split(':')[0]+'()V\n',
+        'name': self.def_class+'->untagging'+tag.split(':')[0]+'()V\n',
         'place': utg_place,
       },
     }
     self.tag_cntr += 1
-    return cp+'->'+tag
+    return self.def_class+'->'+tag
 
   def generate_tag_for_local(self, f, prev_tag):
     cp = f['class_path']
@@ -68,7 +68,7 @@ class CGFuncs():
     areas = f['area']
     if (v in self.generated[cp]['methods'][m].keys()):
       if (line in self.generated[cp]['methods'][m][v].keys()):
-        return cp+'->'+self.generated[cp]['methods'][m][v][line]['tag']
+        return self.def_class+'->'+self.generated[cp]['methods'][m][v][line]['tag']
     else:
       self.generated[cp]['methods'][m][v] = {}
     tag = 'Tag_'+v.split('->')[-1].split(':')[0]+'_'+str(line)+'_'+str(self.tag_cntr)+':C'
@@ -94,24 +94,24 @@ class CGFuncs():
       chk_place = []
     self.generated[cp]['methods'][m][v][line] = {
       'tag': tag,
-      'tpath': cp+'->'+tag,
+      'tpath': self.def_class+'->'+tag,
       'code': code,
       'type': vtype,
       'tagging_log': {
-        'name': cp+'->tagging'+tag.split(':')[0]+'('+vtype+')V\n',
+        'name': self.def_class+'->tagging'+tag.split(':')[0]+'('+vtype+')V\n',
         'place': [line+1],
       },
       'untagging': {
-        'name': cp+'->untagging'+tag.split(':')[0]+'()V\n',
+        'name': self.def_class+'->untagging'+tag.split(':')[0]+'()V\n',
         'place': utg_place,
       },
       'checking': {
-        'name': cp+'->checking'+tag.split(':')[0]+'('+vtype+')'+vtype+'\n',
+        'name': self.def_class+'->checking'+tag.split(':')[0]+'('+vtype+')'+vtype+'\n',
         'place': chk_place,
       },
     }
     self.tag_cntr += 1
-    return cp+'->'+tag
+    return self.def_class+'->'+tag
 
   def generate_tag_for_local_bad_type(self, f, prev_tag):
     cp = f['class_path']
@@ -122,7 +122,7 @@ class CGFuncs():
     areas = f['area']
     if (v in self.generated[cp]['methods'][m].keys()):
       if (line in self.generated[cp]['methods'][m][v].keys()):
-        return cp+'->'+self.generated[cp]['methods'][m][v][line]['tag']
+        return self.def_class+'->'+self.generated[cp]['methods'][m][v][line]['tag']
     else:
       self.generated[cp]['methods'][m][v] = {}
     tag = 'Tag_'+v.split('->')[-1].split(':')[0]+'_'+str(line)+'_'+str(self.tag_cntr)+':C'
@@ -144,16 +144,16 @@ class CGFuncs():
       'code': code,
       'type': vtype,
       'tagging': {
-        'name': cp+'->tagging'+tag.split(':')[0]+'()V\n',
+        'name': self.def_class+'->tagging'+tag.split(':')[0]+'()V\n',
         'place': [line+1],
       },
       'untagging': {
-        'name': cp+'->untagging'+tag.split(':')[0]+'()V\n',
+        'name': self.def_class+'->untagging'+tag.split(':')[0]+'()V\n',
         'place': utg_place,
       },
     }
     self.tag_cntr += 1
-    return cp+'->'+tag
+    return self.def_class+'->'+tag
 
   def __define_tag(self, code, tag):
     code.append(
@@ -175,7 +175,7 @@ class CGFuncs():
         '  sget-char v0, '+prev_tag+'\n'
       )
     code.extend([
-      '  sput-char v0, '+cp+'->'+tag+'\n',
+      '  sput-char v0, '+self.def_class+'->'+tag+'\n',
       '  if-eqz v0, :pass\n',
     ])
     if (vtype == 'Z'):
@@ -251,7 +251,7 @@ class CGFuncs():
         '  sget-char v0, '+prev_tag+'\n'
       )
     code.extend([
-      '  sput-char v0, '+cp+'->'+tag+'\n',
+      '  sput-char v0, '+self.def_class+'->'+tag+'\n',
       '  return-void\n',
       '.end method\n',
     ])
@@ -261,7 +261,7 @@ class CGFuncs():
       '.method public static untagging'+tag.split(':')[0]+'()V\n',
       '  .locals 1\n',
       '  const/4 v0, 0x0\n',
-      '  sput-char v0, '+cp+'->'+tag+'\n',
+      '  sput-char v0, '+self.def_class+'->'+tag+'\n',
       '  return-void\n',
       '.end method\n',
     ])
@@ -270,7 +270,7 @@ class CGFuncs():
     code.extend([
       '.method public static checking'+tag.split(':')[0]+'('+vtype+')'+vtype+'\n',
       '  .locals 1\n',
-      '  sget-char v0, '+cp+'->'+tag+'\n',
+      '  sget-char v0, '+self.def_class+'->'+tag+'\n',
       '  if-eqz v0, :pass\n',
     ])
     if (vtype in ['Z', 'I']):
@@ -470,7 +470,7 @@ class CGFuncs():
     )
     self.generated[cp]['methods'][m][sv][line]['code'].extend(code)
     # Invocation
-    slmethod_call = cp+'->'+slmethod+'\n'
+    slmethod_call = self.def_class+'->'+slmethod+'\n'
     self.sl_cntr += 1
     self.generated[cp]['methods'][m][sv][line]['slmethod_call'] = slmethod_call
     return slmethod_call

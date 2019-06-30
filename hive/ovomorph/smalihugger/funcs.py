@@ -32,7 +32,8 @@ def find_smalis(host_dest):
     find_smalis_from_dir(sdir, smalis, sdir_ex)
   if (smalis == []):
     return False
-  return smalis
+  new_dex_dir = host_dest+'host/smali_classes'+str(len(smali_dirs)+1)
+  return smalis, new_dex_dir
 
 def find_smalis_from_dir(smali_dir, smalis, sdir_ex):
   paths = os.listdir(smali_dir)

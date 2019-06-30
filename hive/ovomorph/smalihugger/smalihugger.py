@@ -18,7 +18,7 @@ def run(host_dest, keystore):
 
   # Find target smali files
   print('  [*] Finding targets')
-  smalis = find_smalis(host_dest)
+  smalis, new_dex_dir = find_smalis(host_dest)
   if (not smalis):
     print('[--!--] Failed to find smalis')
     sys.exit()
@@ -32,7 +32,7 @@ def run(host_dest, keystore):
   print('   [+] Activities found: ' + str(len(activities)))
 
   # Analyze and Inject to smali files
-  ret, parsed_data, data_flows, log_ids = chestbuster.run(smalis, activities)
+  ret, parsed_data, data_flows, log_ids = chestbuster.run(smalis, activities, new_dex_dir)
   if (not ret):
     sys.exit()
 

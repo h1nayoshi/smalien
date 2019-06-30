@@ -11,7 +11,9 @@ class CodeGenerator(cgcore.CGCore, cgfm.CGFMates):
   def __init__(self, parsed_data, data_flows):
     self.parsed_data = parsed_data
     self.data_flows = data_flows
-    self.codes = {}
+    self.codes_def = []
+    self.def_class = 'Lsmalienlog;'
+    self.codes_ins = {}
     self.replaces = {}
     self.generated = {}
     self.tag_cntr = 0
@@ -40,5 +42,5 @@ class CodeGenerator(cgcore.CGCore, cgfm.CGFMates):
           #self.generate_for_mates(flow['comp_mates'])
     #pprint(self.generated)
     self.generate_final_code()
-    return self.codes, self.replaces, self.log_ids
+    return self.def_class, self.codes_def, self.codes_ins, self.replaces, self.log_ids
 

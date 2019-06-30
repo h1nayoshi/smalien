@@ -9,7 +9,7 @@ from .dataflowanalyzer import dataflowanalyzer as dfanalyzer
 from .codegenerator import codegenerator as cgenerator
 from .codeinjector import codeinjector as cinjector
 
-def run(smalis, activities):
+def run(smalis, activities, new_dex_dir):
   start = time.time()
   # Parse
   print('   [*] Parsing the smalis')
@@ -31,13 +31,13 @@ def run(smalis, activities):
   # Generate codes
   print('   [*] Generating bytecode')
   CG = cgenerator.CodeGenerator(parsed_data, data_flows)
-  generated_codes, generated_replaces, log_ids = CG.generate()
+  def_class, gen_codes_def, gen_codes_ins, gen_replaces, log_ids = CG.generate()
   #pprint(generated_codes)
 
   # Inject
   # Under construction
   print('   [*] Instrumenting bytecode')
-  CI = cinjector.CodeInjector(parsed_data, generated_codes, generated_replaces, src_codes)
+  CI = cinjector.CodeInjector(parsed_data, def_class, gen_codes_def, gen_codes_ins, gen_replaces, src_codes, new_dex_dir)
   CI.inject()
 
   return True, parsed_data, data_flows, log_ids
