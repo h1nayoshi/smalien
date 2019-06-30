@@ -32,7 +32,11 @@ class DBCFuncs():
     self.add_state('p0', DBCFuncs.mv['start'], DBCFuncs.mv['start'], 'this', 'dest', 'param')
     DBCFuncs.mv['params']['p0'] = {}
     # Find other params
-    cnt = 1
+    # Check if the method is static
+    if (DBCFuncs.sc[DBCFuncs.mv['start']].find(' static ') > -1):
+      cnt = 0
+    else:
+      cnt = 1
     ptypes = self.get_ptypes_from_method_def(DBCFuncs.sc[DBCFuncs.mv['start']])
     for ptype in ptypes:
       p = 'p'+str(cnt)
