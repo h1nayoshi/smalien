@@ -5,7 +5,7 @@ import sys
 from pprint import pprint
 
 from ..chestbuster import chestbuster
-from .funcs import unpack, find_smalis, detach, find_activities
+from .funcs import unpack, decon_smalis, find_smalis, detach, find_activities
 
 def run(host_dest, keystore):
   print('  [*] Unpacking the apk')
@@ -16,9 +16,12 @@ def run(host_dest, keystore):
     print('[--!--] Failed to unpack')
     sys.exit()
 
+  # Deconcentrate smalis
+  smali_dirs = decon_smalis(host_dest)
+
   # Find target smali files
   print('  [*] Finding targets')
-  smalis, new_dex_dir = find_smalis(host_dest)
+  smalis, new_dex_dir = find_smalis(host_dest, smali_dirs)
   if (not smalis):
     print('[--!--] Failed to find smalis')
     sys.exit()

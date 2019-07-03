@@ -15,12 +15,31 @@ def unpack(host_dest):
     return False
   return True
 
-def find_smalis(host_dest):
+def decon_smalis(host_dest):
   smali_dirs = []
   dirs = os.listdir(host_dest+'host/')
   for d in dirs:
     if (d.find('smali') > -1):
       smali_dirs.append(host_dest+'host/'+d+'/')
+  dnum = len(smali_dirs)
+  for i in range(dnum):
+    dnum += 1
+    newdir = host_dest+'host/smali_classes'+str(dnum)+'/'
+    os.mkdir(newdir)
+    smali_dirs.append(newdir)
+    files = os.listdir(smali_dirs[i])
+    dirs = []
+    for f in files:
+      if (os.path.isdir(smali_dirs[i]+f)):
+        dirs.append(f)
+    for j in range(int(len(dirs)/2)):
+      move_dir(smali_dirs[i]+dirs[j], newdir)
+  return smali_dirs
+
+def move_dir(target, dest):
+  subprocess.check_call('mv '+target+' '+dest, shell=True)
+
+def find_smalis(host_dest, smali_dirs):
   # Find smalis
   smalis = []
   for sdir in smali_dirs:
