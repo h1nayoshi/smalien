@@ -24,7 +24,7 @@ class DFSFinder():
       # Check each area
       for area in dfval['area']:
         #print area
-        if (sline > area['start'] and sline < area['end'] and dfval['var'] in sval['vars']):
+        if (sline > area['start'] and sline <= area['end'] and dfval['var'] in sval['vars']):
           # Add sink to dfval
           if ('sink' not in dfval.keys()):
             dfval['sink'] = []
