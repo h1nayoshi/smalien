@@ -41,7 +41,7 @@ def run(host_dest, keystore):
 
   # Repack and resign the apk
   print('  [*] Repackaging the apk')
-  ret = detach(host_dest, keystore)
+  ret = detach(host_dest, keystore, pkg)
   if (not ret):
     sys.exit()
 

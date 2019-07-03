@@ -85,7 +85,7 @@ def find_activities(hd):
       activities.append('L'+activity.replace('.', '/')+';')
   return pkg, activities
 
-def detach(host_dest, keystore):
+def detach(host_dest, keystore, pkg):
   # Pack
   #print('  [--Z--] Packing')
   ret = pack(host_dest)
@@ -102,7 +102,7 @@ def detach(host_dest, keystore):
 
   # Move
   #print('  [--Z--] Moving')
-  ret = move(host_dest)
+  ret = move(host_dest, pkg)
   if (not ret):
     print('[--!--] Failed to move')
     return False
@@ -123,9 +123,9 @@ def sign(host_dest, keystore):
     return False
   return True
 
-def move(host_dest):
+def move(host_dest, pkg):
   try:
-    subprocess.check_call('mv '+host_dest+'host/dist/host.apk '+host_dest+'implanted.apk', shell=True)
+    subprocess.check_call('mv '+host_dest+'host/dist/host.apk '+host_dest+'implanted_'+pkg+'.apk', shell=True)
   except:
     return False
   return True
