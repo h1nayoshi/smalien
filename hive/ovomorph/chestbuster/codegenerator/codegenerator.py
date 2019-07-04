@@ -33,11 +33,14 @@ class CodeGenerator(cgcore.CGCore, cgfm.CGFMates):
           if (not self.log_def):
             self.generate_logging_method(flow['flow'])
             self.log_def = True
-          # Generate for a flow
-          self.generate_for_a_flow(flow['flow'], None)
           # Generate for sinks
           for sink in flow['sinks']:
             self.generate_for_a_sink(sink)
+          # Generate for a flow
+          self.generate_for_a_flow(flow['flow'], None)
+          # Generate for sinks
+          #for sink in flow['sinks']:
+          #  self.generate_for_a_sink(sink)
           # Generate for mates
           #self.generate_for_mates(flow['comp_mates'])
     #pprint(self.generated)

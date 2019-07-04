@@ -79,16 +79,21 @@ class CGCore(cgfuncs.CGFuncs):
         self.generate_for_a_flow(n, tag)
 
   def generate_for_a_sink(self, sink):
+    # Check if the sink has tag
+    #print('sink tag', sink['tag'], type(sink['tag']))
+    #if (sink['tag']):
+    #  return
+    #print('generating tag', sink['class_path'], sink['line'], sink['var'])
     # Check if var is global
     if (sink['var'].find('->') < 0):
-      chk_type = self.check_type(sink['type'])
-      if (chk_type):
+      chk = self.check_type(sink['type'])
+      if (chk):
         self.logging_sink(sink)
     # Log for subs
     for sub in sink['subs']:
       if (sub['var'].find('->') < 0):
-        chk_type = self.check_type(sub['type'])
-        if (chk_type):
+        chk = self.check_type(sub['type'])
+        if (chk):
           self.logging_sink(sub)
 
   def generate_final_code(self):
@@ -142,6 +147,14 @@ class CGCore(cgfuncs.CGFuncs):
                   self.codes_ins[cp][chk] += 'move-result-wide '+v+'\n'
                 elif (val['type'] in ['Ljava/lang/String;', 'Ljava/lang/StringBuilder;'] or  val['type'][0] == '['):
                   self.codes_ins[cp][chk] += 'move-result-object '+v+'\n'
+            # Tagging to sink
+            if ('tagging_to_sink' in val.keys()):
+              for i in range(len(val['tagging_to_sink']['place'])):
+                ttsp = val['tagging_to_sink']['place'][i]
+                ttsm = val['tagging_to_sink']['name'][i]
+                if (ttsp not in self.codes_ins[cp].keys()):
+                  self.codes_ins[cp][ttsp] = ''
+                self.codes_ins[cp][ttsp] += 'invoke-static {}, '+ttsm
             # Data Saving
             if ('saving' in val.keys()):
               if (vline not in self.codes_ins[cp].keys()):
@@ -168,5 +181,9 @@ class CGCore(cgfuncs.CGFuncs):
                 if (ul not in self.codes_ins[cp].keys()):
                   self.codes_ins[cp][ul] = ''
                 self.codes_ins[cp][ul] += 'invoke-static {}, '+val['untagging']['name']
+            if ('untagging_sink' in val.keys()):
+              if (val['untagging_sink']['place'] not in self.codes_ins[cp].keys()):
+                self.codes_ins[cp][val['untagging_sink']['place']] = ''
+              self.codes_ins[cp][val['untagging_sink']['place']] += 'invoke-static {}, '+val['untagging_sink']['name']
 
 

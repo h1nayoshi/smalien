@@ -68,9 +68,12 @@ class CGFuncs():
     areas = f['area']
     if (v in self.generated[cp]['methods'][m].keys()):
       if (line in self.generated[cp]['methods'][m][v].keys()):
-        return self.def_class+'->'+self.generated[cp]['methods'][m][v][line]['tag']
+        if ('tag' in self.generated[cp]['methods'][m][v][line].keys()):
+          return self.def_class+'->'+self.generated[cp]['methods'][m][v][line]['tag']
+      else:
+        self.generated[cp]['methods'][m][v][line] = {}
     else:
-      self.generated[cp]['methods'][m][v] = {}
+      self.generated[cp]['methods'][m][v] = {line: {}}
     tag = 'Tag_'+v.split('->')[-1].split(':')[0]+'_'+str(line)+'_'+str(self.tag_cntr)+':C'
     code = []
     # Define a tag
@@ -87,28 +90,36 @@ class CGFuncs():
       utg_place.append(mstart+1)
     self.__untagging_local(cp, m, areas, v, utg_place)
     #Define a checking method
-    self.__define_checking_method(code, cp, vtype, tag)
+    #self.__define_checking_method(code, cp, vtype, tag)
+    tts_methods = []
     if ('sink' in f.keys()):
-      chk_place = f['sink']
+      tts_place = f['sink']
+      for i in range(len(tts_place)):
+        sink_tag = self.generated[cp]['methods'][m][v][tts_place[i]]['sink_tag']
+        #Define a propgation method for moving tag to sink
+        tts_methods.append(self.__define_tagging_to_sink_method(code, cp, sink_tag, tag))
+        tts_place[i] = tts_place[i]-1
+      #Define a checking method
+      #self.__define_checking_method(code, cp, vtype, tag)
     else:
-      chk_place = []
-    self.generated[cp]['methods'][m][v][line] = {
-      'tag': tag,
-      'tpath': self.def_class+'->'+tag,
-      'code': code,
-      'type': vtype,
-      'tagging_log': {
+      tts_place = []
+    self.generated[cp]['methods'][m][v][line]['tag'] = tag
+    self.generated[cp]['methods'][m][v][line]['tpath'] = self.def_class+'->'+tag
+    if ('code' not in self.generated[cp]['methods'][m][v][line].keys()):
+      self.generated[cp]['methods'][m][v][line]['code'] = []
+    self.generated[cp]['methods'][m][v][line]['code'].extend(code)
+    self.generated[cp]['methods'][m][v][line]['type'] = vtype
+    self.generated[cp]['methods'][m][v][line]['tagging_log'] = {
         'name': self.def_class+'->tagging'+tag.split(':')[0]+'('+vtype+')V\n',
         'place': [line+1],
-      },
-      'untagging': {
+    }
+    self.generated[cp]['methods'][m][v][line]['untagging'] = {
         'name': self.def_class+'->untagging'+tag.split(':')[0]+'()V\n',
         'place': utg_place,
-      },
-      'checking': {
-        'name': self.def_class+'->checking'+tag.split(':')[0]+'('+vtype+')'+vtype+'\n',
-        'place': chk_place,
-      },
+    }
+    self.generated[cp]['methods'][m][v][line]['tagging_to_sink'] = {
+        'name': tts_methods,
+        'place': tts_place,
     }
     self.tag_cntr += 1
     return self.def_class+'->'+tag
@@ -236,6 +247,26 @@ class CGFuncs():
       '  return-void\n',
       '.end method\n',
     ])
+
+  def __define_tagging_to_sink_method(self, code, cp, tag, prev_tag):
+    code.extend([
+      '.method public static taggingToSink'+prev_tag.split(':')[0]+'()V\n',
+      '  .locals 1\n',
+    ])
+    if (prev_tag is None):
+      code.append(
+        '  const/4 v0, 0x1\n'
+      )
+    else:
+      code.append(
+        '  sget-char v0, '+prev_tag+'\n'
+      )
+    code.extend([
+      '  sput-char v0, '+self.def_class+'->'+tag+'\n',
+      '  return-void\n',
+      '.end method\n',
+    ])
+    return self.def_class+'->taggingToSink'+prev_tag.split(':')[0]+'()V\n'
 
   def __define_tagging_method(self, code, cp, tag, prev_tag):
     code.extend([
@@ -381,23 +412,24 @@ class CGFuncs():
     line = sink['line']
     sv = sink['var']
     vtype = sink['type']
+    if (sv in self.generated[cp]['methods'][m].keys()):
+      if (line in self.generated[cp]['methods'][m][sv].keys()):
+        if ('logging' in self.generated[cp]['methods'][m][sv][line].keys()):
+          return
+      else:
+        self.generated[cp]['methods'][m][sv][line] = {'code': []}
+    else:
+      self.generated[cp]['methods'][m][sv] = {line: {'code': []}}
     log_method = self.__define_sink_log_method(cp, m, line, sv, vtype)
     if (vtype in ['J', 'D']):
       sv_2 = sv[0]+str(int(sv[1:])+1)
       log_sink = 'invoke-static/range {'+sv+' .. '+sv_2+'}, '+log_method
     else:
       log_sink = 'invoke-static/range {'+sv+' .. '+sv+'}, '+log_method
-    if (line not in self.generated[cp]['methods'][m][sv].keys()):
-      self.generated[cp]['methods'][m][sv][line] = {'logging': log_sink}
-    elif ('logging' not in self.generated[cp]['methods'][m][sv][line].keys()):
-      self.generated[cp]['methods'][m][sv][line]['logging'] = log_sink
+    self.generated[cp]['methods'][m][sv][line]['logging'] = log_sink
 
   # This func is same as one for mates. Need to refactor
   def __define_sink_log_method(self, cp, m, line, sv, vtype):
-    if (sv not in self.generated[cp]['methods'][m].keys()):
-      self.generated[cp]['methods'][m][sv] = {}
-    if (line not in self.generated[cp]['methods'][m][sv].keys()):
-      self.generated[cp]['methods'][m][sv][line] = {'code': []}
     if ('slmethod' in self.generated[cp]['methods'][m][sv][line].keys()):
       return self.generated[cp]['methods'][m][sv][line]['slmethod_call']
     sid = sv+'_'+str(line)+'_'+str(self.sl_cntr)
@@ -406,10 +438,30 @@ class CGFuncs():
     slmethod = 'SinkLog_'+sid+'('+vtype+')V'
     # Define a log method
     code = []
+    # Define tag
+    sink_tag = sid+':C'
+    self.__define_tag(code, sink_tag)
+    # Define untagging method
+    self.__define_untagging_method(code, cp, sink_tag)
+    # Call untagging method
+    mstart = self.parsed_data['classes'][cp]['methods'][m]['start']+1
+    if (mstart not in self.generated[cp]['methods'][m][sv].keys()):
+      self.generated[cp]['methods'][m][sv][mstart] = {}
+    self.generated[cp]['methods'][m][sv][mstart]['untagging_sink'] = {
+      'name': self.def_class+'->untagging'+sink_tag.split(':')[0]+'()V\n',
+      'place': mstart,
+    }
+    # Define a log method
     code.extend([
       '.method public static '+slmethod+'\n',
-      '  .locals 2\n',
+      '  .locals 3\n',
+      '  sget-char v2, '+self.def_class+'->'+sink_tag+'\n',
+      '  if-eqz v2, :pass\n',
+      '    const-string v1, "sink_tag: {'+sid+'"\n',
+      '    goto :goto_0\n',
+      '  :pass\n',
       '  const-string v1, "sink: {'+sid+'"\n',
+      '  :goto_0\n',
     ])
     if (vtype == 'Z'):
       code.extend([
@@ -464,14 +516,15 @@ class CGFuncs():
         '  move-object v0, p0\n',
         self.log_call,
       ])
-    code.append(
-      '  return-void\n'
-      '.end method\n\n'
-    )
+    code.extend([
+      '  return-void\n',
+      '.end method\n\n',
+    ])
     self.generated[cp]['methods'][m][sv][line]['code'].extend(code)
     # Invocation
     slmethod_call = self.def_class+'->'+slmethod+'\n'
     self.sl_cntr += 1
     self.generated[cp]['methods'][m][sv][line]['slmethod_call'] = slmethod_call
+    self.generated[cp]['methods'][m][sv][line]['sink_tag'] = sink_tag
     return slmethod_call
 
