@@ -5,14 +5,7 @@ from pprint import pprint
 
 class DFFinder():
   area_analyzed = {}
-  container_puts = [
-    'preference_val_put',
-    'preference_key',
-    'bundle_val_put',
-    'bundle_key',
-    'jsonobject_val_put',
-    'jsonobject_key',
-  ]
+  container_puts = ['preference_val_put', 'bundle_val_put', 'jsonobject_val_put']
 
   def find_df(self, cp, m, line, sval):
     # Source
