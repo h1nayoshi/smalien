@@ -6,6 +6,7 @@ from pprint import pprint
 class DFFinder():
   area_analyzed = {}
   container_puts = ['preference_val_put', 'bundle_val_put', 'jsonobject_val_put']
+  container_keys = ['preference_key', 'bundle_key', 'jsonobject_key']
 
   def find_df(self, cp, m, line, sval):
     # Source
@@ -185,7 +186,7 @@ class DFFinder():
     return end, actend
 
   def __add_flow(self, nexts, cp, m, start, v, sline):
-    if (v in DFFinder.container_puts):
+    if (v in DFFinder.container_puts or v in DFFinder.container_keys):
       vtype = None
     else:    
       if (self.parsed_data['classes'][cp]['methods'][m]['target'] == False):

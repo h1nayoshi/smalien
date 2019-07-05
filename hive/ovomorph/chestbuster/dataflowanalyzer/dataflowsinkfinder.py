@@ -10,6 +10,7 @@ class DFSFinder():
   global_var_analyzed = []
   container_analyzed = []
   container_gets = ['preference_val_get', 'bundle_val_get', 'jsonobject_val_get']
+  container_keys = ['preference_key', 'bundle_key', 'jsonobject_key']
 
   def find_sinks(self, cp, m, line):
     DFSFinder.sink_added = {}
@@ -258,7 +259,7 @@ class DFSFinder():
   def __add_flow(self, nexts, cp, m, start, v, sline):
     if (v == 'none' or self.parsed_data['classes'][cp]['methods'][m]['target'] == False):
       return
-    if (v in DFSFinder.container_gets):
+    if (v in DFSFinder.container_gets or v in DFSFinder.container_keys):
       vtype = None
     else:
       vtype = self.parsed_data['classes'][cp]['methods'][m]['vars'][v]['state'][start][0]['type']
