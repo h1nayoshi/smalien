@@ -9,7 +9,14 @@ class DFSFinder():
   area_analyzed_rev = {}
   global_var_analyzed = []
   container_analyzed = []
-  container_gets = ['preference_val_get', 'bundle_val_get', 'jsonobject_val_get']
+  container_gets = [
+    'preference_val_get',
+    'preference_key',
+    'bundle_val_get',
+    'bundle_key',
+    'jsonobject_val_get',
+    'jsonobject_key',
+  ]
 
   def find_sinks(self, cp, m, line):
     DFSFinder.sink_added = {}
