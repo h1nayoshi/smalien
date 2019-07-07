@@ -14,6 +14,7 @@ class CGFuncs():
     'F',
     'D',
     'Ljava/lang/String;',
+    '[B',
     #'Ljava/lang/StringBuilder;',
   ]
 
@@ -240,6 +241,12 @@ class CGFuncs():
     elif (vtype == 'Ljava/lang/String;'):
       code.extend([
         '  move-object v0, p0\n',
+        self.log_call,
+      ])
+    elif (vtype == '[B'):
+      code.extend([
+        '  new-instance v0, Ljava/lang/String;\n',
+        '  invoke-direct {v0, p0}, Ljava/lang/String;-><init>([B)V\n',
         self.log_call,
       ])
     code.extend([
@@ -514,6 +521,12 @@ class CGFuncs():
     elif (vtype == 'Ljava/lang/String;'):
       code.extend([
         '  move-object v0, p0\n',
+        self.log_call,
+      ])
+    elif (vtype == '[B'):
+      code.extend([
+        '  new-instance v0, Ljava/lang/String;\n',
+        '  invoke-direct {v0, p0}, Ljava/lang/String;-><init>([B)V\n',
         self.log_call,
       ])
     code.extend([
