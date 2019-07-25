@@ -34,7 +34,7 @@ class DFSFinder():
           chk = self.__has_sink_added_already(dfval['class_path'], sline)
           if (not chk):
             # Find sink substances
-            self.__find_sink_subs(dfval['class_path'], dfval['method'], sline, dfval['var'])
+            area, nexts = self.__find_sink_subs(dfval['class_path'], dfval['method'], sline, dfval['var'])
             # Add a sink var
             sinks.append({
               'var': dfval['var'],
@@ -44,6 +44,8 @@ class DFSFinder():
               'type': dfval['type'],
               'subs': DFSFinder.subs,
               'tag': True,
+              'area': area,
+              'next': nexts,
             })
           else:
             break
@@ -70,6 +72,7 @@ class DFSFinder():
     self.__find_df_of_var_rev(cp, m, line, v, area, nexts)
     # Get subs from sink's data flow
     self.__generate_subs_from_df(nexts)
+    return area, nexts
 
   def __init_df_rev(self):
     DFSFinder.area_analyzed_rev = {}
@@ -318,7 +321,7 @@ class DFSFinder():
             if (not chk):
               for v in sval['vars']:
                 # Find sink substances
-                self.__find_sink_subs(class_path, method, sline, v)
+                area, nexts = self.__find_sink_subs(class_path, method, sline, v)
                 # Add a sink var
                 sinks.append({
                   'var': v,
@@ -328,6 +331,8 @@ class DFSFinder():
                   'type': sval['type'],
                   'subs': DFSFinder.subs,
                   'tag': False,
+                  'area': area,
+                  'next': nexts,
                 })
 
   def __generate_subs_from_df(self, nexts):

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import io
 import sys
 import json
 from pprint import pprint
@@ -18,6 +19,7 @@ class DfCsvGenerator():
     }
 
     self.csvs = []
+    self.csvs_sink = []
     self.output_file = pkg+'_data_flows_csv.json'
 
     self.__load_files()
@@ -37,7 +39,7 @@ class DfCsvGenerator():
       'source': {},
       'sink': {},
     }
-    with open(self.pkg+'_log.txt', 'r') as f:
+    with io.open(self.pkg+'_log.txt', 'r', encoding='utf-8', errors='ignore') as f:
       data = f.read().split('\n')
     for d in data:
       if (d.startswith('source: {')):
@@ -61,6 +63,11 @@ class DfCsvGenerator():
     csv = dtc.run()
     self.csvs.append(csv)
 
+  def df_sink_to_csv(self, df):
+    dtc = funcs.DfToCsv(df, self.log_ids, self.log)
+    csv = dtc.run()
+    self.csvs_sink.append(csv)
+
 if __name__ == '__main__':
   pkg = sys.argv[1]
   DCG = DfCsvGenerator(pkg)
@@ -69,10 +76,18 @@ if __name__ == '__main__':
   for cp, cpval in DCG.data_flows.items():
     for m, mval in cpval.items():
       for l, lval in mval.items():
-        DCG.df_to_csv(lval)
+        # Source
+        #DCG.df_to_csv(lval)
+        # Sink
+        for sink in lval['sinks']:
+          DCG.df_sink_to_csv(sink)
 
   # Save csv
   for i in range(len(DCG.csvs)):
     with open(pkg+'_df_'+str(i)+'.csv', 'w') as f:
       f.write(DCG.csvs[i])
+  for i in range(len(DCG.csvs_sink)):
+    with open(pkg+'_df_rev_'+str(i)+'.csv', 'w') as f:
+      f.write(DCG.csvs_sink[i])
+  print('Done!')
 

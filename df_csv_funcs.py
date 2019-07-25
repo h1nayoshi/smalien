@@ -5,6 +5,10 @@ from pprint import pprint
 class DfToCsv():
   def __init__(self, df, log_ids, log):
     self.df = df
+    if ('flow' in df.keys()):
+      self.flow = df['flow']
+    else:
+      self.flow = df
     self.log_ids = log_ids
     self.log = log
     self.csv = ''
@@ -28,7 +32,7 @@ class DfToCsv():
     self.sensitive_data = {}
 
   def run(self):
-    self.__walk_flow(self.df['flow'])
+    self.__walk_flow(self.flow)
     self.__output_csv()
     return self.csv
 
@@ -109,10 +113,21 @@ class DfToCsv():
     return self.node['var']['node'][cp][m][vnode] 
 
   def __add_sensitive_data(self, src_id, cp, m, v, l, area):
+    if (cp not in self.log_ids.keys()):
+      return
+    if (m not in self.log_ids[cp].keys()):
+      return
+    if (v not in self.log_ids[cp][m].keys()):
+      return
     for data_l, data_tag in self.log_ids[cp][m][v].items():
       is_contained = self.__check_contain(int(data_l), area)
       if (is_contained and data_tag in self.log['source']):
         data = list(set(self.log['source'][data_tag]))
+        if src_id not in self.sensitive_data.keys():
+          self.sensitive_data[src_id] = []
+        self.sensitive_data[src_id].extend(data)
+      elif (is_contained and data_tag in self.log['sink']):
+        data = list(set(self.log['sink'][data_tag]))
         if src_id not in self.sensitive_data.keys():
           self.sensitive_data[src_id] = []
         self.sensitive_data[src_id].extend(data)
