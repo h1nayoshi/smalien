@@ -1,0 +1,23 @@
+/*.column {*/
+/*    background: #ffff00;*/
+/*    padding:2px;*/
+/*    border: solid;*/
+/*}*/
+
+svg {
+    width: 95%;
+    height: 720px;
+    margin: 0 auto;
+    border-style: dashed;
+    border-color: #96C8DA;
+    background-color: #000000;
+}
+
+/*a, a.visited {*/
+/*    text-decoration: none;*/
+/*    color: #1B1C1D;*/
+/*}*/
+
+#terminal_output {
+    height: 500px;
+}

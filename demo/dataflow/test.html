@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Test Page</title>
+    <link rel="stylesheet" href="semantic/dist/semantic.min.css">
+    <script>window.jQuery = window.$ = require('jquery');</script>
+    <script src="semantic/dist/semantic.min.js"></script>
+    <link rel="stylesheet" href="test.css">
+</head>
+<body>
+<h1 class="ui header">Smalien Test Page</h1>
+<button class="ui center aligned button">
+    <a href="https://github.com/h1nayoshi/smalien.git"><i class="large github icon"></i></a>
+</button>
+
+<div class="ui internally celled stackable grid">
+    <div class="row">
+        <div class="ten wide column">
+            <div class="ui stackable grid container">
+                <div class="row">
+                    <div class="column">
+                        <div class="ui menu">
+                            <a class="item">Open APK</a>
+                            <div class="right menu">
+                                <div class="ui input">
+                                    <input class="item" type="text" placeholder="input path to apk">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="column">
+                        <div class="ui secondary pointing three item menu">
+                            <a class="item">Open Config File</a>
+                            <div class="right menu">
+                                <div class="ui input">
+                                    <input class="item" type="text" placeholder="input path to dataflow.csv">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <svg id="resizable"><g></g></svg>
+        </div>
+        <div class="six wide column">
+            <div class="ui top attached segment">
+                <p>Log</p>
+            </div>
+            <div id="terminal_output" class="ui segment">aaa
+            aaa
+            aaa</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $( function() {
+        $( "#resizable" ).resizable();
+    } );
+</script>
+<!--    <div class="two wide column">-->
+<!--        <div class="ui button"></div>-->
+<!--    </div>-->
+<!--    <div class="eight wide column"></div>-->
+<!--    <div class="six wide column"></div>-->
+<!--    <div class="four wide column"></div>-->
+<!--</div>-->
+</body>
+</html>
