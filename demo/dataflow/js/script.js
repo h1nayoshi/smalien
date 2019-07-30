@@ -18,7 +18,7 @@ script_btn.addEventListener('click', (event) => {
             };
             let pyshell = new PythonShell('main.py', options);
             pyshell.on('message', message => {
-                const pelem = document.createElement('p');
+                const pelem = document.createElement('pre');
                 pelem.innerText = message;
                 output.insertAdjacentElement('beforeend', pelem);
             });
