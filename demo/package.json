@@ -1,0 +1,68 @@
+{
+  "name": "smalien-demo",
+  "version": "0.1.0",
+  "description": "User Interface for Smalien",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --debug",
+    "build:win": "electron-builder build -w --x64",
+    "build:mac": "electron-builder build -m --x64",
+    "build:linux": "electron-builder build -l --x64",
+    "build:all": "electron-builder build -w -m -l --x64"
+  },
+  "build": {
+    "productName": "SmalienDemo",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "icons/alien256.png"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "icons/alien512.png"
+    },
+    "linux": {
+      "target": "deb",
+      "category": "Utility",
+      "icon": "icons/alien256.png"
+    },
+    "files": [
+      "dataflow",
+      "icons",
+      "assets/semantic",
+      "main.js"
+    ],
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "author": {
+    "name": "s0r4syl",
+    "email": "kazuya.a.inf@gmail.com"
+  },
+  "repository": {
+    "url": "https://github.com/h1nayoshi/smalien"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^5.9.7",
+    "dagre-d3": "^0.6.3",
+    "electron-json-storage": "^4.1.6",
+    "jquery": "^3.4.1",
+    "python-shell": "^1.0.7",
+    "semantic-ui": "^2.4.2"
+  },
+  "devDependencies": {
+    "electron": "^5.0.6",
+    "electron-builder": "^20.44.4",
+    "gulp": "^3.9.1"
+  }
+}
