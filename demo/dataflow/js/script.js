@@ -25,5 +25,3 @@ script_btn.addEventListener('click', (event) => {
         };
     });
 });
-
-const terminal = document.getElementById('terminal');
