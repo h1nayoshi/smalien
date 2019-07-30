@@ -39,7 +39,7 @@ dalvik_byte_codes = [
   {'code': '    move-wide ', 'group': 0, 'class': 2, 'dtype': 'stype'},
   {'code': '    move-wide/16 ', 'group': 0, 'class': 2, 'dtype': 'stype'},
   {'code': '    move-wide/from16 ', 'group': 0, 'class': 2, 'dtype': 'stype'},
-  {'code': '    move-object ', 'group': 0, 'class': 2, 'dtype': 'stype'},
+  {'code': '    move-object ', 'group': 0, 'class': 2, 'dtype': 'unknown'}, # Currently compromised with unknown type
   {'code': '    move-object/16 ', 'group': 0, 'class': 2, 'dtype': 'stype'},
   {'code': '    move-object/from16 ', 'group': 0, 'class': 2, 'dtype': 'stype'},
 

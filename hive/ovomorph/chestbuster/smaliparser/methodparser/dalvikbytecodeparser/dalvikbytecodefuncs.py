@@ -359,6 +359,8 @@ class DBCFuncs():
             self.__update_put_of_con(self.parsed_data['containers'][con_type]['put'], cp, m, dline, params, ptypes, ks)
             self.add_state(params[1], l, dline, ptypes[1], 'src', con_type+'_key')
             self.add_state(params[2], l, dline, ptypes[2], 'src', con_type+'_val_put')
+            if (con_type == 'jsonobject'): # Keep tracking the base object if it's json
+              return False
         elif (cm['class'] == 1): # Get
           self.__update_get_of_con(self.parsed_data['containers'][con_type]['get'], cp, m, l, params, dest, dtype, dline, ks)
           self.add_state(params[1], l, l, ptypes[1], 'src', con_type+'_key')
