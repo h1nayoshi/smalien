@@ -11,14 +11,8 @@ class DFFuncs():
     # Get all sink vars
     sinks_all = self.__get_all_sinks(df['sinks'])
 
-    # Find same time pairs
-    mates = self.__find_same_type_mates(imps_all, sinks_all)
-    # Counting total number of mates
-    #for cval in mates.values():
-    #  for mval in cval.values():
-    #    total += len(mval['mates'])
-    #print('total:', total)
-    self.data_flows[cp][m][line]['comp_mates'] = mates
+    # Find same type pairs
+    self.data_flows[cp][m][line]['comp_mates'] = self.__find_same_type_mates(imps_all, sinks_all)
 
   def __get_all_imps(self, imps):
     ret = {}

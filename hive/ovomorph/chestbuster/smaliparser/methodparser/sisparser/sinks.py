@@ -2,8 +2,7 @@
 # Called by sisparser.py
 
 sinks = [
-  #{'code': ' Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V', 'svars': [1], 'type': 'Ljava/lang/String;'},
-  #{'code': ' Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I', 'svars': [0, 1], 'type': 'Ljava/lang/String;'},
+  #{'code': 'Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I', 'svars': [1], 'type': 'Ljava/lang/String;'},
   # Apache
   {'code': ' Lorg/apache/http/impl/client/DefaultHttpClient;->execute(Lorg/apache/http/client/methods/HttpUriRequest;)Lorg/apache/http/HttpResponse;', 'svars': [1], 'type': 'Lorg/apache/http/client/methods/HttpUriRequest;'},
   {'code': ' Lorg/apache/http/client/HttpClient;->execute(Lorg/apache/http/client/methods/HttpUriRequest;)Lorg/apache/http/HttpResponse;', 'svars': [1], 'type': 'Lorg/apache/http/client/methods/HttpUriRequest;'},
@@ -46,4 +45,6 @@ sinks = [
   {'code': ' Ljava/io/PrintStream;->println(D)V', 'svars':[1], 'type': 'D'},
   {'code': ' Ljava/io/PrintStream;->write([BII)V', 'svars':[1], 'type': '[B'},
   {'code': ' Ljava/io/PrintStream;->write(I)V', 'svars':[1], 'type': 'I'},
+  # GZIPStream
+  {'code': ' Ljava/util/zip/GZIPOutputStream;->write([BII)V', 'svars': [1], 'type': '[B'},
 ]

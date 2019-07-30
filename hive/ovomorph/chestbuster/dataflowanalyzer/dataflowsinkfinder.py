@@ -10,6 +10,7 @@ class DFSFinder():
   global_var_analyzed = []
   container_analyzed = []
   container_gets = ['preference_val_get', 'bundle_val_get', 'jsonobject_val_get']
+  container_keys = ['preference_key', 'bundle_key', 'jsonobject_key']
 
   def find_sinks(self, cp, m, line):
     DFSFinder.sink_added = {}
@@ -24,7 +25,7 @@ class DFSFinder():
       # Check each area
       for area in dfval['area']:
         #print area
-        if (sline > area['start'] and sline < area['end'] and dfval['var'] in sval['vars']):
+        if (sline > area['start'] and sline <= area['end'] and dfval['var'] in sval['vars']):
           # Add sink to dfval
           if ('sink' not in dfval.keys()):
             dfval['sink'] = []
@@ -33,7 +34,7 @@ class DFSFinder():
           chk = self.__has_sink_added_already(dfval['class_path'], sline)
           if (not chk):
             # Find sink substances
-            self.__find_sink_subs(dfval['class_path'], dfval['method'], sline, dfval['var'])
+            area, nexts = self.__find_sink_subs(dfval['class_path'], dfval['method'], sline, dfval['var'])
             # Add a sink var
             sinks.append({
               'var': dfval['var'],
@@ -43,6 +44,8 @@ class DFSFinder():
               'type': dfval['type'],
               'subs': DFSFinder.subs,
               'tag': True,
+              'area': area,
+              'next': nexts,
             })
           else:
             break
@@ -69,7 +72,7 @@ class DFSFinder():
     self.__find_df_of_var_rev(cp, m, line, v, area, nexts)
     # Get subs from sink's data flow
     self.__generate_subs_from_df(nexts)
-    return DFSFinder.subs
+    return area, nexts
 
   def __init_df_rev(self):
     DFSFinder.area_analyzed_rev = {}
@@ -259,7 +262,7 @@ class DFSFinder():
   def __add_flow(self, nexts, cp, m, start, v, sline):
     if (v == 'none' or self.parsed_data['classes'][cp]['methods'][m]['target'] == False):
       return
-    if (v in DFSFinder.container_gets):
+    if (v in DFSFinder.container_gets or v in DFSFinder.container_keys):
       vtype = None
     else:
       vtype = self.parsed_data['classes'][cp]['methods'][m]['vars'][v]['state'][start][0]['type']
@@ -318,7 +321,7 @@ class DFSFinder():
             if (not chk):
               for v in sval['vars']:
                 # Find sink substances
-                self.__find_sink_subs(class_path, method, sline, v)
+                area, nexts = self.__find_sink_subs(class_path, method, sline, v)
                 # Add a sink var
                 sinks.append({
                   'var': v,
@@ -328,6 +331,8 @@ class DFSFinder():
                   'type': sval['type'],
                   'subs': DFSFinder.subs,
                   'tag': False,
+                  'area': area,
+                  'next': nexts,
                 })
 
   def __generate_subs_from_df(self, nexts):

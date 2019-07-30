@@ -299,7 +299,7 @@ class DBCFuncs():
     pstart = c.find('(') + 1
     pend = c.find(')')
     params = c[pstart:pend]
-    iterator = re.finditer(r'\[*[VZBSCIJFD](?![a-z])|\[*L[a-z]', params)
+    iterator = re.finditer(r'\[*[VZBSCIJFD](?![a-z])|\[*L[a-zA-Z]', params)
     offset = 0
     for match in iterator:
       ptype = match.group()
