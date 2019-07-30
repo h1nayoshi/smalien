@@ -1,5 +1,7 @@
 *.pyc
-*.json
+*_data_flows.json
+*_log_ids.json
+*_parsed_data.json
 *.apk
 *.swp
 my-key.keystore
