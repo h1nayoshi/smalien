@@ -6,8 +6,9 @@ import sys
 from . import xenomorph
 from .ovomorph.smalihugger import smalihugger
 
-def activate_queen(host, keystore, smalien_path):
+def activate_queen(host, keystore, smalien_path, ppe):
   print(' [+] Target host: '+host)
+  print('  [*] PPE:', ppe)
 
   if (smalien_path is not None):
     host_dest = smalien_path+'/hive/workspace/'
@@ -19,7 +20,7 @@ def activate_queen(host, keystore, smalien_path):
     print('[-!-] Failed to init the hive')
     sys.exit()
 
-  ret, pkg, parsed_data, data_flows, log_ids = smalihugger.run(host_dest, keystore)
+  ret, pkg, parsed_data, data_flows, log_ids = smalihugger.run(host_dest, keystore, ppe)
   if (not ret):
     print('[-!-] Failed to hatch the egg')
 

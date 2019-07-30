@@ -7,7 +7,7 @@ from pprint import pprint
 from ..chestbuster import chestbuster
 from .funcs import unpack, decon_smalis, find_smalis, detach, find_activities
 
-def run(host_dest, keystore):
+def run(host_dest, keystore, ppe):
   print('  [*] Unpacking the apk')
 
   # Unpack the apk
@@ -35,7 +35,7 @@ def run(host_dest, keystore):
   print('   [+] Activities found: ' + str(len(activities)))
 
   # Analyze and Inject to smali files
-  ret, parsed_data, data_flows, log_ids = chestbuster.run(smalis, activities, new_dex_dir)
+  ret, parsed_data, data_flows, log_ids = chestbuster.run(smalis, activities, new_dex_dir, ppe)
   if (not ret):
     sys.exit()
 

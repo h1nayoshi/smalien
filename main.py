@@ -19,15 +19,26 @@ def output_to_file(fname, data):
   with open(fname, 'w') as f:
     f.write(r)
 
+def load_options(argv):
+  ppe = False
+  smalien_path = None
+  i = 1
+  while i < len(argv)-1:
+    if (argv[i] == '-ppe'):
+      ppe = True
+      i += 1
+    elif (argv[i] == '-path'):
+      smalien_path = sys.argv[i+1]
+      os.chdir(smalien_path)
+      i += 2
+  return ppe, smalien_path
+
 if __name__ == '__main__':
   if (len(sys.argv) > 1):
-    smalien_path = None
-    if (len(sys.argv) == 3):
-      smalien_path = sys.argv[2]
-      os.chdir(smalien_path)
+    ppe, smalien_path = load_options(sys.argv)
     keystore = load_keystore()
     print('[*] Activating Smalien')
-    pkg, parsed_data, data_flows, log_ids = activate_queen(sys.argv[1], keystore, smalien_path)
+    pkg, parsed_data, data_flows, log_ids = activate_queen(sys.argv[-1], keystore, smalien_path, ppe)
     print('[*] Writing the results to files')
     output_to_file(pkg+fname_pd, parsed_data)
     output_to_file(pkg+fname_df, data_flows)
