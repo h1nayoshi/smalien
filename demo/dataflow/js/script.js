@@ -5,6 +5,7 @@ const path = require('path');
 const script_btn = document.getElementById('script_btn');
 const output = document.getElementById('terminal_output');
 script_btn.addEventListener('click', (event) => {
+    $("#terminal_output").empty();
     storage.get('config', (error, data) => {
         if (error) throw error;
         if (Object.keys(data).length !== 0) {
@@ -18,10 +19,10 @@ script_btn.addEventListener('click', (event) => {
             };
             let pyshell = new PythonShell('main.py', options);
             pyshell.on('message', message => {
-                const pelem = document.createElement('pre');
-                pelem.innerText = message;
-                output.insertAdjacentElement('beforeend', pelem);
+                const elem = document.createElement('pre');
+                elem.innerText = message;
+                output.insertAdjacentElement('beforeend', elem);
             });
-        };
+        }
     });
 });

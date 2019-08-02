@@ -25,6 +25,10 @@ $(document).ready( () => {
     $("#graph_area").resizable({
         direction: 'vertical'
     });
+    let timer = setInterval(function(){
+        $("#terminal_output").animate({scrollTop: $('#terminal_output')[0].scrollHeight}, "fast");
+    },500);
+
 });
 
 function showDataFlow(path)
@@ -112,7 +116,7 @@ function showDataFlow(path)
     // svg.attr("height", g.graph().height + 40);
 }
 
-// Analyze Button
+// Show Button
 const run_btn = document.getElementById('runner');
 run_btn.addEventListener('click', () => {
     storage.get('config', (error, data) => {
