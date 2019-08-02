@@ -25,29 +25,11 @@ class DfCsvGenerator():
     self.__load_files()
 
   def __load_files(self):
-    #self.__load_json(self.parsed_data, '_parsed_data.json')
     self.__load_json(self.data_flows, '_data_flows.json')
-    self.__load_json(self.log_ids, '_log_ids.json')
-    self.__load_log()
 
   def __load_json(self, dest, name):
     with open(self.pkg+name, 'r') as f:
       dest.update(json.load(f))
-
-  def __load_log(self):
-    self.log = {
-      'source': {},
-      'sink': {},
-    }
-    with io.open(self.pkg+'_log.txt', 'r', encoding='utf-8', errors='ignore') as f:
-      data = f.read().split('\n')
-    for d in data:
-      if (d.startswith('source: {')):
-        lid, val = self.__load_data(d, len('source: {'))
-        self.__add_log(self.log['source'], lid, val)
-      if (d.startswith('sink: {')):
-        lid, val = self.__load_data(d, len('sink: {'))
-        self.__add_log(self.log['sink'], lid, val)
 
   def __load_data(self, d, s):
     splitter = d.find(': ', s)
@@ -59,12 +41,12 @@ class DfCsvGenerator():
     dest[lid].append(val)
 
   def df_to_csv(self, df):
-    dtc = funcs.DfToCsv(df, self.log_ids, self.log)
+    dtc = funcs.DfToCsv(df)
     csv = dtc.run()
     self.csvs.append(csv)
 
   def df_sink_to_csv(self, df):
-    dtc = funcs.DfToCsv(df, self.log_ids, self.log)
+    dtc = funcs.DfToCsv(df)
     csv = dtc.run()
     self.csvs_sink.append(csv)
 
@@ -77,17 +59,22 @@ if __name__ == '__main__':
     for m, mval in cpval.items():
       for l, lval in mval.items():
         # Source
-        #DCG.df_to_csv(lval)
+        DCG.df_to_csv(lval)
         # Sink
         for sink in lval['sinks']:
           DCG.df_sink_to_csv(sink)
 
   # Save csv
+  csv_files = {'source': [], 'sink': []}
   for i in range(len(DCG.csvs)):
+    csv_files['source'].append(pkg+'_df_'+str(i)+'.csv')
     with open(pkg+'_df_'+str(i)+'.csv', 'w') as f:
       f.write(DCG.csvs[i])
   for i in range(len(DCG.csvs_sink)):
+    csv_files['sink'].append(pkg+'_df_rev_'+str(i)+'.csv')
     with open(pkg+'_df_rev_'+str(i)+'.csv', 'w') as f:
       f.write(DCG.csvs_sink[i])
+  with open('csv_file_list.json', 'w') as f:
+    json.dump(csv_files, f)
   print('Done!')
 

@@ -3,14 +3,12 @@
 from pprint import pprint
 
 class DfToCsv():
-  def __init__(self, df, log_ids, log):
+  def __init__(self, df):
     self.df = df
     if ('flow' in df.keys()):
       self.flow = df['flow']
     else:
       self.flow = df
-    self.log_ids = log_ids
-    self.log = log
     self.csv = ''
     self.node = {
       'class_path': {
@@ -29,7 +27,6 @@ class DfToCsv():
       },
     }
     self.edge = []
-    self.sensitive_data = {}
 
   def run(self):
     self.__walk_flow(self.flow)
@@ -38,7 +35,6 @@ class DfToCsv():
 
   def __walk_flow(self, flow):
     src_id = self.__add_node(flow['class_path'], flow['method'], flow['var'], flow['line'])
-    self.__add_sensitive_data(src_id, flow['class_path'], flow['method'], flow['var'], flow['line'], flow['area'])
     for n in flow['next']:
       dest_id = self.__add_node(n['class_path'], n['method'], n['var'], n['line'])
       self.edge.append([src_id, dest_id])
@@ -71,11 +67,6 @@ class DfToCsv():
     # Output edges
     for e in self.edge:
       self.csv += str(offset_v+e[0])+','+str(offset_v+e[1])+'\n'
-    self.csv += '\n'
-    # Output sensitive data
-    for vid, sdval in self.sensitive_data.items():
-      for sd in sdval:
-        self.csv += str(offset_v+vid)+','+sd+'\n'
 
   def __add_node(self, cp, m, v, l):
     self.__add_class_path(cp, m)
@@ -111,26 +102,6 @@ class DfToCsv():
       self.node['var']['node'][cp][m][vnode] = self.node['var']['num']
       self.node['var']['num'] += 1
     return self.node['var']['node'][cp][m][vnode] 
-
-  def __add_sensitive_data(self, src_id, cp, m, v, l, area):
-    if (cp not in self.log_ids.keys()):
-      return
-    if (m not in self.log_ids[cp].keys()):
-      return
-    if (v not in self.log_ids[cp][m].keys()):
-      return
-    for data_l, data_tag in self.log_ids[cp][m][v].items():
-      is_contained = self.__check_contain(int(data_l), area)
-      if (is_contained and data_tag in self.log['source']):
-        data = list(set(self.log['source'][data_tag]))
-        if src_id not in self.sensitive_data.keys():
-          self.sensitive_data[src_id] = []
-        self.sensitive_data[src_id].extend(data)
-      elif (is_contained and data_tag in self.log['sink']):
-        data = list(set(self.log['sink'][data_tag]))
-        if src_id not in self.sensitive_data.keys():
-          self.sensitive_data[src_id] = []
-        self.sensitive_data[src_id].extend(data)
 
   def __check_contain(self, l, area):
     for a in area:

@@ -3,7 +3,8 @@
 import os
 import sys
 import json
-from hive.queen import activate_queen
+import subprocess
+from hive.queen import activate_queen, install, logging
 
 fname_pd = '_parsed_data.json'
 fname_df = '_data_flows.json'
@@ -38,12 +39,16 @@ if __name__ == '__main__':
     ppe, smalien_path = load_options(sys.argv)
     keystore = load_keystore()
     print('[*] Activating Smalien')
-    pkg, parsed_data, data_flows, log_ids = activate_queen(sys.argv[-1], keystore, smalien_path, ppe)
+    pkg, parsed_data, data_flows, log_ids, host_dest = activate_queen(sys.argv[-1], keystore, smalien_path, ppe)
     print('[*] Writing the results to files')
     output_to_file(pkg+fname_pd, parsed_data)
     output_to_file(pkg+fname_df, data_flows)
     output_to_file(pkg+fname_lid, log_ids)
     print('[*] Done!')
+    # Installing
+    install(pkg, host_dest)
+    # Logging
+    logging()
   else:
     print('[*] Usage: python '+__file__+' <apk_path>')
 
