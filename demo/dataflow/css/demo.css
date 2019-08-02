@@ -1,0 +1,41 @@
+body {
+    font: 300 14px 'Helvetica Neue', Helvetica;
+    /*background-color: #000033;*/
+}
+
+#graph_area {
+    border-style: dashed;
+}
+svg {
+    width: 95%;
+    height: 720px;
+    margin: 0 auto;
+}
+
+#terminal_output {
+    overflow: auto;
+    max-height: 600px;
+}
+
+.popup {
+    display: none;
+}
+.clusters rect {
+    fill: #a9b1b5;
+    stroke: #a9b1b5;
+    stroke-width: 2px;
+}
+text {
+    font-weight: 300;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-size: 16px;
+}
+.node rect {
+    stroke: #2edcff;
+    fill: #2edcff;
+}
+.edgePath path {
+    stroke: #ccc210;
+    fill: #ccc210;
+    stroke-width: 2px;
+}

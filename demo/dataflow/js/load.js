@@ -1,6 +1,7 @@
 const {ipcRenderer} = require('electron');
 const path = require('path');
 const storage = require('electron-json-storage');
+const fs = require('fs');
 
 // APK
 const selectApkBtn = document.getElementById('select-apk');
@@ -40,4 +41,14 @@ ipcRenderer.on('selected-directory', (event, file) => {
     });
     const selectedFile = document.getElementById('selected-file');
     selectedFile.value = path.basename(filePath);
+    // read csv list
+    const jsonObj = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf-8'}));
+
+    for (let i=0; i<jsonObj.source.length; i++) {
+        $("#source_table > tbody").append('<tr><td>'+ jsonObj.source[i] +'</td><td>');
+    }
+    for (let i=0; i<jsonObj.sink.length; i++) {
+        $("#sink_table > tbody").append('<tr><td>'+ jsonObj.sink[i] +'</td><td>')
+    }
 });
+

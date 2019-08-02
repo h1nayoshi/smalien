@@ -3,11 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>smalien</title>
+    <title>Smalien Demo</title>
     <link rel="stylesheet" href="semantic/dist/semantic.min.css">
     <script>window.jQuery = window.$ = require('jquery');</script>
     <script src="semantic/dist/semantic.min.js"></script>
-    <link rel="stylesheet" href="demo.css">
+    <link rel="stylesheet" href="css/demo.css">
+    <link rel="stylesheet" href="css/jquery.tipsy.css">
 </head>
 <body>
 <div class="container">
@@ -34,8 +35,12 @@
                                 </div>
                             </div>
                             <div class="four wide field">
+                                <div class="ui toggle checkbox">
+                                    <input type="checkbox" name="public">
+                                    <label>Enforce</label>
+                                </div>
                                 <button class="ui teal button" id="script_btn">Analyze</button>
-                                <button class="ui button" id="frameless-window">Load</button>
+<!--                                <button class="ui button" id="frameless-window">Load</button>-->
                             </div>
                         </div>
                     </div>
@@ -54,39 +59,30 @@
                             </div>
                         </div>
                     </div>
+                    <div id="graph_area" class="field">
+                        <svg><g/></svg>
+                    </div>
                 </div>
             </div>
             <div class="six wide column">
-                <table class="ui celled table">
+                <table id="source_table" class="ui celled table">
                     <thead>
-                    <tr><th>Name</th>
-                        <th>Age</th>
-                    </tr></thead>
+                    <tr><th>source</th></tr>
+                    </thead>
                     <tbody>
-                    <tr>
-                        <td data-label="Name">James</td>
-                        <td data-label="Age">24</td>
-                    </tr>
-                    <tr>
-                        <td data-label="Name">Jill</td>
-                        <td data-label="Age">26</td>
-                    </tr>
-                    <tr>
-                        <td data-label="Name">Elyse</td>
-                        <td data-label="Age">24</td>
-                    </tr>
                     </tbody>
                 </table>
-            </div>
-            <div class="ui divider"></div>
-        </div>
-        <div class="row">
-            <div class="ten wide column"><svg><g></g></svg></div>
-            <div class="six wide column">
+                <table id="sink_table" class="ui celled table">
+                    <thead>
+                    <tr><th>sink</th></tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
                 <div class="ui text" id="terminal">
                     <div class="ui header">Log</div>
                     <div class="ui segment">
-                        <p id="terminal_output"></p>
+                        <pre id="terminal_output"></pre>
                     </div>
                 </div>
             </div>
@@ -94,11 +90,14 @@
     </div>
 </div>
 
+
+
 <script type="text/javascript">
     require("./js/load.js");
     require('./js/script.js');
-    require('./demo.js');
-    require('./loading.js');
+    // require('./js/loading.js');
+    require('./js/jquery.tipsy.js');
+    require('./js/demo.js');
 </script>
 </body>
 </html>

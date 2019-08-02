@@ -4,6 +4,7 @@ const $ = require('jquery');
 const fs = require('fs');
 const storage = require('electron-json-storage');
 const path = require('path');
+require('jquery-resizable');
 
 $(document).ready( () => {
     const selectedFile = document.getElementById('selected-file');
@@ -21,6 +22,9 @@ $(document).ready( () => {
             selectedApk.value = path.basename(data.apkFilePath);
         }
     });
+    $("#graph_area").resizable({
+        direction: 'vertical'
+    });
 });
 
 function showDataFlow(path)
@@ -34,32 +38,42 @@ function showDataFlow(path)
         parents = data_list[1].split('\n'),
         edges = data_list[2].split('\n');
 
-    console.log("Set nodes");
+    //console.log("Set nodes");
     for (let i=0; i<nodes.length; i++) {
         if (nodes[i] !== '') {
             let params = nodes[i].split(',');
-            console.log(params[0], params[1]);
-            g.setNode(params[0], {label: params[1], description: "AAA"} );
+            //console.log(params[0], params[1]);
+            g.setNode(params[0],
+                {
+                    label: params[1],
+                    labelStyle: "fill: #ffffff",
+                    clusterLabelPos: 'top',
+                    description: "AAA"
+                } );
         }
     }
     g.nodes().forEach(function(v) {
         var node = g.node(v);
         node.rx = node.ry = 5;
     });
-    console.log("Set Group");
+    //console.log("Set Group");
     for (let i=0; i<parents.length; i++) {
         if (parents[i] !== '') {
             let params = parents[i].split(',');
-            console.log(params[0], params[1]);
+            //console.log(params[0], params[1]);
             g.setParent(params[0], params[1]);
         }
     }
-    console.log("Set edges");
+    //console.log("Set edges");
     for (let i=0; i<edges.length; i++) {
         if (edges[i] !== '') {
             let params = edges[i].split(',');
-            console.log(params[0], params[1]);
-            g.setEdge(params[0], params[1]);
+            //console.log(params[0], params[1]);
+            g.setEdge(params[0], params[1],
+                {
+                    arrowhead: "vee",
+                    curve: d3.curveBasis
+                });
         }
     }
     // Create the renderer
@@ -73,14 +87,32 @@ function showDataFlow(path)
     });
     svg.call(zoom);
 
+    // Simple function to style the tooltip for the given node.
+    let styleTooltip = function(name, description) {
+        return "<p class='name'>" + name + "</p><p class='description'>" + description + "</p>";
+    };
+
     // Run the renderer. This is what draws the final graph.1
     render(d3.select("svg g"), g);
+
+    inner.selectAll("g.node")
+        .attr("title", function(v) { return styleTooltip(v, g.node(v).description) })
+        .each(function(v) { $(this).tipsy({ gravity: "w", opacity: 1, html: true }); });
+
     // Center the graph
-    const xCenterOffset = (svg.attr("width") - g.graph().width) / 2;
-    svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
-    svg.attr("height", g.graph().height + 40);
+    const initialScale = 0.5;
+    svg.call(zoom.transform,
+        d3.zoomIdentity.translate(
+            (svg.attr("width") - g.graph().width * initialScale)/3, 20)
+            .scale(initialScale));
+    console.log(g.graph().width);
+    console.log(g.graph().height);
+
+    // svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
+    // svg.attr("height", g.graph().height + 40);
 }
 
+// Analyze Button
 const run_btn = document.getElementById('runner');
 run_btn.addEventListener('click', () => {
     storage.get('config', (error, data) => {
