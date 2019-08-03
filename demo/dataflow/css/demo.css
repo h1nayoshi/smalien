@@ -1,14 +1,17 @@
 body {
     font: 300 14px 'Helvetica Neue', Helvetica;
-    /*background-color: #000033;*/
 }
-
+#github_icon {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+}
 #graph_area {
     border-style: dashed;
 }
 svg {
     width: 95%;
-    height: 720px;
+    height: 540px;
     margin: 0 auto;
 }
 
@@ -29,6 +32,10 @@ text {
     font-weight: 300;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
     font-size: 16px;
+    color: #ffffff;
+}
+.container {
+    color: #ffffff;
 }
 .node rect {
     stroke: #2edcff;

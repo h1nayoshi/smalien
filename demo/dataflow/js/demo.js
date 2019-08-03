@@ -14,7 +14,7 @@ $(document).ready( () => {
         selectedFile.addEventListener('focus', () => selectedFile.value = data.confFilePath);
         selectedFile.addEventListener('focusout', () => selectedFile.value = path.basename(data.confFilePath));
         selectedApk.addEventListener('focus', () => selectedApk.value = data.apkFilePath);
-        selectedApk.addEventListener('focusout', () => selectedApk.value = path.basename(data.apkFilePath));
+        selectedApk.addEventListener('focusout', () => selectedApk.value = path.basename(data.confFilePath));
         if ('confFilePath' in data) {
             selectedFile.value = path.basename(data.confFilePath);
         }
@@ -22,13 +22,20 @@ $(document).ready( () => {
             selectedApk.value = path.basename(data.apkFilePath);
         }
     });
-    $("#graph_area").resizable({
-        direction: 'vertical'
+    storage.get('config', (error, data) => {
+        if (error) throw error;
+        $("#graph_area").resizable({
+            stop: () => {
+                if (data.confFilePath)
+                    showDataFlow(data.confFilePath)
+            },
+            direction: ['right', 'bottom'],
+            maxWidth: $("#graph_area").width
+        });
     });
     let timer = setInterval(function(){
         $("#terminal_output").animate({scrollTop: $('#terminal_output')[0].scrollHeight}, "fast");
     },500);
-
 });
 
 function showDataFlow(path)
@@ -100,8 +107,8 @@ function showDataFlow(path)
     render(d3.select("svg g"), g);
 
     inner.selectAll("g.node")
-        .attr("title", function(v) { return styleTooltip(v, g.node(v).description) })
-        .each(function(v) { $(this).tipsy({ gravity: "w", opacity: 1, html: true }); });
+        .attr("title", v => { return styleTooltip(v, g.node(v).description) })
+        .each(() => { $(this).tipsy({ gravity: "w", opacity: 1, html: true }); });
 
     // Center the graph
     const initialScale = 0.5;
@@ -117,17 +124,18 @@ function showDataFlow(path)
 }
 
 // Show Button
-const run_btn = document.getElementById('runner');
-run_btn.addEventListener('click', () => {
+const run_btn = $('#runner');
+run_btn.on('click', () => {
     storage.get('config', (error, data) => {
         if (error) throw error;
         if (Object.keys(data).length !== 0) {
             const confPath = data.confFilePath;
             if (confPath) {
                 showDataFlow(confPath);
-            } else {
-                $('#err_msg').html('Input config file path');
+            } else{
+                $('#err_msg').html('Invalid config file path');
                 $('#err_msg').show();
+                $("#selected-file").addClass("error");
             }
         }
     });

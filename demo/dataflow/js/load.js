@@ -3,21 +3,17 @@ const path = require('path');
 const storage = require('electron-json-storage');
 const fs = require('fs');
 
-// APK
-const selectApkBtn = document.getElementById('select-apk');
-selectApkBtn.addEventListener('click', (event) => {
-    ipcRenderer.send('open-apk-dialog')
-});
-let savedApkPath = '',
-    savedConfPath = '';
+let jsonSetting;
 storage.get('config', (error, data) => {
     if (error) throw error;
-    if ('apkFilePath' in data)
-        savedApkPath = data.apkFilePath;
-    if ('confFilePath' in data)
-        savedConfPath = data.confFilePath;
+    jsonSetting = data;
 });
-const jsonSetting = {apkFilePath: savedApkPath, confFilePath: savedConfPath};
+
+// APK
+const selectApkBtn = $('#select-apk');
+selectApkBtn.on('click', () => {
+    ipcRenderer.send('open-apk-dialog')
+});
 ipcRenderer.on('selected-apk', (event, file) => {
     const filePath = file.toString();
     jsonSetting.apkFilePath = filePath;
@@ -29,8 +25,8 @@ ipcRenderer.on('selected-apk', (event, file) => {
 });
 
 // Config file
-const selectDirBtn = document.getElementById('select-directory');
-selectDirBtn.addEventListener('click', (event) => {
+const selectDirBtn = $('#select-directory');
+selectDirBtn.on('click', (event) => {
     ipcRenderer.send('open-file-dialog')
 });
 ipcRenderer.on('selected-directory', (event, file) => {
@@ -39,16 +35,14 @@ ipcRenderer.on('selected-directory', (event, file) => {
     storage.set('config', jsonSetting, error => {
         if (error) throw error;
     });
-    const selectedFile = document.getElementById('selected-file');
+    const selectedFile = $('#selected-file');
     selectedFile.value = path.basename(filePath);
-    // read csv list
-    const jsonObj = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf-8'}));
 
-    for (let i=0; i<jsonObj.source.length; i++) {
+    // read csv list from json file and update table
+    const jsonObj = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf-8'}));
+    for (let i=0; i<jsonObj.source.length; i++)
         $("#source_table > tbody").append('<tr><td>'+ jsonObj.source[i] +'</td><td>');
-    }
-    for (let i=0; i<jsonObj.sink.length; i++) {
+    for (let i=0; i<jsonObj.sink.length; i++)
         $("#sink_table > tbody").append('<tr><td>'+ jsonObj.sink[i] +'</td><td>')
-    }
 });
 
