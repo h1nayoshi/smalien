@@ -122,7 +122,8 @@ function showDataFlow(path)
     // svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
     // svg.attr("height", g.graph().height + 40);
 }
-
+window.demo = window.demo|| {};
+window.demo.showDataFlow = showDataFlow;
 // Show Button
 const run_btn = $('#runner');
 run_btn.on('click', () => {
