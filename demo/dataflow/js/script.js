@@ -11,11 +11,16 @@ script_btn.addEventListener('click', (event) => {
         if (Object.keys(data).length !== 0) {
             const target_path = data.apkFilePath;
             const smalien_path = path.resolve('../');
+            const ppe = document.getElementsByClassName('ui toggle checkbox')[0].children[0].checked
+            if (ppe)
+              args = ['-ppe', '-path', smalien_path, target_path]
+            else 
+              args = ['-path', smalien_path, target_path]
             const options = {
                 mode: 'text',
                 pythonOptions: ['-u'],
                 scriptPath: smalien_path,
-                args: ['-path', smalien_path, target_path]
+                args: args
             };
             let pyshell = new PythonShell('main.py', options);
             pyshell.on('message', message => {
