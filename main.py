@@ -4,7 +4,7 @@ import os
 import sys
 import json
 import subprocess
-from hive.queen import activate_queen, install, logging
+from hive.queen import activate_queen
 
 def load_keystore():
   # Load keystore info
@@ -31,11 +31,8 @@ if __name__ == '__main__':
     keystore = load_keystore()
     print('[*] Activating Smalien')
     pkg, parsed_data, data_flows, log_ids, host_dest = activate_queen(sys.argv[-1], keystore, smalien_path, ppe)
-    print('[*] Starting client-side analysis')
-    # Installing
-    install(pkg, host_dest)
-    # Logging
-    logging()
+    print('[*] Application generated')
+    print(' [+] '+host_dest+'implanted_'+pkg+'.apk')
   else:
     print('[*] Usage: python '+__file__+' <apk_path>')
 

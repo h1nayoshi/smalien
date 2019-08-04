@@ -29,10 +29,10 @@ def activate_queen(host, keystore, smalien_path, ppe):
 
   return pkg, parsed_data, data_flows, log_ids, host_dest
 
-def install(pkg, host_dest):
+def install(target):
   print(' [*] Installing the application')
   try:
-    subprocess.check_call('adb install -r -g '+host_dest+'implanted_'+pkg+'.apk > /dev/null', shell=True)
+    subprocess.check_call('adb install -r -g '+target+' > /dev/null', shell=True)
   except:
     print('[-!-] Failed to install the app')
     sys.exit()
