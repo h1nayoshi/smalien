@@ -118,7 +118,7 @@ def pack(host_dest):
 
 def sign(host_dest, keystore):
   try:
-    subprocess.check_call('jarsigner -verbose -keystore '+keystore[0]+' -storepass '+keystore[1]+' '+host_dest+'host/dist/host.apk '+keystore[2]+' > /dev/null 2>&1', shell=True)
+    subprocess.check_call('jarsigner -verbose -keystore '+keystore[0]+' -storepass '+keystore[1]+' -keypass '+keystore[2]+' '+host_dest+'host/dist/host.apk '+keystore[3]+' > /dev/null 2>&1', shell=True)
   except:
     return False
   return True
