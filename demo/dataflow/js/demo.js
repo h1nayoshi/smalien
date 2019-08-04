@@ -54,13 +54,15 @@ function showDataFlow(path)
         if (nodes[i] !== '') {
             let params = nodes[i].split(',');
             //console.log(params[0], params[1]);
-            g.setNode(params[0],
-                {
-                    label: params[1],
-                    labelStyle: "fill: #ffffff",
-                    clusterLabelPos: 'top',
-                    description: "AAA"
-                } );
+            const options = {
+                "label": params[1],
+                "labelStyle": "fill: #ffffff",
+                "clusterLabelPos": "top",
+                "description": "AAA"
+            };
+            if (params.length === 3)
+                options.style = "fill: #FF0000";
+            g.setNode(params[0], options);
         }
     }
     g.nodes().forEach(function(v) {
@@ -116,8 +118,6 @@ function showDataFlow(path)
         d3.zoomIdentity.translate(
             (svg.attr("width") - g.graph().width * initialScale)/3, 20)
             .scale(initialScale));
-    console.log(g.graph().width);
-    console.log(g.graph().height);
 
     // svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
     // svg.attr("height", g.graph().height + 40);
