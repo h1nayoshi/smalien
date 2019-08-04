@@ -4,9 +4,11 @@
 import os
 import re
 import io
+import json
 import subprocess
 
 from .exclusion import exclusion
+from .df_csv_generator import run_csv_generator
 
 def unpack(host_dest):
   try:
@@ -85,6 +87,18 @@ def find_activities(hd):
       activities.append('L'+activity.replace('.', '/')+';')
   return pkg, activities
 
+def write_results(pkg, parsed_data, data_flows, log_ids):
+  output_to_file(pkg+'_parsed_data.json', parsed_data)
+  output_to_file(pkg+'_data_flows.json', data_flows)
+  output_to_file(pkg+'_log_ids.json', log_ids)
+  # CSV generating
+  run_csv_generator(pkg)
+
+def output_to_file(fname, data):
+  r = json.dumps(data)
+  with open(fname, 'w') as f:
+    f.write(r)
+
 def detach(host_dest, keystore, pkg):
   # Pack
   #print('  [--Z--] Packing')
@@ -118,7 +132,7 @@ def pack(host_dest):
 
 def sign(host_dest, keystore):
   try:
-    subprocess.check_call('jarsigner -verbose -keystore '+keystore[0]+' -storepass '+keystore[1]+' '+host_dest+'host/dist/host.apk '+keystore[2]+' > /dev/null 2>&1', shell=True)
+    subprocess.check_call('jarsigner -verbose -keystore '+keystore[0]+' -storepass '+keystore[1]+' -keypass '+keystore[2]+' '+host_dest+'host/dist/host.apk '+keystore[3]+' > /dev/null 2>&1', shell=True)
   except:
     return False
   return True
