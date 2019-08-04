@@ -5,7 +5,7 @@ import sys
 from pprint import pprint
 
 from ..chestbuster import chestbuster
-from .funcs import unpack, decon_smalis, find_smalis, detach, find_activities
+from .funcs import unpack, decon_smalis, find_smalis, detach, find_activities, write_results
 
 def run(host_dest, keystore, ppe):
   print('  [*] Unpacking the apk')
@@ -38,6 +38,10 @@ def run(host_dest, keystore, ppe):
   ret, parsed_data, data_flows, log_ids = chestbuster.run(smalis, activities, new_dex_dir, ppe)
   if (not ret):
     sys.exit()
+
+  # Writing analysis results
+  print('  [*] Writing analysis results')
+  write_results(pkg, parsed_data, data_flows, log_ids)
 
   # Repack and resign the apk
   print('  [*] Repackaging the apk')

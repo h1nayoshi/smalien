@@ -5,7 +5,7 @@ import sys
 import json
 from pprint import pprint
 
-import df_csv_funcs as funcs
+from . import df_csv_funcs as funcs
 
 class DfCsvGenerator():
   def __init__(self, pkg):
@@ -50,8 +50,8 @@ class DfCsvGenerator():
     csv = dtc.run()
     self.csvs_sink.append(csv)
 
-if __name__ == '__main__':
-  pkg = sys.argv[1]
+def run_csv_generator(pkg):
+  print(' [*] Generating CSV files')
   DCG = DfCsvGenerator(pkg)
 
   # Generate csv
@@ -74,7 +74,11 @@ if __name__ == '__main__':
     csv_files['sink'].append(pkg+'_df_rev_'+str(i)+'.csv')
     with open(pkg+'_df_rev_'+str(i)+'.csv', 'w') as f:
       f.write(DCG.csvs_sink[i])
-  with open('csv_file_list.json', 'w') as f:
+  with open(pkg+'csvlist.json', 'w') as f:
     json.dump(csv_files, f)
-  print('Done!')
+  print('  [+] CSV files are generated.')
+
+if __name__ == '__main__':
+  pkg = sys.argv[1]
+  run_csv_generator(pkg)
 
