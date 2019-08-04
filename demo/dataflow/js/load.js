@@ -42,11 +42,11 @@ ipcRenderer.on('selected-directory', (event, file) => {
     const jsonObj = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf-8'}));
     const showDataFlow = (path) => window.demo.showDataFlow(path);
     for (let i = 0; i < jsonObj.source.length; i++) {
-        $("#source_table > tbody").append(`<tr id="source${i}"><td>` + jsonObj.source[i] + '</td><td>');
+        $("#source_table > tbody").append(`<tr><td class="ui transparent button" id="source${i}">` + jsonObj.source[i] + '</td><td>');
         $(`#source${i}`).on('click', () =>showDataFlow(path.join(__dirname+'/../../../', jsonObj.source[i])));
     }
     for (let i=0; i<jsonObj.sink.length; i++) {
-        $("#sink_table > tbody").append(`<tr id="sink${i}"><td>` + jsonObj.sink[i] + '</td><td>');
+        $("#sink_table > tbody").append(`<tr><td class="ui transparent button" id="sink${i}">` + jsonObj.sink[i] + '</td><td>');
         $(`#sink${i}`).on('click', () => showDataFlow(path.join(__dirname+'/../../../', jsonObj.sink[i])));
     }
 });
