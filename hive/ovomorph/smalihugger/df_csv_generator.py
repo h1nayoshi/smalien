@@ -5,7 +5,7 @@ import sys
 import json
 from pprint import pprint
 
-import df_csv_funcs as funcs
+from . import df_csv_funcs as funcs
 
 class DfCsvGenerator():
   def __init__(self, pkg):
