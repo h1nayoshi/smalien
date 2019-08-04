@@ -5,7 +5,7 @@ import sys
 import json
 from pprint import pprint
 
-from . import df_csv_funcs as funcs
+import df_csv_funcs as funcs
 
 class DfCsvGenerator():
   def __init__(self, pkg):
@@ -40,13 +40,13 @@ class DfCsvGenerator():
       dest[lid] = []
     dest[lid].append(val)
 
-  def df_to_csv(self, df):
-    dtc = funcs.DfToCsv(df)
+  def df_to_csv(self, df, sinks):
+    dtc = funcs.DfToCsv(df, sinks)
     csv = dtc.run()
     self.csvs.append(csv)
 
   def df_sink_to_csv(self, df):
-    dtc = funcs.DfToCsv(df)
+    dtc = funcs.DfToCsv(df, [])
     csv = dtc.run()
     self.csvs_sink.append(csv)
 
@@ -59,7 +59,7 @@ def run_csv_generator(pkg):
     for m, mval in cpval.items():
       for l, lval in mval.items():
         # Source
-        DCG.df_to_csv(lval)
+        DCG.df_to_csv(lval, lval['sinks'])
         # Sink
         for sink in lval['sinks']:
           DCG.df_sink_to_csv(sink)

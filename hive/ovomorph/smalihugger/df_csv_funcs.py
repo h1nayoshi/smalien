@@ -3,7 +3,7 @@
 from pprint import pprint
 
 class DfToCsv():
-  def __init__(self, df):
+  def __init__(self, df, sinks):
     self.df = df
     if ('flow' in df.keys()):
       self.flow = df['flow']
@@ -27,6 +27,10 @@ class DfToCsv():
       },
     }
     self.edge = []
+    self.sinks = {
+      'sinks': sinks,
+      'node': [],
+    }
 
   def run(self):
     self.__walk_flow(self.flow)
@@ -35,6 +39,7 @@ class DfToCsv():
 
   def __walk_flow(self, flow):
     src_id = self.__add_node(flow['class_path'], flow['method'], flow['var'], flow['line'])
+    self.__check_sink(flow, src_id)
     for n in flow['next']:
       dest_id = self.__add_node(n['class_path'], n['method'], n['var'], n['line'])
       self.edge.append([src_id, dest_id])
@@ -67,6 +72,10 @@ class DfToCsv():
     # Output edges
     for e in self.edge:
       self.csv += str(offset_v+e[0])+','+str(offset_v+e[1])+'\n'
+    self.csv += '\n'
+    # Output sinks
+    for s in self.sinks['node']:
+      self.csv += str(offset_v+s)+'\n'
 
   def __add_node(self, cp, m, v, l):
     self.__add_class_path(cp, m)
@@ -102,6 +111,14 @@ class DfToCsv():
       self.node['var']['node'][cp][m][vnode] = self.node['var']['num']
       self.node['var']['num'] += 1
     return self.node['var']['node'][cp][m][vnode] 
+
+  def __check_sink(self, flow, src_id):
+    for s in self.sinks['sinks']:
+      if (s['class_path'] == flow['class_path'] and s['method'] == flow['method']):
+        if (s['var'] == flow['var']):
+          ret = self.__check_contain(s['line'], flow['area'])
+          if (ret):
+            self.sinks['node'].append(src_id)
 
   def __check_contain(self, l, area):
     for a in area:
