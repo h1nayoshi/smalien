@@ -74,7 +74,7 @@ def run_csv_generator(pkg):
     csv_files['sink'].append(pkg+'_df_rev_'+str(i)+'.csv')
     with open(pkg+'_df_rev_'+str(i)+'.csv', 'w') as f:
       f.write(DCG.csvs_sink[i])
-  with open(pkg+'csvlist.json', 'w') as f:
+  with open(pkg+'_csvlist.json', 'w') as f:
     json.dump(csv_files, f)
   print('  [+] CSV files are generated.')
 
