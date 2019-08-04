@@ -59,7 +59,10 @@ class DfToCsv():
     for cp, cpval in self.node['var']['node'].items():
       for m, mval in cpval.items():
         for v, vval in mval.items():
-          self.csv += str(cntr+vval)+','+v+'\n'
+          if (vval in self.sinks['node']):
+            self.csv += str(cntr+vval)+','+v+',red\n'
+          else:
+            self.csv += str(cntr+vval)+','+v+'\n'
     self.csv += '\n'
     # Output group relations
     for cp, children in self.node['class_path']['children'].items():
@@ -73,9 +76,6 @@ class DfToCsv():
     for e in self.edge:
       self.csv += str(offset_v+e[0])+','+str(offset_v+e[1])+'\n'
     self.csv += '\n'
-    # Output sinks
-    for s in self.sinks['node']:
-      self.csv += str(offset_v+s)+'\n'
 
   def __add_node(self, cp, m, v, l):
     self.__add_class_path(cp, m)
