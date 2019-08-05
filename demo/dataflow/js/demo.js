@@ -5,6 +5,7 @@ const fs = require('fs');
 const storage = require('electron-json-storage');
 const path = require('path');
 const script = require('./script.js');
+const {PythonShell} = require('python-shell');
 require('jquery-resizable');
 
 $(document).ready( () => {
@@ -134,8 +135,23 @@ const showDataFlow = (path) =>
 };
 exports.showDataFlow = showDataFlow;
 // Dynamic Analysis click
+const output = $('#terminal_output');
 const dynamicBtn = $('#dynamic');
 dynamicBtn.on('click', () => {
-    //script.installApkPath
+    console.log('start dynamic analysis');
+    const implanted_apk_path = script.installApkPath;
+    console.log(implanted_apk_path)
+    const smalien_path = path.resolve('../');
+    const options = {
+        mode: 'text',
+        pythonOptions: ['-u'],
+        scriptPath: smalien_path,
+        args: [implanted_apk_path]
+    };
+    const pyshell = new PythonShell('client_side_analysis.py', options);
+     pyshell.on('message', message => {
+        const line = message.toString();
+        output.append('<pre>'+ message +'</pre>');
+    });
 });
 
