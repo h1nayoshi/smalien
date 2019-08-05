@@ -1,6 +1,7 @@
 const {PythonShell} = require('python-shell');
 const storage = require('electron-json-storage');
 const path = require('path');
+const { exec } = require('child_process');
 
 const output = $('#terminal_output');
 $("#script_btn").on('click', () => {
@@ -26,9 +27,29 @@ $("#script_btn").on('click', () => {
             pyshell.on('message', message => {
                 output.append('<pre>'+ message +'</pre>');
             });
+            // when python script stop, this callback function execute
             pyshell.end((err, code, signal) => {
                 if (err) throw err;
+                if (code) console.log('The exit code was: ' + code);
+                if (signal) console.log('The exit signal was: ' + signal);
                 $("#load_states").removeClass("active");
+
+                storage.get('config', (error, data) => {
+                    const command = `aapt dump badging ${data.apkFilePath} | grep package:\\ name | awk \'{print $2}\'| cut -c 6- | tr -d "'"`;
+                    exec(command, (err, stdout, stderr) => {
+                        if (err) throw err;
+                        if (stderr) console.log(`stderr: ${stderr}`);
+                        console.log(`stdout: ${stdout}`);
+                        const pkg_name = stdout.trim();
+                        data.confFilePath = path.join(__dirname + '../../../../', `${pkg_name}_csvlist.json`);
+                        console.log(data);
+                        storage.set('config', data, error => {
+                            if (error) throw error;
+                        });
+                        $("#selected-file").val(`${pkg_name}_csvlist.json`);
+                        window.demo.updateTable(data.confFilePath);
+                    });
+                });
             });
         }
     });

@@ -29,16 +29,8 @@ const selectDirBtn = $('#select-directory');
 selectDirBtn.on('click', (event) => {
     ipcRenderer.send('open-file-dialog')
 });
-ipcRenderer.on('selected-directory', (event, file) => {
-    const filePath = file.toString();
-    jsonSetting.confFilePath = filePath;
-    storage.set('config', jsonSetting, error => {
-        if (error) throw error;
-    });
-    const selectedFile = $('#selected-file');
-    selectedFile.value = path.basename(filePath);
 
-    // read csv list from json file and update table
+function updateTable(filePath) {
     const jsonObj = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf-8'}));
     const showDataFlow = (path) => window.demo.showDataFlow(path);
     $("#source_table > tbody").empty();
@@ -51,5 +43,19 @@ ipcRenderer.on('selected-directory', (event, file) => {
         $("#sink_table > tbody").append(`<tr><td class="ui transparent button" id="sink${i}">` + jsonObj.sink[i] + '</td><td>');
         $(`#sink${i}`).on('click', () => showDataFlow(path.join(__dirname+'/../../../', jsonObj.sink[i])));
     }
-});
+}
+window.demo = window.demo|| {};
+window.demo.updateTable = updateTable;
 
+ipcRenderer.on('selected-directory', (event, file) => {
+    const filePath = file.toString();
+    jsonSetting.confFilePath = filePath;
+    storage.set('config', jsonSetting, error => {
+        if (error) throw error;
+    });
+    const selectedFile = $('#selected-file');
+    selectedFile.value = path.basename(filePath);
+
+    // read csv list from json file and update table
+    updateTable(filePath);
+});
