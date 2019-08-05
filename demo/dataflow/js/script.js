@@ -3,10 +3,9 @@ const storage = require('electron-json-storage');
 const path = require('path');
 const demo = require('./demo.js');
 const load = require('./load.js');
-const { exec } = require('child_process');
 
 const output = $('#terminal_output');
-$("#script_btn").on('click', () => {
+$("#static").on('click', () => {
     output.empty();
     $("#load_states").addClass("active");
     storage.get('config', (error, data) => {

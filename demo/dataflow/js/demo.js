@@ -4,6 +4,7 @@ const $ = require('jquery');
 const fs = require('fs');
 const storage = require('electron-json-storage');
 const path = require('path');
+const script = require('./script.js');
 require('jquery-resizable');
 
 $(document).ready( () => {
@@ -28,8 +29,7 @@ $(document).ready( () => {
             stop: () => {
                 if (data.confFilePath)
                     showDataFlow(data.confFilePath)
-            },
-            direction: ['right', 'bottom'],
+            },            direction: ['right', 'bottom'],
             maxWidth: $("#graph_area").width
         });
     });
@@ -133,21 +133,9 @@ const showDataFlow = (path) =>
     // svg.attr("height", g.graph().height + 40);
 };
 exports.showDataFlow = showDataFlow;
-// Show Button
-// const run_btn = $('#runner');
-// run_btn.on('click', () => {
-//     storage.get('config', (error, data) => {
-//         if (error) throw error;
-//         if (Object.keys(data).length !== 0) {
-//             const confPath = data.confFilePath;
-//             if (confPath) {
-//                 showDataFlow(confPath);
-//             } else{
-//                 $('#err_msg').html('Invalid config file path');
-//                 $('#err_msg').show();
-//                 $("#selected-file").addClass("error");
-//             }
-//         }
-//     });
-// });
+// Dynamic Analysis click
+const dynamicBtn = $('#dynamic');
+dynamicBtn.on('click', () => {
+    //script.installApkPath
+});
 

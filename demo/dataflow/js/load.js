@@ -27,11 +27,11 @@ ipcRenderer.on('selected-apk', (event, file) => {
 
 // Config file
 const selectDirBtn = $('#select-directory');
-selectDirBtn.on('click', (event) => {
+selectDirBtn.on('click', () => {
     ipcRenderer.send('open-file-dialog')
 });
 
-const updateTable = (filePath) => {
+const updateTable = filePath => {
     const jsonObj = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf-8'}));
     const showDataFlow = (path) => demo.showDataFlow(path);
     $("#source_table > tbody").empty();
