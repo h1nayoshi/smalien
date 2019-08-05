@@ -29,6 +29,24 @@ const selectDirBtn = $('#select-directory');
 selectDirBtn.on('click', (event) => {
     ipcRenderer.send('open-file-dialog')
 });
+
+function updateTable(filePath) {
+    const jsonObj = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf-8'}));
+    const showDataFlow = (path) => window.demo.showDataFlow(path);
+    $("#source_table > tbody").empty();
+    $("#sink_table > tbody").empty();
+    for (let i = 0; i < jsonObj.source.length; i++) {
+        $("#source_table > tbody").append(`<tr><td class="ui transparent button" id="source${i}">` + jsonObj.source[i] + '</td><td>');
+        $(`#source${i}`).on('click', () =>showDataFlow(path.join(__dirname+'/../../../', jsonObj.source[i])));
+    }
+    for (let i=0; i<jsonObj.sink.length; i++) {
+        $("#sink_table > tbody").append(`<tr><td class="ui transparent button" id="sink${i}">` + jsonObj.sink[i] + '</td><td>');
+        $(`#sink${i}`).on('click', () => showDataFlow(path.join(__dirname+'/../../../', jsonObj.sink[i])));
+    }
+}
+window.demo = window.demo|| {};
+window.demo.updateTable = updateTable;
+
 ipcRenderer.on('selected-directory', (event, file) => {
     const filePath = file.toString();
     jsonSetting.confFilePath = filePath;
@@ -39,15 +57,5 @@ ipcRenderer.on('selected-directory', (event, file) => {
     selectedFile.value = path.basename(filePath);
 
     // read csv list from json file and update table
-    const jsonObj = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf-8'}));
-    const showDataFlow = (path) => window.demo.showDataFlow(path);
-    for (let i = 0; i < jsonObj.source.length; i++) {
-        $("#source_table > tbody").append(`<tr><td class="ui transparent button" id="source${i}">` + jsonObj.source[i] + '</td><td>');
-        $(`#source${i}`).on('click', () =>showDataFlow(path.join(__dirname+'/../../../', jsonObj.source[i])));
-    }
-    for (let i=0; i<jsonObj.sink.length; i++) {
-        $("#sink_table > tbody").append(`<tr><td class="ui transparent button" id="sink${i}">` + jsonObj.sink[i] + '</td><td>');
-        $(`#sink${i}`).on('click', () => showDataFlow(path.join(__dirname+'/../../../', jsonObj.sink[i])));
-    }
+    updateTable(filePath);
 });
-
