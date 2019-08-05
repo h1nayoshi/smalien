@@ -40,6 +40,7 @@ $(document).ready( () => {
 
 function showDataFlow(path)
 {
+    $("g").empty();
     const content = fs.readFileSync(path, {encoding: 'utf-8'});
     const g = new dagreD3.graphlib.Graph({compound:true})
         .setGraph({})
@@ -61,11 +62,11 @@ function showDataFlow(path)
                 "description": "AAA"
             };
             if (params.length === 3) {
-                if (params[3] === 'red')
+                if (params[2] === 'red')
                     options.style = "fill: #FF0000";
-                else if (params[3] === 'green')
+                else if (params[2] === 'green')
                     options.style = "fill: #00FF00";
-                else if (params[3] === 'blue')
+                else if (params[2] === 'blue')
                     options.style = "fill: #0000FF";
                 else
                     console.log("only support RGB color");
@@ -74,13 +75,13 @@ function showDataFlow(path)
         }
     }
     g.nodes().forEach(function(v) {
-        var node = g.node(v);
+        const node = g.node(v);
         node.rx = node.ry = 5;
     });
     //console.log("Set Group");
     for (let i=0; i<parents.length; i++) {
         if (parents[i] !== '') {
-            let params = parents[i].split(',');
+            const params = parents[i].split(',');
             //console.log(params[0], params[1]);
             g.setParent(params[0], params[1]);
         }
@@ -88,7 +89,7 @@ function showDataFlow(path)
     //console.log("Set edges");
     for (let i=0; i<edges.length; i++) {
         if (edges[i] !== '') {
-            let params = edges[i].split(',');
+            const params = edges[i].split(',');
             //console.log(params[0], params[1]);
             g.setEdge(params[0], params[1],
                 {
@@ -121,7 +122,7 @@ function showDataFlow(path)
         .each(() => { $(this).tipsy({ gravity: "w", opacity: 1, html: true }); });
 
     // Center the graph
-    const initialScale = 0.5;
+    const initialScale = 0.6;
     svg.call(zoom.transform,
         d3.zoomIdentity.translate(
             (svg.attr("width") - g.graph().width * initialScale)/3, 20)
