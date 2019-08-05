@@ -44,13 +44,13 @@ class DfCsvGenerator():
     dest[lid].append(val)
 
   def df_to_csv(self, df, sinks):
-    dtc = funcs.DfToCsv(df, self.log_ids, sinks)
+    dtc = funcs.DfToCsv(df, self.log_ids, sinks, rev=False)
     csv, node_log = dtc.run()
     self.csvs.append(csv)
     self.node_log_ids.append(node_log)
 
   def df_sink_to_csv(self, df, sinks):
-    dtc = funcs.DfToCsv(df, self.log_ids, sinks)
+    dtc = funcs.DfToCsv(df, self.log_ids, sinks, rev=True)
     csv, node_log = dtc.run()
     self.csvs_sink.append(csv)
     self.node_log_ids_sink.append(node_log)

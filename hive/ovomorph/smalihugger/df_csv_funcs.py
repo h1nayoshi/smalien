@@ -3,7 +3,7 @@
 from pprint import pprint
 
 class DfToCsv():
-  def __init__(self, df, log_ids, sinks):
+  def __init__(self, df, log_ids, sinks, rev):
     self.df = df
     if ('flow' in df.keys()):
       self.flow = df['flow']
@@ -11,6 +11,7 @@ class DfToCsv():
       self.flow = df
     self.log_ids = log_ids
     self.node_log = {}
+    self.rev = rev
     self.csv = ''
     self.node = {
       'class_path': {
@@ -57,7 +58,7 @@ class DfToCsv():
       self.csv += str(cntr)+','+cp+'\n'
       cntr += 1
     for m in self.node['method']['node']:
-      self.csv += str(cntr)+','+m+'\n'
+      self.csv += str(cntr)+','+m.replace('Ljava/lang/','')+'\n'
       cntr += 1
     for cp, cpval in self.node['var']['node'].items():
       for m, mval in cpval.items():
@@ -77,7 +78,10 @@ class DfToCsv():
     self.csv += '\n'
     # Output edges
     for e in self.edge:
-      self.csv += str(offset_v+e[0])+','+str(offset_v+e[1])+'\n'
+      if (self.rev):
+        self.csv += str(offset_v+e[1])+','+str(offset_v+e[0])+'\n'
+      else:
+        self.csv += str(offset_v+e[0])+','+str(offset_v+e[1])+'\n'
     self.csv += '\n'
 
   def __add_node(self, cp, m, v, l):
