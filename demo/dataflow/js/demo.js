@@ -147,8 +147,15 @@ dynamicBtn.on('click', () => {
         args: [implanted_apk_path]
     };
     const pyshell = new PythonShell('client_side_analysis.py', options);
-     pyshell.on('message', line => {
-         output.append('<pre>'+ line +'</pre>');
+    pyshell.on('message', line => {
+        output.append('<pre>'+ line +'</pre>');
+        output.append('<pre>'+ line +'</pre>');
+        // Separate an id and data
+        const log = line.substring(line.indexOf('{')+1);
+        const id = log.substring(0, log.indexOf(':'));
+        const data = log.slice(log.indexOf(':')+2, -1);
+        console.log(id);
+        console.log(data);
     });
 });
 
