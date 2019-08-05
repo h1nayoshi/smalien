@@ -60,8 +60,16 @@ function showDataFlow(path)
                 "clusterLabelPos": "top",
                 "description": "AAA"
             };
-            if (params.length === 3)
-                options.style = "fill: #FF0000";
+            if (params.length === 3) {
+                if (params[3] === 'red')
+                    options.style = "fill: #FF0000";
+                else if (params[3] === 'green')
+                    options.style = "fill: #00FF00";
+                else if (params[3] === 'blue')
+                    options.style = "fill: #0000FF";
+                else
+                    console.log("only support RGB color");
+            }
             g.setNode(params[0], options);
         }
     }
