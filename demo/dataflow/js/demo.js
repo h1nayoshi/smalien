@@ -140,7 +140,6 @@ const dynamicBtn = $('#dynamic');
 dynamicBtn.on('click', () => {
     console.log('start dynamic analysis');
     const implanted_apk_path = script.installApkPath;
-    console.log(implanted_apk_path)
     const smalien_path = path.resolve('../');
     const options = {
         mode: 'text',
@@ -152,6 +151,12 @@ dynamicBtn.on('click', () => {
      pyshell.on('message', message => {
         const line = message.toString();
         output.append('<pre>'+ message +'</pre>');
+        // Separate an id and data
+        const log = message.substring(message.indexOf('{')+1);
+        const id = log.substring(0, log.indexOf(':'));
+        const data = log.slice(log.indexOf(':')+2, -1);
+        console.log(id);
+        console.log(data);
     });
 });
 
