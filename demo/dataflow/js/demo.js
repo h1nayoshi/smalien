@@ -4,6 +4,7 @@ const $ = require('jquery');
 const fs = require('fs');
 const storage = require('electron-json-storage');
 const path = require('path');
+const load = require('./load.js');
 const script = require('./script.js');
 const {PythonShell} = require('python-shell');
 require('jquery-resizable');
@@ -24,16 +25,15 @@ $(document).ready( () => {
             selectedApk.value = path.basename(data.apkFilePath);
         }
     });
-    storage.get('config', (error, data) => {
-        if (error) throw error;
-        $("#graph_area").resizable({
-            stop: () => {
-                if (data.confFilePath)
-                    showDataFlow(data.confFilePath)
-            },            direction: ['right', 'bottom'],
-            maxWidth: $("#graph_area").width
-        });
+
+    $("#graph_area").resizable({
+        stop: () => {
+            showDataFlow(load.targetCSV);
+        },
+            direction: ['right', 'bottom'],
+        maxWidth: $("#graph_area").width
     });
+
     const timer = setInterval(function(){
         $("#terminal_output").animate({scrollTop: $('#terminal_output')[0].scrollHeight}, "fast");
     },500);
@@ -112,7 +112,7 @@ const showDataFlow = (path) =>
     svg.call(zoom);
 
     // Simple function to style the tooltip for the given node.
-    let styleTooltip = function(name, description) {
+    const styleTooltip = function(name, description) {
         return "<p class='name'>" + name + "</p><p class='description'>" + description + "</p>";
     };
 
@@ -138,9 +138,7 @@ exports.showDataFlow = showDataFlow;
 const output = $('#terminal_output');
 const dynamicBtn = $('#dynamic');
 dynamicBtn.on('click', () => {
-    console.log('start dynamic analysis');
     const implanted_apk_path = script.installApkPath;
-    console.log(implanted_apk_path)
     const smalien_path = path.resolve('../');
     const options = {
         mode: 'text',
@@ -149,9 +147,8 @@ dynamicBtn.on('click', () => {
         args: [implanted_apk_path]
     };
     const pyshell = new PythonShell('client_side_analysis.py', options);
-     pyshell.on('message', message => {
-        const line = message.toString();
-        output.append('<pre>'+ message +'</pre>');
+     pyshell.on('message', line => {
+         output.append('<pre>'+ line +'</pre>');
     });
 });
 

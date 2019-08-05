@@ -26,13 +26,12 @@ $("#static").on('click', () => {
             };
             const pyshell = new PythonShell('main.py', options);
             let pkgName = '';
-            pyshell.on('message', message => {
-                const line = message.toString();
+            pyshell.on('message', line => {
                 if (line.indexOf("Target pkg name") !== -1) {
                     pkgName = line.trim();
                     pkgName = pkgName.slice(pkgName.indexOf(':')+2);
                 }
-                output.append('<pre>'+ message +'</pre>');
+                output.append('<pre>'+ line +'</pre>');
             });
             // when python script stop, this callback function execute
             pyshell.end((err, code, signal) => {
