@@ -13,6 +13,8 @@ class DfCsvGenerator():
     self.parsed_data = {}
     self.data_flows = {}
     self.log_ids = {}
+    self.node_log_ids = []
+    self.node_log_ids_sink = []
     self.log = {
       'source': {},
       'sink': {},
@@ -26,6 +28,7 @@ class DfCsvGenerator():
 
   def __load_files(self):
     self.__load_json(self.data_flows, '_data_flows.json')
+    self.__load_json(self.log_ids, '_log_ids.json')
 
   def __load_json(self, dest, name):
     with open(self.pkg+name, 'r') as f:
@@ -41,14 +44,16 @@ class DfCsvGenerator():
     dest[lid].append(val)
 
   def df_to_csv(self, df, sinks):
-    dtc = funcs.DfToCsv(df, sinks)
-    csv = dtc.run()
+    dtc = funcs.DfToCsv(df, self.log_ids, sinks)
+    csv, node_log = dtc.run()
     self.csvs.append(csv)
+    self.node_log_ids.append(node_log)
 
-  def df_sink_to_csv(self, df):
-    dtc = funcs.DfToCsv(df, [])
-    csv = dtc.run()
+  def df_sink_to_csv(self, df, sinks):
+    dtc = funcs.DfToCsv(df, self.log_ids, sinks)
+    csv, node_log = dtc.run()
     self.csvs_sink.append(csv)
+    self.node_log_ids_sink.append(node_log)
 
 def run_csv_generator(pkg):
   print(' [*] Generating CSV files')
@@ -62,7 +67,7 @@ def run_csv_generator(pkg):
         DCG.df_to_csv(lval, lval['sinks'])
         # Sink
         for sink in lval['sinks']:
-          DCG.df_sink_to_csv(sink)
+          DCG.df_sink_to_csv(sink, lval['sinks'])
 
   # Save csv
   csv_files = {'source': [], 'sink': []}
@@ -70,10 +75,14 @@ def run_csv_generator(pkg):
     csv_files['source'].append(pkg+'_df_'+str(i)+'.csv')
     with open(pkg+'_df_'+str(i)+'.csv', 'w') as f:
       f.write(DCG.csvs[i])
+    with open(pkg+'_df_'+str(i)+'_ids.json', 'w') as f:
+      json.dump(DCG.node_log_ids[i], f)
   for i in range(len(DCG.csvs_sink)):
     csv_files['sink'].append(pkg+'_df_rev_'+str(i)+'.csv')
     with open(pkg+'_df_rev_'+str(i)+'.csv', 'w') as f:
       f.write(DCG.csvs_sink[i])
+    with open(pkg+'_df_rev_'+str(i)+'_ids.json', 'w') as f:
+      json.dump(DCG.node_log_ids_sink[i], f)
   with open(pkg+'_csvlist.json', 'w') as f:
     json.dump(csv_files, f)
   print('  [+] CSV files are generated.')
