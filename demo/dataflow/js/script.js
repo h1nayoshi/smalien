@@ -1,6 +1,8 @@
 const {PythonShell} = require('python-shell');
 const storage = require('electron-json-storage');
 const path = require('path');
+const demo = require('./demo.js');
+const load = require('./load.js');
 const { exec } = require('child_process');
 
 const output = $('#terminal_output');
@@ -24,7 +26,13 @@ $("#script_btn").on('click', () => {
                 args: args
             };
             const pyshell = new PythonShell('main.py', options);
+            let pkgName = '';
             pyshell.on('message', message => {
+                const line = message.toString();
+                if (line.indexOf("Target pkg name") !== -1) {
+                    pkgName = line.trim();
+                    pkgName = pkgName.slice(pkgName.indexOf(':')+2);
+                }
                 output.append('<pre>'+ message +'</pre>');
             });
             // when python script stop, this callback function execute
@@ -33,23 +41,21 @@ $("#script_btn").on('click', () => {
                 if (code) console.log('The exit code was: ' + code);
                 if (signal) console.log('The exit signal was: ' + signal);
                 $("#load_states").removeClass("active");
-
+                const outPre = $("#terminal_output").children('pre');
+                let instApkPath = outPre[outPre.length - 1].innerText; // last index
+                instApkPath = instApkPath.trim();
+                instApkPath = instApkPath.slice(instApkPath.indexOf(' ')+1);
+                exports.installApkPath = instApkPath;
                 storage.get('config', (error, data) => {
-                    const command = `aapt dump badging ${data.apkFilePath} | grep package:\\ name | awk \'{print $2}\'| cut -c 6- | tr -d "'"`;
-                    exec(command, (err, stdout, stderr) => {
-                        if (err) throw err;
-                        if (stderr) console.log(`stderr: ${stderr}`);
-                        console.log(`stdout: ${stdout}`);
-                        const pkg_name = stdout.trim();
-                        data.confFilePath = path.join(__dirname + '../../../../', `${pkg_name}_csvlist.json`);
-                        console.log(data);
-                        storage.set('config', data, error => {
-                            if (error) throw error;
-                        });
-                        $("#selected-file").val(`${pkg_name}_csvlist.json`);
-                        window.demo.updateTable(data.confFilePath);
+                    if (err) throw err;
+                    data.confFilePath = path.join(__dirname + '../../../../', `${pkgName}_csvlist.json`);
+                    storage.set('config', data, error => {
+                        if (error) throw error;
                     });
+                    $("#selected-file").val(`${pkgName}_csvlist.json`);
+                    load.updateTable(data.confFilePath);
                 });
+                demo.stopTimer();
             });
         }
     });

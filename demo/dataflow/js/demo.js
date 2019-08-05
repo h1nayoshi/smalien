@@ -33,12 +33,13 @@ $(document).ready( () => {
             maxWidth: $("#graph_area").width
         });
     });
-    let timer = setInterval(function(){
+    const timer = setInterval(function(){
         $("#terminal_output").animate({scrollTop: $('#terminal_output')[0].scrollHeight}, "fast");
     },500);
+    exports.stopTimer = () => clearInterval(timer);
 });
 
-function showDataFlow(path)
+const showDataFlow = (path) =>
 {
     $("g").empty();
     const content = fs.readFileSync(path, {encoding: 'utf-8'});
@@ -130,24 +131,23 @@ function showDataFlow(path)
 
     // svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
     // svg.attr("height", g.graph().height + 40);
-}
-window.demo = window.demo|| {};
-window.demo.showDataFlow = showDataFlow;
+};
+exports.showDataFlow = showDataFlow;
 // Show Button
-const run_btn = $('#runner');
-run_btn.on('click', () => {
-    storage.get('config', (error, data) => {
-        if (error) throw error;
-        if (Object.keys(data).length !== 0) {
-            const confPath = data.confFilePath;
-            if (confPath) {
-                showDataFlow(confPath);
-            } else{
-                $('#err_msg').html('Invalid config file path');
-                $('#err_msg').show();
-                $("#selected-file").addClass("error");
-            }
-        }
-    });
-});
+// const run_btn = $('#runner');
+// run_btn.on('click', () => {
+//     storage.get('config', (error, data) => {
+//         if (error) throw error;
+//         if (Object.keys(data).length !== 0) {
+//             const confPath = data.confFilePath;
+//             if (confPath) {
+//                 showDataFlow(confPath);
+//             } else{
+//                 $('#err_msg').html('Invalid config file path');
+//                 $('#err_msg').show();
+//                 $("#selected-file").addClass("error");
+//             }
+//         }
+//     });
+// });
 

@@ -2,6 +2,7 @@ const {ipcRenderer} = require('electron');
 const path = require('path');
 const storage = require('electron-json-storage');
 const fs = require('fs');
+const demo = require('./demo.js');
 
 let jsonSetting;
 storage.get('config', (error, data) => {
@@ -30,9 +31,9 @@ selectDirBtn.on('click', (event) => {
     ipcRenderer.send('open-file-dialog')
 });
 
-function updateTable(filePath) {
+const updateTable = (filePath) => {
     const jsonObj = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf-8'}));
-    const showDataFlow = (path) => window.demo.showDataFlow(path);
+    const showDataFlow = (path) => demo.showDataFlow(path);
     $("#source_table > tbody").empty();
     $("#sink_table > tbody").empty();
     for (let i = 0; i < jsonObj.source.length; i++) {
@@ -43,9 +44,8 @@ function updateTable(filePath) {
         $("#sink_table > tbody").append(`<tr><td class="ui transparent button" id="sink${i}">` + jsonObj.sink[i] + '</td><td>');
         $(`#sink${i}`).on('click', () => showDataFlow(path.join(__dirname+'/../../../', jsonObj.sink[i])));
     }
-}
-window.demo = window.demo|| {};
-window.demo.updateTable = updateTable;
+};
+exports.updateTable = updateTable;
 
 ipcRenderer.on('selected-directory', (event, file) => {
     const filePath = file.toString();
