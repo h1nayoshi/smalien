@@ -48,7 +48,10 @@ def logging():
   while True:
     line = proc.stdout.readline()
     if line:
-      print(line)
+      lstr = ''
+      for b in line:
+        lstr += chr(b)
+      print(lstr)
     if not line and proc.poll() is not None:
       print('Finishing the logging')
       break
