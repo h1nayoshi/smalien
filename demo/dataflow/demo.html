@@ -14,7 +14,7 @@
 </head>
 <body>
 <h1 class="ui header">
-    <img class="ui image" src="logo_transparent.png">
+    <img class="ui image" src="logo_transparent.png" alt="image">
     <div class="content">
         Smalien Demo
     </div>
@@ -32,20 +32,20 @@
                     </div>
                     <div class="field">
                         <div class="fields">
-                            <div class="three wide field">
-                                <button class="ui primary button" id="select-apk">Open APK</button>
-                            </div>
                             <div class="eight wide field">
                                 <div class="ui input">
                                     <input type="text" data-content="AAA" placeholder="Input apk path" id="selected-apk">
                                 </div>
+                            </div>
+                            <div class="three wide field">
+                                <button class="ui primary button" id="select-apk">Open APK</button>
                             </div>
                             <div class="four wide field">
                                 <div class="ui toggle checkbox">
                                     <input type="checkbox" name="public">
                                     <label>Enforce</label>
                                 </div>
-                                <button class="ui secondary button" id="script_btn">Analyze</button>
+                                <button class="ui secondary button" id="script_btn">Static Analysis</button>
                                 <div id="load_states" class="ui inline loader"></div>
 <!--                                <button class="ui button" id="frameless-window">Load</button>-->
                             </div>
@@ -53,16 +53,16 @@
                     </div>
                     <div class="field">
                         <div class="fields">
-                            <div class="three wide field">
-                                <button class="ui primary button" id="select-directory">Open File</button>
-                            </div>
                             <div class="eight wide field">
                                 <div class="ui input">
                                     <input type="text" placeholder="Input conf path" id="selected-file">
                                 </div>
                             </div>
+                            <div class="three wide field">
+                                <button class="ui primary button" id="select-directory">Open File</button>
+                            </div>
                             <div class="four wide field">
-                                <button class="ui secondary button" id="runner">Show</button>
+                                <button class="ui secondary button" id="runner">Dynamic Analysis</button>
                             </div>
                         </div>
                     </div>
@@ -94,8 +94,6 @@
             </div>
         </div>
 </div>
-
-
 
 <script type="text/javascript">
     require("./js/load.js");
