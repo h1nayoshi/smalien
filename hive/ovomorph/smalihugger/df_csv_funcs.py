@@ -3,12 +3,15 @@
 from pprint import pprint
 
 class DfToCsv():
-  def __init__(self, df, sinks):
+  def __init__(self, df, log_ids, sinks, rev):
     self.df = df
     if ('flow' in df.keys()):
       self.flow = df['flow']
     else:
       self.flow = df
+    self.log_ids = log_ids
+    self.node_log = {}
+    self.rev = rev
     self.csv = ''
     self.node = {
       'class_path': {
@@ -35,10 +38,11 @@ class DfToCsv():
   def run(self):
     self.__walk_flow(self.flow)
     self.__output_csv()
-    return self.csv
+    return self.csv, self.node_log
 
   def __walk_flow(self, flow):
     src_id = self.__add_node(flow['class_path'], flow['method'], flow['var'], flow['line'])
+    self.__node_to_log_id(src_id, flow['class_path'], flow['method'], flow['var'], flow['line'], flow['area'])
     self.__check_sink(flow, src_id)
     for n in flow['next']:
       dest_id = self.__add_node(n['class_path'], n['method'], n['var'], n['line'])
@@ -54,7 +58,7 @@ class DfToCsv():
       self.csv += str(cntr)+','+cp+'\n'
       cntr += 1
     for m in self.node['method']['node']:
-      self.csv += str(cntr)+','+m+'\n'
+      self.csv += str(cntr)+','+m.replace('Ljava/lang/','')+'\n'
       cntr += 1
     for cp, cpval in self.node['var']['node'].items():
       for m, mval in cpval.items():
@@ -74,7 +78,10 @@ class DfToCsv():
     self.csv += '\n'
     # Output edges
     for e in self.edge:
-      self.csv += str(offset_v+e[0])+','+str(offset_v+e[1])+'\n'
+      if (self.rev):
+        self.csv += str(offset_v+e[1])+','+str(offset_v+e[0])+'\n'
+      else:
+        self.csv += str(offset_v+e[0])+','+str(offset_v+e[1])+'\n'
     self.csv += '\n'
 
   def __add_node(self, cp, m, v, l):
@@ -119,6 +126,20 @@ class DfToCsv():
           ret = self.__check_contain(s['line'], flow['area'])
           if (ret):
             self.sinks['node'].append(src_id)
+
+  def __node_to_log_id(self, src_id, cp, m, v, l, area):
+    if (cp not in self.log_ids.keys()):
+      return
+    if (m not in self.log_ids[cp].keys()):
+      return
+    if (v not in self.log_ids[cp][m].keys()):
+      return
+    for log_l, log_tag in self.log_ids[cp][m][v].items():
+      ret = self.__check_contain(int(log_l), area)
+      if (ret):
+        if (src_id not in self.node_log.keys()):
+          self.node_log[src_id] = []
+        self.node_log[src_id].append(log_tag)
 
   def __check_contain(self, l, area):
     for a in area:
