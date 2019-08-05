@@ -1,5 +1,6 @@
 const { app, BrowserWindow, Menu, ipcMain, dialog} = require('electron');
 const debug = /--debug/.test(process.argv[2]);
+const storage = require('electron-json-storage');
 // prevent garbage collection
 let mainWindow = null;
 function createWindow () {
@@ -79,6 +80,16 @@ const template = [
             { type: 'separator' },
             { role: 'services' },
             { type: 'separator' },
+            {
+                label: 'reset configuration',
+                click() {
+                    storage.set('config', {}, err => {
+                        if (err) throw err;
+                    });
+
+                }
+            },
+            { type: 'separator'},
             { role: 'hide' },
             { role: 'hideothers' },
             { role: 'unhide' },
