@@ -30,7 +30,7 @@ const selectDirBtn = $('#select-directory');
 selectDirBtn.on('click', () => {
     ipcRenderer.send('open-file-dialog')
 });
-
+let targetCSV = '';
 const updateTable = filePath => {
     const jsonObj = JSON.parse(fs.readFileSync(filePath, {encoding: 'utf-8'}));
     const showDataFlow = (path) => demo.showDataFlow(path);
@@ -38,11 +38,19 @@ const updateTable = filePath => {
     $("#sink_table > tbody").empty();
     for (let i = 0; i < jsonObj.source.length; i++) {
         $("#source_table > tbody").append(`<tr><td class="ui transparent button" id="source${i}">` + jsonObj.source[i] + '</td><td>');
-        $(`#source${i}`).on('click', () =>showDataFlow(path.join(__dirname+'/../../../', jsonObj.source[i])));
+        $(`#source${i}`).on('click', () => {
+            targetCSV = path.join(__dirname+'/../../../', jsonObj.source[i]);
+            exports.targetCSV = targetCSV;
+            showDataFlow(targetCsv);
+        });
     }
     for (let i=0; i<jsonObj.sink.length; i++) {
         $("#sink_table > tbody").append(`<tr><td class="ui transparent button" id="sink${i}">` + jsonObj.sink[i] + '</td><td>');
-        $(`#sink${i}`).on('click', () => showDataFlow(path.join(__dirname+'/../../../', jsonObj.sink[i])));
+        $(`#sink${i}`).on('click', () => {
+            targetCSV = path.join(__dirname+'/../../../', jsonObj.sink[i]);
+            exports.targetCSV = targetCSV;
+            showDataFlow(targetCSV);
+        });
     }
 };
 exports.updateTable = updateTable;
