@@ -137,25 +137,37 @@ exports.showDataFlow = showDataFlow;
 // Dynamic Analysis click
 const output = $('#terminal_output');
 const dynamicBtn = $('#dynamic');
+let num = 0;
 dynamicBtn.on('click', () => {
-    const implanted_apk_path = script.installApkPath;
-    const smalien_path = path.resolve('../');
-    const options = {
-        mode: 'text',
-        pythonOptions: ['-u'],
-        scriptPath: smalien_path,
-        args: [implanted_apk_path]
-    };
-    const pyshell = new PythonShell('client_side_analysis.py', options);
-    pyshell.on('message', line => {
-        output.append('<pre>'+ line +'</pre>');
-        output.append('<pre>'+ line +'</pre>');
-        // Separate an id and data
-        const log = line.substring(line.indexOf('{')+1);
-        const id = log.substring(0, log.indexOf(':'));
-        const data = log.slice(log.indexOf(':')+2, -1);
-        console.log(id);
-        console.log(data);
-    });
+    // initialize
+    output.empty();
+    $(this).data("click", ++num);
+    let click = $(this).data("click");
+    console.log(click);
+    if ((click % 2) === 1) {
+        dynamicBtn.html("Stop");
+        const implanted_apk_path = script.installApkPath;
+        const smalien_path = path.resolve('../');
+        const options = {
+            mode: 'text',
+            pythonOptions: ['-u'],
+            scriptPath: smalien_path,
+            args: [implanted_apk_path]
+        };
+        pyshell = new PythonShell('client_side_analysis.py', options);
+        pyshell.on('message', line => {
+            output.append('<pre>' + line + '</pre>');
+            // Separate an id and data
+            const log = line.substring(line.indexOf('{') + 1);
+            const id = log.substring(0, log.indexOf(':'));
+            const data = log.slice(log.indexOf(':') + 2, -1);
+            console.log(id);
+            console.log(data);
+        });
+    }
+    else {
+        dynamicBtn.html("Dynamic Analysis");
+        pyshell.terminate('SIGINT');
+    }
 });
 
