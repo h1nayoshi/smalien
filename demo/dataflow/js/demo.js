@@ -61,7 +61,7 @@ const showDataFlow = (path) =>
                 "label": params[1],
                 "labelStyle": "fill: #ffffff",
                 "clusterLabelPos": "top",
-                "description": "AAA"
+                "clusterLabelStyle": "fill: #ffffff"
             };
             if (params.length === 3) {
                 if (params[2] === 'red')
@@ -134,6 +134,14 @@ const showDataFlow = (path) =>
     // svg.attr("height", g.graph().height + 40);
 };
 exports.showDataFlow = showDataFlow;
+
+$("#load").on('click', () => {
+    storage.get('config', (error, data) => {
+        if (error) throw error;
+        load.updateTable(data.confFilePath);
+    });
+});
+
 // Dynamic Analysis click
 const output = $('#terminal_output');
 const dynamicBtn = $('#dynamic');

@@ -38,11 +38,11 @@ text {
     color: #ffffff;
 }
 .node rect {
-    stroke: #2edcff;
-    fill: #2edcff;
+    stroke: #333;
+    fill: #333;
 }
 .edgePath path {
-    stroke: #ccc210;
-    fill: #ccc210;
+    stroke: #999;
+    fill: #999;
     stroke-width: 2px;
 }
