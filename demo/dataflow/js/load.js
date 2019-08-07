@@ -41,7 +41,7 @@ const updateTable = filePath => {
         $(`#source${i}`).on('click', () => {
             targetCSV = path.join(__dirname+'/../../../', jsonObj.source[i]);
             exports.targetCSV = targetCSV;
-            showDataFlow(targetCsv);
+            showDataFlow(targetCSV);
         });
     }
     for (let i=0; i<jsonObj.sink.length; i++) {
