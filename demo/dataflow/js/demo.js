@@ -80,16 +80,9 @@ const showDataFlow = (path) =>
                 "clusterLabelPos": "top",
                 "clusterLabelStyle": "fill: #ffffff"
             };
-            if (params.length === 3) {
-                if (params[2] === 'red')
-                    options.style = "fill: #FF0000";
-                else if (params[2] === 'green')
-                    options.style = "fill: #00FF00";
-                else if (params[2] === 'blue')
-                    options.style = "fill: #0000FF";
-                else
-                    console.log("only support RGB color");
-            }
+            if (params.length === 3)
+                options.style = `fill: ${params[2]}`;
+
             g.setNode(params[0], options);
         }
     }

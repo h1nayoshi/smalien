@@ -7,7 +7,9 @@ body {
     right: 16px;
 }
 #graph_area {
+    background-color: #000000;
     border-width: 1px;
+    border-color: #7d64ff;
     border-style: solid;
 }
 svg {
