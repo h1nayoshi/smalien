@@ -45,7 +45,7 @@ text {
     fill: #333;
 }
 .edgePath path {
-    stroke: #999;
-    fill: #999;
+    stroke: #FFE5DE;
+    fill: #FFE5DE;
     stroke-width: 2px;
 }
