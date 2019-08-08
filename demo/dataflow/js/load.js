@@ -4,25 +4,23 @@ const storage = require('electron-json-storage');
 const fs = require('fs');
 const demo = require('./demo.js');
 
-let jsonSetting;
-storage.get('config', (error, data) => {
-    if (error) throw error;
-    jsonSetting = data;
-});
-
 // APK
-const selectApkBtn = $('#select-apk');
-selectApkBtn.on('click', () => {
+
+$('#select-apk').on('click', () => {
     ipcRenderer.send('open-apk-dialog')
 });
 ipcRenderer.on('selected-apk', (event, file) => {
+    let jsonSetting = {};
+    storage.get('config', (error, data) => {
+        if (error) throw error;
+        jsonSetting = data;
+    });
     const filePath = file.toString();
     jsonSetting.apkFilePath = filePath;
     storage.set('config', jsonSetting, error => {
         if (error) throw error;
     });
-    const selectedApkFile = document.getElementById('selected-apk');
-    selectedApkFile.value = path.basename(filePath);
+    $('#selected-apk').val(path.basename(filePath));
 });
 
 // Config file
@@ -56,14 +54,17 @@ const updateTable = filePath => {
 exports.updateTable = updateTable;
 
 ipcRenderer.on('selected-directory', (event, file) => {
+    let jsonSetting = {};
+    storage.get('config', (error, data) => {
+        if (error) throw error;
+        jsonSetting = data;
+    });
     const filePath = file.toString();
     jsonSetting.confFilePath = filePath;
     storage.set('config', jsonSetting, error => {
         if (error) throw error;
     });
-    const selectedFile = $('#selected-file');
-    selectedFile.value = path.basename(filePath);
-
+    $('#selected-file').val(path.basename(filePath));
     // read csv list from json file and update table
     updateTable(filePath);
 });
