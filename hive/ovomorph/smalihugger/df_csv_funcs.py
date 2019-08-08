@@ -58,13 +58,15 @@ class DfToCsv():
       self.csv += str(cntr)+','+cp+'\n'
       cntr += 1
     for m in self.node['method']['node']:
-      self.csv += str(cntr)+','+m.replace('Ljava/lang/','')+'\n'
+      self.csv += str(cntr)+','+m.replace('Ljava/lang/','')+',#808000\n'
       cntr += 1
     for cp, cpval in self.node['var']['node'].items():
       for m, mval in cpval.items():
         for v, vval in mval.items():
           if (vval in self.sinks['node']):
-            self.csv += str(cntr+vval)+','+v+',red\n'
+            self.csv += str(cntr+vval)+','+v+',#ff0000\n'
+          elif (not self.rev and vval == 0):
+            self.csv += str(cntr+vval)+','+v+',#0000ff\n'
           else:
             self.csv += str(cntr+vval)+','+v+'\n'
     self.csv += '\n'
