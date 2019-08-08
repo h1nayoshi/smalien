@@ -7,10 +7,11 @@ body {
     right: 16px;
 }
 #graph_area {
-    border-style: dashed;
+    border-width: 1px;
+    border-style: solid;
 }
 svg {
-    width: 95%;
+    width: 100%;
     height: 540px;
     margin: 0 auto;
 }

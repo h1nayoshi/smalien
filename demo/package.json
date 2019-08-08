@@ -59,6 +59,7 @@
     "jquery": "^3.4.1",
     "jquery-resizable": "^1.0.6",
     "python-shell": "^1.0.7",
+    "screenfull": "^4.2.1",
     "semantic-ui": "^2.4.2"
   },
   "devDependencies": {

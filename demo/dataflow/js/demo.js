@@ -8,6 +8,7 @@ const load = require('./load.js');
 const script = require('./script.js');
 const {PythonShell} = require('python-shell');
 require('jquery-resizable');
+const screenfull = require('screenfull');
 
 $(document).ready( () => {
     const selectedFile = document.getElementById('selected-file');
@@ -38,6 +39,22 @@ $(document).ready( () => {
         $("#terminal_output").animate({scrollTop: $('#terminal_output')[0].scrollHeight}, "fast");
     },500);
     exports.stopTimer = () => clearInterval(timer);
+
+    const el = $("#graph_area")[0];
+    $("#expand").on('click', () => {
+       if (screenfull.enabled) {
+           $("#graph").height('100%');
+           screenfull.request(el);
+       }
+    });
+
+    if (screenfull.enabled) {
+        screenfull.on('change', () => {
+            if (!screenfull.isFullscreen) {
+                $("#graph").height('540px');
+            }
+        });
+    }
 });
 
 const showDataFlow = (path) =>
