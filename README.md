@@ -10,6 +10,9 @@ Smalien is an information flow analysis and information leakage detection tool f
 - Detecting information leakage due to implicit information flows.
 - Logging actual information operated by any bytecode or API call, such as http request, at runtime to encourage an analyst in his/her inspection.
 
+## Black Hat USA 2019 Arsenal
+Currently, we are working on another branch, demo-master. Please check it out to get programs that we have used at the Arsenal.
+
 ## Required Tools
 - [Apktool](https://ibotpeaches.github.io/Apktool/)
 - jarsigner
