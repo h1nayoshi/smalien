@@ -58,7 +58,7 @@ class DfToCsv():
       self.csv += str(cntr)+','+cp+'\n'
       cntr += 1
     for m in self.node['method']['node']:
-      self.csv += str(cntr)+','+m.replace('Ljava/lang/','')+',#808000\n'
+      self.csv += str(cntr)+','+m.replace('Ljava/lang/','')+',#36B945\n'
       cntr += 1
     for cp, cpval in self.node['var']['node'].items():
       for m, mval in cpval.items():
