@@ -1,6 +1,8 @@
-# smalien
+# Smalien
 
 Smalien is an information flow analysis and information leakage detection tool for Android application analysts. Smalien performs static taint analysis of Android applications on a Linux machine as well as dynamic taint analysis, detection of information leakage due to implicit information flows, and privacy policy enforcement on an Android device at runtime.
+
+**Note**: New version of Smalien is now available at [SaitoLab-Nitech/VTDroid](https://github.com/SaitoLab-Nitech/VTDroid) !!
 
 ## Smalien has following functions
 - Analyzing an Android application statically and gathers information of classes, methods, variables, etc.
